@@ -62,4 +62,26 @@ public class Launch {
 
     @Column(name = "last_synced_at", nullable = false)
     private Instant lastSyncedAt;
+
+    public Launch(LaunchDetails details) {
+        updateFrom(details);
+    }
+
+    public void updateFrom(LaunchDetails details) {
+        this.externalId = details.externalId();
+        this.name = details.name();
+        this.description = details.description();
+        this.status = details.status();
+        this.launchTime = details.launchTime();
+        this.imageUrl = details.imageUrl();
+        this.webcastUrl = details.webcastUrl();
+        this.rocketName = details.rocketName();
+        this.missionType = details.missionType();
+        this.organizationName = details.organizationName();
+        this.padName = details.padName();
+        this.locationName = details.locationName();
+        this.latitude = details.latitude();
+        this.longitude = details.longitude();
+        this.lastSyncedAt = details.lastSyncedAt();
+    }
 }
