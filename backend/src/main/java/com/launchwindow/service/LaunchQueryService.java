@@ -1,5 +1,6 @@
 package com.launchwindow.service;
 
+import com.launchwindow.dto.LaunchDetailResponse;
 import com.launchwindow.dto.LaunchSummaryResponse;
 import com.launchwindow.model.Launch;
 import com.launchwindow.repository.LaunchRepository;
@@ -8,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class LaunchQueryService {
@@ -28,6 +30,12 @@ public class LaunchQueryService {
                 .toList();
     }
 
+    @Transactional
+    public Optional<LaunchDetailResponse> getLaunch(Long id) {
+        return repository.findById(id)
+                .map(this::toDetail);
+    }
+
     private LaunchSummaryResponse toSummary(Launch launch) {
         return new LaunchSummaryResponse(
                 launch.getId(),
@@ -39,6 +47,26 @@ public class LaunchQueryService {
                 launch.getOrganizationName(),
                 launch.getPadName(),
                 launch.getLocationName()
+        );
+    }
+
+    private LaunchDetailResponse toDetail(Launch launch) {
+        return new LaunchDetailResponse(
+                launch.getId(),
+                launch.getName(),
+                launch.getDescription(),
+                launch.getStatus(),
+                launch.getLaunchTime(),
+                launch.getImageUrl(),
+                launch.getWebcastUrl(),
+                launch.getRocketName(),
+                launch.getMissionType(),
+                launch.getOrganizationName(),
+                launch.getPadName(),
+                launch.getLocationName(),
+                launch.getLatitude(),
+                launch.getLongitude(),
+                launch.getLastSyncedAt()
         );
     }
 }

@@ -1,5 +1,6 @@
 package com.launchwindow.service;
 
+import com.launchwindow.dto.LaunchDetailResponse;
 import com.launchwindow.dto.LaunchSummaryResponse;
 import com.launchwindow.model.Launch;
 import com.launchwindow.repository.LaunchRepository;
@@ -10,6 +11,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
 
+import static com.launchwindow.service.LaunchSyncTestData.SYNC_TIME;
 import static com.launchwindow.service.LaunchSyncTestData.details;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,5 +45,31 @@ class LaunchQueryServiceTest {
         );
 
         verify(repository).findAllByLaunchTimeAfterOrderByLaunchTimeAsc(CURRENT_TIME);
+    }
+
+    @Test
+    void getLaunch_returnsMappedDetail_whenFound() {
+        LaunchRepository repository = mock(LaunchRepository.class);
+        Clock clock = Clock.fixed(CURRENT_TIME, ZoneOffset.UTC);
+        LaunchQueryService service =
+                new LaunchQueryService(repository, clock);
+
+        Launch launch =
+                new Launch(details("launch-123", "Test launch"));
+
+        when(repository.findById(1L))
+                .thenReturn(java.util.Optional.of(launch));
+
+        LaunchDetailResponse result =
+                service.getLaunch(1L).orElseThrow();
+
+        assertAll(
+                () -> assertEquals("Test launch", result.name()),
+                () -> assertEquals("Test rocket", result.rocketName()),
+                () -> assertEquals(
+                        SYNC_TIME,
+                        result.lastSyncedAt()
+                )
+        );
     }
 }
