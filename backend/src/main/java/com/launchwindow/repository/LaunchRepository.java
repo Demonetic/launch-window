@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface LaunchRepository extends JpaRepository<Launch, Long> {
     Optional<Launch> findByExternalId(String externalId);
     List<Launch> findAllByLaunchTimeAfterOrderByLaunchTimeAsc(Instant earliestLaunchTime);
+    List<Launch> findAllByLaunchTimeBetweenAndLatitudeIsNotNullAndLongitudeIsNotNullOrderByLaunchTimeAsc(
+            Instant earliestLaunchTime, Instant latestLaunchTime);
 }

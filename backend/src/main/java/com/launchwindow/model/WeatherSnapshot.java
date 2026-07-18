@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -49,7 +48,23 @@ public class WeatherSnapshot {
     @Column(name = "viewing_score", nullable = false)
     private Short viewingScore;
 
-    @CreationTimestamp
-    @Column(name = "fetched_at", nullable = false, updatable = false)
+    @Column(name = "fetched_at", nullable = false)
     private Instant fetchedAt;
+
+    public WeatherSnapshot(Launch launch, WeatherDetails details) {
+        this.launch = launch;
+        update(details);
+    }
+
+    public void update(WeatherDetails details) {
+        forecastTime = details.forecastTime();
+        temperatureC = details.temperatureC();
+        cloudCoverPercent = details.cloudCoverPercent();
+        precipitationProbabilityPercent =
+                details.precipitationProbabilityPercent();
+        windSpeedKmh = details.windSpeedKmh();
+        visibilityMeters = details.visibilityMeters();
+        viewingScore = details.viewingScore();
+        fetchedAt = details.fetchedAt();
+    }
 }
