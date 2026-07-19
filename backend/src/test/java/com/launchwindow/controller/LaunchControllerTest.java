@@ -4,6 +4,7 @@ import com.launchwindow.config.SecurityConfiguration;
 import com.launchwindow.dto.LaunchSummaryResponse;
 import com.launchwindow.model.LaunchStatus;
 import com.launchwindow.service.LaunchQueryService;
+import com.launchwindow.service.WeatherQueryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -26,7 +27,10 @@ class LaunchControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private LaunchQueryService service;
+    private LaunchQueryService launchService;
+
+    @MockitoBean
+    private WeatherQueryService weatherService;
 
     @Test
     void anonymousUserCanGetUpcomingLaunches() throws Exception {
@@ -42,7 +46,7 @@ class LaunchControllerTest {
                 "Kennedy Space Center"
         );
 
-        when(service.getUpcomingLaunches()).thenReturn(List.of(launch));
+        when(launchService.getUpcomingLaunches()).thenReturn(List.of(launch));
 
         mockMvc.perform(get("/api/launches"))
                 .andExpect(status().isOk())

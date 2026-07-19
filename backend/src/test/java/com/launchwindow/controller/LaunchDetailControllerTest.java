@@ -4,6 +4,7 @@ import com.launchwindow.config.SecurityConfiguration;
 import com.launchwindow.dto.LaunchDetailResponse;
 import com.launchwindow.model.LaunchStatus;
 import com.launchwindow.service.LaunchQueryService;
+import com.launchwindow.service.WeatherQueryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -27,11 +28,14 @@ class LaunchDetailControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private LaunchQueryService service;
+    private LaunchQueryService launchService;
+
+    @MockitoBean
+    private WeatherQueryService weatherService;
 
     @Test
     void anonymousUserCanGetLaunchDetail() throws Exception {
-        when(service.getLaunch(1L))
+        when(launchService.getLaunch(1L))
                 .thenReturn(Optional.of(detail()));
 
         mockMvc.perform(get("/api/launches/1"))
@@ -46,7 +50,7 @@ class LaunchDetailControllerTest {
 
     @Test
     void missingLaunchReturnsNotFound() throws Exception {
-        when(service.getLaunch(999L))
+        when(launchService.getLaunch(999L))
                 .thenReturn(Optional.empty());
 
         mockMvc.perform(get("/api/launches/999"))
