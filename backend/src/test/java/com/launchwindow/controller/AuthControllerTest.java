@@ -6,12 +6,14 @@ import com.launchwindow.dto.UserResponse;
 import com.launchwindow.exception.GlobalExceptionHandler;
 import com.launchwindow.exception.UserAlreadyExistsException;
 import com.launchwindow.model.Role;
+import com.launchwindow.service.LoginService;
 import com.launchwindow.service.RegistrationService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -25,9 +27,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AuthControllerTest {
     @Autowired
     private MockMvc mockMvc;
-
     @MockitoBean
-    private RegistrationService service;
+    private RegistrationService registrationService;
+    @MockitoBean
+    private LoginService loginService;
+    @MockitoBean
+    private JwtDecoder jwtDecoder;
 
     @Test
     void anonymousUserCanRegister() throws Exception {
@@ -38,7 +43,7 @@ class AuthControllerTest {
                 Role.USER
         );
 
-        when(service.register(any(RegisterRequest.class))).thenReturn(response);
+        when(registrationService.register(any(RegisterRequest.class))).thenReturn(response);
 
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -74,7 +79,7 @@ class AuthControllerTest {
 
     @Test
     void duplicateUserReturnsConflict() throws Exception {
-        when(service.register(any(RegisterRequest.class))).thenThrow(new UserAlreadyExistsException("Email is already in use"));
+        when(registrationService.register(any(RegisterRequest.class))).thenThrow(new UserAlreadyExistsException("Email is already in use"));
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)

@@ -39,6 +39,7 @@ jobs:
       DB_URL: "jdbc:mysql://127.0.0.1:3306/launch_window?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
       DB_USERNAME: launch_window_user
       DB_PASSWORD: launch_window_test_password
+      JWT_SECRET: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
 
     steps:
       - name: Check out repository
