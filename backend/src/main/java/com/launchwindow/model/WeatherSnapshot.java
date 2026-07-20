@@ -9,13 +9,8 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 @Entity
-@Table(
-        name = "weather_snapshot",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_weather_snapshot_launch_forecast",
-                columnNames = {"launch_id", "forecast_time"}
-        )
-)
+@Table(name = "weather_snapshot", uniqueConstraints = @UniqueConstraint
+        (name = "uk_weather_snapshot_launch", columnNames = "launch_id"))
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class WeatherSnapshot {
@@ -60,8 +55,7 @@ public class WeatherSnapshot {
         forecastTime = details.forecastTime();
         temperatureC = details.temperatureC();
         cloudCoverPercent = details.cloudCoverPercent();
-        precipitationProbabilityPercent =
-                details.precipitationProbabilityPercent();
+        precipitationProbabilityPercent = details.precipitationProbabilityPercent();
         windSpeedKmh = details.windSpeedKmh();
         visibilityMeters = details.visibilityMeters();
         viewingScore = details.viewingScore();

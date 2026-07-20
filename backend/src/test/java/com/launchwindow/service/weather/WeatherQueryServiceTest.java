@@ -25,7 +25,7 @@ class WeatherQueryServiceTest {
         Instant forecastTime = Instant.parse("2026-07-23T14:00:00Z");
         Instant fetchedAt = Instant.parse("2026-07-19T00:00:00Z");
 
-        when(repository.findFirstByLaunch_IdOrderByFetchedAtDesc(2L)).thenReturn(Optional.of(snapshot));
+        when(repository.findByLaunch_Id(2L)).thenReturn(Optional.of(snapshot));
         when(snapshot.getLaunch()).thenReturn(launch);
         when(launch.getId()).thenReturn(2L);
         when(snapshot.getForecastTime()).thenReturn(forecastTime);
@@ -57,7 +57,7 @@ class WeatherQueryServiceTest {
         WeatherSnapshotRepository repository = mock(WeatherSnapshotRepository.class);
         WeatherQueryService service = new WeatherQueryService(repository);
 
-        when(repository.findFirstByLaunch_IdOrderByFetchedAtDesc(99L)).thenReturn(Optional.empty());
+        when(repository.findByLaunch_Id(99L)).thenReturn(Optional.empty());
 
         assertEquals(Optional.empty(), service.getLatestWeather(99L));
     }

@@ -41,9 +41,7 @@ class WeatherSyncServiceTest {
     @BeforeEach
     void setUp() {
         service = new WeatherSyncService(client, mapper, launchRepository, weatherRepository,
-                new OpenMeteoProperties("https://example.com", 16),
-                Clock.fixed(NOW, ZoneOffset.UTC)
-        );
+                new OpenMeteoProperties("https://example.com", 16), Clock.fixed(NOW, ZoneOffset.UTC));
     }
 
     @Test
@@ -64,32 +62,26 @@ class WeatherSyncServiceTest {
         WeatherSnapshot existingSnapshot = mock(WeatherSnapshot.class);
 
         when(launchRepository
-                .findAllByLaunchTimeBetweenAndLatitudeIsNotNullAndLongitudeIsNotNullOrderByLaunchTimeAsc(
-                        any(), any()
-                ))
+                .findAllByLaunchTimeBetweenAndLatitudeIsNotNullAndLongitudeIsNotNullOrderByLaunchTimeAsc(any(), any()))
                 .thenReturn(List.of(createdLaunch, updatedLaunch, skippedLaunch));
 
-        when(client.fetchForecast(any(), any()))
-                .thenReturn(createdResponse, updatedResponse, skippedResponse);
+        when(client.fetchForecast(any(), any())).thenReturn(createdResponse, updatedResponse, skippedResponse);
 
-        when(mapper.map(createdResponse, createdLaunch.getLaunchTime(), NOW))
-                .thenReturn(Optional.of(createdDetails));
-        when(mapper.map(updatedResponse, updatedLaunch.getLaunchTime(), NOW))
-                .thenReturn(Optional.of(updatedDetails));
-        when(mapper.map(skippedResponse, skippedLaunch.getLaunchTime(), NOW))
-                .thenReturn(Optional.empty());
+        when(mapper.map(createdResponse, createdLaunch.getLaunchTime(), NOW)).thenReturn(Optional.of(createdDetails));
+        when(mapper.map(updatedResponse, updatedLaunch.getLaunchTime(), NOW)).thenReturn(Optional.of(updatedDetails));
+        when(mapper.map(skippedResponse, skippedLaunch.getLaunchTime(), NOW)).thenReturn(Optional.empty());
 
-        when(weatherRepository.findByLaunch_IdAndForecastTime(
-                1L, createdDetails.forecastTime()
-        )).thenReturn(Optional.empty());
-        when(weatherRepository.findByLaunch_IdAndForecastTime(
-                2L, updatedDetails.forecastTime()
-        )).thenReturn(Optional.of(existingSnapshot));
+        when(weatherRepository.findByLaunch_Id(1L)).thenReturn(Optional.empty());
+
+        when(weatherRepository.findByLaunch_Id(2L)).thenReturn(Optional.of(existingSnapshot));
 
         WeatherSyncResult result = service.syncUpcomingWeather();
 
         assertEquals(new WeatherSyncResult(3, 1, 1, 1), result);
+
         verify(weatherRepository).save(any(WeatherSnapshot.class));
         verify(existingSnapshot).update(updatedDetails);
+        verify(weatherRepository).findByLaunch_Id(1L);
+        verify(weatherRepository).findByLaunch_Id(2L);
     }
 }

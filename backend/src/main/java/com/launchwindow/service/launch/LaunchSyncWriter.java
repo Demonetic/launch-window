@@ -34,8 +34,10 @@ public class LaunchSyncWriter {
             LaunchDetails details = mapper.map(source, syncedAt);
             Optional<Launch> existing = repository.findByExternalId(details.externalId());
 
-            if (existing.isPresent()) {existing.get().updateFrom(details);
-            } else {repository.save(new Launch(details));
+            if (existing.isPresent()) {
+                existing.get().updateFrom(details);
+            } else {
+                repository.save(new Launch(details));
                 created++;
             }
         }

@@ -72,8 +72,7 @@ public class WeatherSyncService {
     }
 
     private boolean saveForecast(Launch launch, WeatherDetails details) {
-        Optional<WeatherSnapshot> existing = weatherRepository.findByLaunch_IdAndForecastTime(
-                launch.getId(), details.forecastTime());
+        Optional<WeatherSnapshot> existing = weatherRepository.findByLaunch_Id(launch.getId());
 
         if (existing.isPresent()) {
             existing.get().update(details);
@@ -81,6 +80,7 @@ public class WeatherSyncService {
         }
 
         weatherRepository.save(new WeatherSnapshot(launch, details));
+
         return true;
     }
 }

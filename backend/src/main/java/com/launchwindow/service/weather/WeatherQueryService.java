@@ -18,7 +18,7 @@ public class WeatherQueryService {
 
     @Transactional(readOnly = true)
     public Optional<WeatherResponse> getLatestWeather(Long launchId) {
-        return repository.findFirstByLaunch_IdOrderByFetchedAtDesc(launchId)
+        return repository.findByLaunch_Id(launchId)
                 .map(this::toResponse);
     }
 

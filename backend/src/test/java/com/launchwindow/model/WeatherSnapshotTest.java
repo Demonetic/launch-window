@@ -12,7 +12,8 @@ class WeatherSnapshotTest {
     @Test
     void shouldCreateSnapshotFromWeatherDetails() {
         Launch launch = mock(Launch.class);
-        WeatherDetails details = createDetails(new BigDecimal("12.50"), (short) 82);
+        WeatherDetails details = createDetails(Instant.parse("2026-07-20T12:00:00Z"), new BigDecimal("12.50"),
+                (short) 82, Instant.parse("2026-07-18T12:00:00Z"));
 
         WeatherSnapshot snapshot = new WeatherSnapshot(launch, details);
 
@@ -29,28 +30,40 @@ class WeatherSnapshotTest {
     @Test
     void shouldUpdateSnapshotFromNewWeatherDetails() {
         Launch launch = mock(Launch.class);
-        WeatherSnapshot snapshot = new WeatherSnapshot(launch, createDetails(new BigDecimal("12.50"), (short) 82));
-        WeatherDetails updatedDetails = createDetails(new BigDecimal("8.25"), (short) 45);
+
+        WeatherDetails originalDetails = createDetails(Instant.parse("2026-07-20T12:00:00Z"),
+                new BigDecimal("12.50"), (short) 82, Instant.parse("2026-07-18T12:00:00Z"));
+
+        WeatherDetails updatedDetails = createDetails(Instant.parse("2026-07-20T15:00:00Z"),
+                new BigDecimal("8.25"), (short) 45, Instant.parse("2026-07-19T12:00:00Z"));
+
+        WeatherSnapshot snapshot = new WeatherSnapshot(launch, originalDetails);
 
         snapshot.update(updatedDetails);
 
         assertAll(
+                () -> assertEquals(updatedDetails.forecastTime(), snapshot.getForecastTime()),
                 () -> assertEquals(updatedDetails.temperatureC(), snapshot.getTemperatureC()),
                 () -> assertEquals(updatedDetails.viewingScore(), snapshot.getViewingScore()),
                 () -> assertEquals(updatedDetails.fetchedAt(), snapshot.getFetchedAt())
         );
     }
 
-    private WeatherDetails createDetails(BigDecimal temperature, short viewingScore) {
+    private WeatherDetails createDetails(
+            Instant forecastTime,
+            BigDecimal temperature,
+            short viewingScore,
+            Instant fetchedAt
+    ) {
         return new WeatherDetails(
-                Instant.parse("2026-07-20T12:00:00Z"),
+                forecastTime,
                 temperature,
                 (short) 20,
                 (short) 10,
                 new BigDecimal("14.50"),
                 20_000,
                 viewingScore,
-                Instant.parse("2026-07-18T12:00:00Z")
+                fetchedAt
         );
     }
 }
