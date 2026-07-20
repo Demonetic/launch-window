@@ -1,72 +1,51 @@
 package com.launchwindow.service.launch;
 
 import com.launchwindow.integration.launchlibrary.LaunchLibraryClient;
-import com.launchwindow.integration.launchlibrary.LaunchMapper;
 import com.launchwindow.integration.launchlibrary.dto.LaunchLibraryLaunchDto;
-import com.launchwindow.integration.launchlibrary.dto.LaunchLibraryResponse;
-import com.launchwindow.model.Launch;
-import com.launchwindow.model.LaunchDetails;
-import com.launchwindow.repository.LaunchRepository;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 
-import java.time.Clock;
-import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Optional;
 
-import static com.launchwindow.service.launch.LaunchSyncTestData.*;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static com.launchwindow.service.launch.LaunchSyncTestData.source;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class LaunchSyncServiceTest {
+
     @Test
-    void syncCreatesNewLaunchAndUpdatesExistingLaunch() {
+    void syncUpcomingLaunches_fetchesBeforeWriting() {
         LaunchLibraryClient client = mock(LaunchLibraryClient.class);
-        LaunchMapper mapper = mock(LaunchMapper.class);
-        LaunchRepository repository = mock(LaunchRepository.class);
-        Clock clock = Clock.fixed(SYNC_TIME, ZoneOffset.UTC);
+        LaunchSyncWriter writer = mock(LaunchSyncWriter.class);
+        LaunchSyncService service = new LaunchSyncService(client, writer);
 
-        LaunchSyncService service = new LaunchSyncService(client, mapper, repository, clock);
+        List<LaunchLibraryLaunchDto> launches = List.of(source("launch-1", "First launch"),
+                source("launch-2", "Second launch"));
 
-        LaunchLibraryLaunchDto newSource = source("new-launch", "New launch");
-        LaunchLibraryLaunchDto existingSource = source("existing-launch", "Updated launch");
+        LaunchSyncResult expectedResult = new LaunchSyncResult(2, 1, 1);
 
-        LaunchDetails newDetails = details("new-launch", "New launch");
-        LaunchDetails updatedDetails = details("existing-launch", "Updated launch");
-        Launch existingLaunch = new Launch(details("existing-launch", "Old launch"));
+        when(client.fetchUpcomingLaunches()).thenReturn(launches);
 
-        when(client.fetchUpcomingLaunches()).thenReturn(
-                new LaunchLibraryResponse(
-                        2,
-                        null,
-                        null,
-                        List.of(newSource, existingSource)
-                )
-        );
-        when(mapper.map(newSource, SYNC_TIME)).thenReturn(newDetails);
-        when(mapper.map(existingSource, SYNC_TIME)).thenReturn(updatedDetails);
-        when(repository.findByExternalId("new-launch")).thenReturn(Optional.empty());
-        when(repository.findByExternalId("existing-launch")).thenReturn(Optional.of(existingLaunch));
+        when(writer.synchronize(launches)).thenReturn(expectedResult);
 
         LaunchSyncResult result = service.syncUpcomingLaunches();
 
-        ArgumentCaptor<Launch> captor = ArgumentCaptor.forClass(Launch.class);
-        verify(repository).save(captor.capture());
+        assertSame(expectedResult, result);
+        verify(client).fetchUpcomingLaunches();
+        verify(writer).synchronize(launches);
+    }
 
-        assertAll(
-                () -> assertEquals(2, result.processed()),
-                () -> assertEquals(1, result.created()),
-                () -> assertEquals(1, result.updated()),
-                () -> assertEquals(
-                        "New launch",
-                        captor.getValue().getName()
-                ),
-                () -> assertEquals(
-                        "Updated launch",
-                        existingLaunch.getName()
-                )
-        );
+    @Test
+    void syncUpcomingLaunches_doesNotWriteWhenFetchingFails() {
+        LaunchLibraryClient client = mock(LaunchLibraryClient.class);
+        LaunchSyncWriter writer = mock(LaunchSyncWriter.class);
+        LaunchSyncService service = new LaunchSyncService(client, writer);
+
+        when(client.fetchUpcomingLaunches()).thenThrow(new IllegalStateException("API unavailable"));
+
+        assertThrows(IllegalStateException.class, service::syncUpcomingLaunches);
+
+        verify(writer, never()).synchronize(anyList());
     }
 }

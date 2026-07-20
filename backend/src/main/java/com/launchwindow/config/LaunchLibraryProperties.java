@@ -10,6 +10,8 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public record LaunchLibraryProperties(
         @NotBlank String baseUrl,
-        @Min(1) @Max(100) int pageSize
+        @Min(1) @Max(100) int pageSize,
+        @Min(1) @Max(100) int maxPages,
+        @Min(1) @Max(1000) int maxLaunches
 ) {
 }
