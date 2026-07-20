@@ -2,6 +2,7 @@ package com.launchwindow.controller;
 
 import com.launchwindow.config.SecurityConfiguration;
 import com.launchwindow.dto.WeatherResponse;
+import com.launchwindow.model.ViewingCondition;
 import com.launchwindow.service.launch.LaunchQueryService;
 import com.launchwindow.service.weather.WeatherQueryService;
 import org.junit.jupiter.api.Test;
@@ -44,6 +45,7 @@ class WeatherControllerTest {
                 new BigDecimal("14.50"),
                 24_140,
                 (short) 95,
+                ViewingCondition.EXCELLENT,
                 Instant.parse("2026-07-19T00:00:00Z")
         );
 
@@ -55,14 +57,15 @@ class WeatherControllerTest {
                 .andExpect(jsonPath("$.temperatureC").value(16.30))
                 .andExpect(jsonPath("$.windSpeedKmh").value(14.50))
                 .andExpect(jsonPath("$.visibilityMeters").value(24_140))
-                .andExpect(jsonPath("$.viewingScore").value(95));
+                .andExpect(jsonPath("$.viewingScore").value(95))
+                .andExpect(jsonPath("$.viewingScore").value(95))
+                .andExpect(jsonPath("$.viewingCondition").value("EXCELLENT"));
     }
 
     @Test
     void missingWeather_returnsNotFound() throws Exception {
         when(weatherService.getLatestWeather(99L)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/api/launches/99/weather"))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/launches/99/weather")).andExpect(status().isNotFound());
     }
 }

@@ -2,6 +2,7 @@ package com.launchwindow.service.weather;
 
 import com.launchwindow.dto.WeatherResponse;
 import com.launchwindow.model.Launch;
+import com.launchwindow.model.ViewingCondition;
 import com.launchwindow.model.WeatherSnapshot;
 import com.launchwindow.repository.WeatherSnapshotRepository;
 import org.junit.jupiter.api.Test;
@@ -46,6 +47,7 @@ class WeatherQueryServiceTest {
                 new BigDecimal("14.50"),
                 24_140,
                 (short) 95,
+                ViewingCondition.EXCELLENT,
                 fetchedAt
         );
 

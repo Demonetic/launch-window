@@ -1,6 +1,7 @@
 package com.launchwindow.service.weather;
 
 import com.launchwindow.dto.WeatherResponse;
+import com.launchwindow.model.ViewingCondition;
 import com.launchwindow.model.WeatherSnapshot;
 import com.launchwindow.repository.WeatherSnapshotRepository;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,8 @@ public class WeatherQueryService {
     }
 
     private WeatherResponse toResponse(WeatherSnapshot snapshot) {
+        short viewingScore = snapshot.getViewingScore();
+
         return new WeatherResponse(
                 snapshot.getLaunch().getId(),
                 snapshot.getForecastTime(),
@@ -31,7 +34,8 @@ public class WeatherQueryService {
                 snapshot.getPrecipitationProbabilityPercent(),
                 snapshot.getWindSpeedKmh(),
                 snapshot.getVisibilityMeters(),
-                snapshot.getViewingScore(),
+                viewingScore,
+                ViewingCondition.fromScore(viewingScore),
                 snapshot.getFetchedAt()
         );
     }
