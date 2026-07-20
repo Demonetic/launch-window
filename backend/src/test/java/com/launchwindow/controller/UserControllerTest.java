@@ -3,7 +3,7 @@ package com.launchwindow.controller;
 import com.launchwindow.config.SecurityConfiguration;
 import com.launchwindow.dto.UserResponse;
 import com.launchwindow.model.Role;
-import com.launchwindow.service.UserQueryService;
+import com.launchwindow.service.user.UserQueryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;

@@ -2,8 +2,8 @@ package com.launchwindow.controller;
 
 import com.launchwindow.config.SecurityConfiguration;
 import com.launchwindow.dto.WeatherResponse;
-import com.launchwindow.service.LaunchQueryService;
-import com.launchwindow.service.WeatherQueryService;
+import com.launchwindow.service.launch.LaunchQueryService;
+import com.launchwindow.service.weather.WeatherQueryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;

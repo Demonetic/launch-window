@@ -1,7 +1,7 @@
 package com.launchwindow.controller;
 
 import com.launchwindow.dto.UserResponse;
-import com.launchwindow.service.UserQueryService;
+import com.launchwindow.service.user.UserQueryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;

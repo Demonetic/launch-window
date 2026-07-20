@@ -12,6 +12,4 @@ public interface WeatherSnapshotRepository extends JpaRepository<WeatherSnapshot
     List<WeatherSnapshot> findAllByLaunch_IdOrderByForecastTimeAsc(Long launchId);
     Optional<WeatherSnapshot> findByLaunch_IdAndForecastTime(Long launchId, Instant forecastTime);
     Optional<WeatherSnapshot> findFirstByLaunch_IdOrderByFetchedAtDesc(Long launchId);
-
-    Long launch(Launch launch);
 }

@@ -1,7 +1,7 @@
 package com.launchwindow.controller;
 
 import com.launchwindow.dto.CalendarEntryResponse;
-import com.launchwindow.service.CalendarService;
+import com.launchwindow.service.calendar.CalendarService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;

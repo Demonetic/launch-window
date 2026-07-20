@@ -2,8 +2,8 @@ package com.launchwindow.controller;
 
 import com.launchwindow.dto.LaunchNoteRequest;
 import com.launchwindow.dto.LaunchNoteResponse;
-import com.launchwindow.service.LaunchNoteCommandService;
-import com.launchwindow.service.LaunchNoteQueryService;
+import com.launchwindow.service.note.LaunchNoteCommandService;
+import com.launchwindow.service.note.LaunchNoteQueryService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

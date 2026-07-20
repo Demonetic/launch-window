@@ -1,8 +1,8 @@
 package com.launchwindow.controller;
 
 import com.launchwindow.config.SecurityConfiguration;
-import com.launchwindow.service.LaunchNoteCommandService;
-import com.launchwindow.service.LaunchNoteQueryService;
+import com.launchwindow.service.note.LaunchNoteCommandService;
+import com.launchwindow.service.note.LaunchNoteQueryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;

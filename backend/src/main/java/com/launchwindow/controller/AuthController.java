@@ -1,8 +1,8 @@
 package com.launchwindow.controller;
 
 import com.launchwindow.dto.*;
-import com.launchwindow.service.LoginService;
-import com.launchwindow.service.RegistrationService;
+import com.launchwindow.service.auth.LoginService;
+import com.launchwindow.service.auth.RegistrationService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;

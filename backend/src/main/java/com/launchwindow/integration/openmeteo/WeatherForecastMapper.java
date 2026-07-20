@@ -3,7 +3,7 @@ package com.launchwindow.integration.openmeteo;
 import com.launchwindow.integration.openmeteo.dto.OpenMeteoHourlyDto;
 import com.launchwindow.integration.openmeteo.dto.OpenMeteoResponse;
 import com.launchwindow.model.WeatherDetails;
-import com.launchwindow.service.ViewingScoreCalculator;
+import com.launchwindow.service.weather.ViewingScoreCalculator;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
