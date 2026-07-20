@@ -56,7 +56,7 @@ class LoginControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "username": "launch_test",
+                                  "identifier": "launch_test",
                                   "password": "TestPassword123!"
                                 }
                                 """))
@@ -75,13 +75,13 @@ class LoginControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "username": "launch_test",
+                                  "identifier": "launch_test",
                                   "password": "wrong-password"
                                 }
                                 """))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.status").value(401))
-                .andExpect(jsonPath("$.message").value("Invalid username or password"));
+                .andExpect(jsonPath("$.message").value("Invalid login credentials"));
     }
 
     @Test
@@ -90,7 +90,7 @@ class LoginControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "username": "",
+                                  "identifier": "",
                                   "password": ""
                                 }
                                 """))

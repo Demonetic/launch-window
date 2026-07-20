@@ -47,11 +47,11 @@ public class RegistrationService {
     }
 
     private void validateAvailability(String username, String email) {
-        if (repository.existsByUsername(username)) {
+        if (repository.existsByUsernameIgnoreCase(username)) {
             throw new UserAlreadyExistsException("Username is already in use");
         }
 
-        if (repository.existsByEmail(email)) {
+        if (repository.existsByEmailIgnoreCase(email)) {
             throw new UserAlreadyExistsException("Email is already in use");
         }
     }

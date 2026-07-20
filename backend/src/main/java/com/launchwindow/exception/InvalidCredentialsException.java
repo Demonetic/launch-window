@@ -2,6 +2,6 @@ package com.launchwindow.exception;
 
 public class InvalidCredentialsException extends RuntimeException {
     public InvalidCredentialsException() {
-        super("Invalid username or password");
+        super("Invalid login credentials");
     }
 }

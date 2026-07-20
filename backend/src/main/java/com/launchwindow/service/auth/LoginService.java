@@ -11,6 +11,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Locale;
+
 @Service
 public class LoginService {
     private final AppUserRepository repository;
@@ -28,7 +30,10 @@ public class LoginService {
 
     @Transactional(readOnly = true)
     public LoginResponse login(LoginRequest request) {
-        AppUser user = repository.findByUsername(request.username().trim())
+        String identifier = request.identifier().trim();
+        String normalizedEmail = identifier.toLowerCase(Locale.ROOT);
+
+        AppUser user = repository.findByUsernameIgnoreCaseOrEmailIgnoreCase(identifier, normalizedEmail)
                 .orElseThrow(InvalidCredentialsException::new);
 
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
@@ -37,12 +42,7 @@ public class LoginService {
 
         String token = jwtService.createToken(user);
 
-        return new LoginResponse(
-                token,
-                "Bearer",
-                jwtProperties.expiration().toSeconds(),
-                toResponse(user)
-        );
+        return new LoginResponse(token, "Bearer", jwtProperties.expiration().toSeconds(), toResponse(user));
     }
 
     private UserResponse toResponse(AppUser user) {

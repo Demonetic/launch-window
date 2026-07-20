@@ -59,13 +59,29 @@ class RegistrationServiceTest {
                 () -> assertEquals("Anna_Dev", response.username()),
                 () -> assertEquals("anna@example.com", response.email())
         );
+
+        verify(repository).existsByUsernameIgnoreCase("Anna_Dev");
+        verify(repository).existsByEmailIgnoreCase("anna@example.com");
     }
 
     @Test
-    void shouldRejectDuplicateUsername() {
+    void shouldRejectDuplicateUsernameIgnoringCase() {
         RegisterRequest request = request();
 
-        when(repository.existsByEmail("anna@example.com")).thenReturn(true);
+        when(repository.existsByUsernameIgnoreCase("anna")).thenReturn(true);
+
+        assertThrows(UserAlreadyExistsException.class, () -> service.register(request));
+
+        verify(repository, never()).existsByEmailIgnoreCase(anyString());
+        verifyNoInteractions(passwordEncoder);
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void shouldRejectDuplicateEmailIgnoringCase() {
+        RegisterRequest request = request();
+
+        when(repository.existsByEmailIgnoreCase("anna@example.com")).thenReturn(true);
 
         assertThrows(UserAlreadyExistsException.class, () -> service.register(request));
 
