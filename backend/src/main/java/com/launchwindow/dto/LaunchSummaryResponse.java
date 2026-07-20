@@ -13,6 +13,7 @@ public record LaunchSummaryResponse(
         String rocketName,
         String organizationName,
         String padName,
-        String locationName
+        String locationName,
+        WeatherSummaryResponse weather
 ) {
 }

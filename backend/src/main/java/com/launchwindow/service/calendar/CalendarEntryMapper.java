@@ -26,7 +26,8 @@ public class CalendarEntryMapper {
                 launch.getRocketName(),
                 launch.getOrganizationName(),
                 launch.getPadName(),
-                launch.getLocationName()
+                launch.getLocationName(),
+                null
         );
     }
 }

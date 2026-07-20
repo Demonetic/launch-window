@@ -47,7 +47,8 @@ class CalendarEntryMapperTest {
                         "Falcon 9",
                         "SpaceX",
                         "SLC-40",
-                        "Cape Canaveral"
+                        "Cape Canaveral",
+                        null
                 );
 
         CalendarEntryResponse expected =
