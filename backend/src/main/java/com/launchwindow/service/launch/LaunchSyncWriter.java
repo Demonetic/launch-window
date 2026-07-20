@@ -5,7 +5,6 @@ import com.launchwindow.integration.launchlibrary.dto.LaunchLibraryLaunchDto;
 import com.launchwindow.model.Launch;
 import com.launchwindow.model.LaunchDetails;
 import com.launchwindow.repository.LaunchRepository;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,12 +27,6 @@ public class LaunchSyncWriter {
 
     @Transactional
     public LaunchSyncResult synchronize(List<LaunchLibraryLaunchDto> launches) {
-        return getLaunchSyncResult(launches, clock, mapper, repository);
-    }
-
-    @NonNull
-    static LaunchSyncResult getLaunchSyncResult(List<LaunchLibraryLaunchDto> launches, Clock clock,
-                                                LaunchMapper mapper, LaunchRepository repository) {
         Instant syncedAt = clock.instant();
         int created = 0;
 
