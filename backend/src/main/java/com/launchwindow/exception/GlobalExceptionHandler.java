@@ -31,6 +31,11 @@ public class GlobalExceptionHandler {
         return createResponse(HttpStatus.UNAUTHORIZED, exception.getMessage());
     }
 
+    @ExceptionHandler(InvalidPaginationException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidPagination(InvalidPaginationException exception) {
+        return createResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
     private ResponseEntity<ApiErrorResponse> createResponse(HttpStatus status, String message) {
         ApiErrorResponse error = new ApiErrorResponse(status.value(), status.getReasonPhrase(), message);
 

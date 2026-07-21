@@ -1,8 +1,11 @@
 package com.launchwindow.controller;
 
 import com.launchwindow.config.SecurityConfiguration;
+import com.launchwindow.dto.LaunchCursor;
+import com.launchwindow.dto.LaunchPageResponse;
 import com.launchwindow.dto.LaunchSummaryResponse;
 import com.launchwindow.dto.WeatherSummaryResponse;
+import com.launchwindow.exception.InvalidPaginationException;
 import com.launchwindow.model.LaunchStatus;
 import com.launchwindow.model.ViewingCondition;
 import com.launchwindow.service.launch.LaunchQueryService;
@@ -18,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.Instant;
 import java.util.List;
 
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -51,18 +55,65 @@ class LaunchControllerTest {
                 "Kennedy Space Center",
                 weather
         );
+        LaunchCursor cursor = new LaunchCursor(Instant.parse("2026-08-01T10:15:30Z"), 1L);
+        LaunchPageResponse page = new LaunchPageResponse(List.of(launch), cursor, true);
 
-        when(launchService.getUpcomingLaunches()).thenReturn(List.of(launch));
+        when(launchService.getUpcomingLaunches(null, null, 20)).thenReturn(page);
 
         mockMvc.perform(get("/api/launches"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].name").value("Artemis Test Launch"))
-                .andExpect(jsonPath("$[0].status").value("GO"))
-                .andExpect(jsonPath("$[0].rocketName").value("SLS Block 1"))
-                .andExpect(jsonPath("$[0].rocketName").value("SLS Block 1"))
-                .andExpect(jsonPath("$[0].weather.viewingScore").value(85))
-                .andExpect(jsonPath("$[0].weather.viewingCondition").value("EXCELLENT"))
-                .andExpect(jsonPath("$[0].weather.forecastTime").value("2026-08-01T10:00:00Z"));
+                .andExpect(jsonPath("$.items[0].id").value(1))
+                .andExpect(jsonPath("$.items[0].name").value("Artemis Test Launch"))
+                .andExpect(jsonPath("$.items[0].status").value("GO"))
+                .andExpect(jsonPath("$.items[0].rocketName").value("SLS Block 1"))
+                .andExpect(jsonPath("$.items[0].weather.viewingScore").value(85))
+                .andExpect(jsonPath("$.items[0].weather.viewingCondition").value("EXCELLENT"))
+                .andExpect(jsonPath("$.hasNext").value(true))
+                .andExpect(jsonPath("$.nextCursor.afterTime").value("2026-08-01T10:15:30Z"))
+                .andExpect(jsonPath("$.nextCursor.afterId").value(1));
+
+        verify(launchService).getUpcomingLaunches(null, null, 20);
+    }
+
+    @Test
+    void anonymousUserCanRequestNextLaunchBatch() throws Exception {
+        Instant afterTime = Instant.parse("2026-08-01T10:15:30Z");
+
+        LaunchPageResponse page = new LaunchPageResponse(List.of(), null, false);
+
+        when(launchService.getUpcomingLaunches(afterTime, 42L, 10)).thenReturn(page);
+
+        mockMvc.perform(get("/api/launches")
+                        .param("afterTime", afterTime.toString())
+                        .param("afterId", "42")
+                        .param("limit", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items").isArray())
+                .andExpect(jsonPath("$.items").isEmpty())
+                .andExpect(jsonPath("$.hasNext").value(false))
+                .andExpect(jsonPath("$.nextCursor").doesNotExist());
+
+        verify(launchService).getUpcomingLaunches(afterTime, 42L, 10);
+    }
+
+    @Test
+    void incompleteCursorReturnsBadRequest() throws Exception {
+        Instant afterTime = Instant.parse("2026-08-01T10:15:30Z");
+
+        when(launchService.getUpcomingLaunches(afterTime, null, 20))
+                .thenThrow(new InvalidPaginationException("afterTime and afterId must be provided together"));
+
+        mockMvc.perform(get("/api/launches").param("afterTime", afterTime.toString()))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").value("afterTime and afterId must be provided together"));
+    }
+
+    @Test
+    void invalidCursorTimeReturnsBadRequest() throws Exception {
+        mockMvc.perform(get("/api/launches")
+                        .param("afterTime", "not-a-date")
+                        .param("afterId", "42"))
+                .andExpect(status().isBadRequest());
     }
 }
