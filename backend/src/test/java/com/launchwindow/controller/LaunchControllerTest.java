@@ -109,7 +109,10 @@ class LaunchControllerTest {
         mockMvc.perform(get("/api/launches").param("afterTime", afterTime.toString()))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.message").value("afterTime and afterId must be provided together"));
+                .andExpect(jsonPath("$.message").value("afterTime and afterId must be provided together"))
+                .andExpect(jsonPath("$.code").value("INVALID_PAGINATION"))
+                .andExpect(jsonPath("$.path").value("/api/launches"))
+                .andExpect(jsonPath("$.fieldErrors").isEmpty());
     }
 
     @Test
@@ -117,7 +120,13 @@ class LaunchControllerTest {
         mockMvc.perform(get("/api/launches")
                         .param("afterTime", "not-a-date")
                         .param("afterId", "42"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.timestamp").isString())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.code").value("MALFORMED_REQUEST"))
+                .andExpect(jsonPath("$.message").value("Request could not be read"))
+                .andExpect(jsonPath("$.path").value("/api/launches"))
+                .andExpect(jsonPath("$.fieldErrors").isEmpty());
     }
 
     @Test
@@ -171,6 +180,9 @@ class LaunchControllerTest {
         mockMvc.perform(get("/api/launches/best-viewing").param("limit", "11"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.message").value("limit must be between 1 and 10"));
+                .andExpect(jsonPath("$.message").value("limit must be between 1 and 10"))
+                .andExpect(jsonPath("$.code").value("INVALID_PAGINATION"))
+                .andExpect(jsonPath("$.path").value("/api/launches/best-viewing"))
+                .andExpect(jsonPath("$.fieldErrors").isEmpty());
     }
 }

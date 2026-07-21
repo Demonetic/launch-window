@@ -1,5 +1,6 @@
 package com.launchwindow.config;
 
+import tools.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,11 +16,14 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfiguration {
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, RestSecurityErrorHandler errorHandler) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(errorHandler)
+                        .accessDeniedHandler(errorHandler))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.GET, "/api/launches/*/notes")
                         .authenticated()
@@ -30,6 +34,8 @@ public class SecurityConfiguration {
                         .anyRequest()
                         .authenticated())
                 .oauth2ResourceServer(oauth -> oauth
+                        .authenticationEntryPoint(errorHandler)
+                        .accessDeniedHandler(errorHandler)
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
                 .build();
     }
@@ -50,5 +56,10 @@ public class SecurityConfiguration {
         authenticationConverter.setJwtGrantedAuthoritiesConverter(authoritiesConverter);
 
         return authenticationConverter;
+    }
+
+    @Bean
+    public RestSecurityErrorHandler restSecurityErrorHandler(ObjectMapper objectMapper) {
+        return new RestSecurityErrorHandler(objectMapper);
     }
 }

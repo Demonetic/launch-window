@@ -74,14 +74,18 @@ class LoginControllerTest {
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {
-                                  "identifier": "launch_test",
-                                  "password": "wrong-password"
-                                }
-                                """))
+                            {
+                              "identifier": "launch_test",
+                              "password": "wrong-password"
+                            }
+                            """))
                 .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.timestamp").isString())
                 .andExpect(jsonPath("$.status").value(401))
-                .andExpect(jsonPath("$.message").value("Invalid login credentials"));
+                .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"))
+                .andExpect(jsonPath("$.message").value("Invalid login credentials"))
+                .andExpect(jsonPath("$.path").value("/api/auth/login"))
+                .andExpect(jsonPath("$.fieldErrors").isEmpty());
     }
 
     @Test
@@ -89,12 +93,19 @@ class LoginControllerTest {
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {
-                                  "identifier": "",
-                                  "password": ""
-                                }
-                                """))
+                            {
+                              "identifier": "",
+                              "password": ""
+                            }
+                            """))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(400));
+                .andExpect(jsonPath("$.timestamp").isString())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
+                .andExpect(jsonPath("$.message").value("Request validation failed"))
+                .andExpect(jsonPath("$.path").value("/api/auth/login"))
+                .andExpect(jsonPath("$.fieldErrors").isMap())
+                .andExpect(jsonPath("$.fieldErrors.identifier").exists())
+                .andExpect(jsonPath("$.fieldErrors.password").exists());
     }
 }

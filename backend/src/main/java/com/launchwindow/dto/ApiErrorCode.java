@@ -1,0 +1,13 @@
+package com.launchwindow.dto;
+
+public enum ApiErrorCode {
+    VALIDATION_FAILED,
+    MALFORMED_REQUEST,
+    INVALID_PAGINATION,
+    INVALID_CREDENTIALS,
+    USER_ALREADY_EXISTS,
+    RESOURCE_NOT_FOUND,
+    UNAUTHORIZED,
+    ACCESS_DENIED,
+    INTERNAL_ERROR
+}

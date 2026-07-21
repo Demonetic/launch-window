@@ -63,36 +63,65 @@ class AuthControllerTest {
     @Test
     void invalidRegistrationReturnsBadRequest() throws Exception {
         mockMvc.perform(post("/api/auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                                {
-                                  "username": "a",
-                                  "email": "invalid",
-                                  "password": "short"
-                                }
-                                """))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                              "username": "a",
+                              "email": "invalid",
+                              "password": "short"
+                            }
+                            """))
                 .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.timestamp").isString())
                 .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.error")
-                        .value("Bad Request"));
+                .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
+                .andExpect(jsonPath("$.message").value("Request validation failed"))
+                .andExpect(jsonPath("$.path").value("/api/auth/register"))
+                .andExpect(jsonPath("$.fieldErrors").isMap())
+                .andExpect(jsonPath("$.fieldErrors.username").exists())
+                .andExpect(jsonPath("$.fieldErrors.email").exists())
+                .andExpect(jsonPath("$.fieldErrors.password").exists());
     }
 
     @Test
     void duplicateUserReturnsConflict() throws Exception {
-        when(registrationService.register(any(RegisterRequest.class))).thenThrow(new UserAlreadyExistsException("Email is already in use"));
+        when(registrationService.register(any(RegisterRequest.class)))
+                .thenThrow(new UserAlreadyExistsException("Email is already in use"));
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {
-                                  "username": "anna",
-                                  "email": "anna@example.com",
-                                  "password": "password123"
-                                }
-                                """))
+                            {
+                              "username": "anna",
+                              "email": "anna@example.com",
+                              "password": "password123"
+                            }
+                            """))
                 .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.timestamp").isString())
                 .andExpect(jsonPath("$.status").value(409))
-                .andExpect(jsonPath("$.message")
-                        .value("Email is already in use"));
+                .andExpect(jsonPath("$.code").value("USER_ALREADY_EXISTS"))
+                .andExpect(jsonPath("$.message").value("Email is already in use"))
+                .andExpect(jsonPath("$.path").value("/api/auth/register"))
+                .andExpect(jsonPath("$.fieldErrors").isMap())
+                .andExpect(jsonPath("$.fieldErrors").isEmpty());
+    }
+
+    @Test
+    void malformedRegistrationReturnsBadRequest() throws Exception {
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                              "username": "anna",
+                              "email":
+                            }
+                            """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.code").value("MALFORMED_REQUEST"))
+                .andExpect(jsonPath("$.message").value("Request could not be read"))
+                .andExpect(jsonPath("$.path").value("/api/auth/register"))
+                .andExpect(jsonPath("$.fieldErrors").isEmpty());
     }
 }

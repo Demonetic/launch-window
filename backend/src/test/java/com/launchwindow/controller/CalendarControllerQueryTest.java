@@ -53,6 +53,13 @@ class CalendarControllerQueryTest {
 
     @Test
     void anonymousUserCannotGetCalendar() throws Exception {
-        mockMvc.perform(get("/api/calendar")).andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/api/calendar"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.timestamp").isString())
+                .andExpect(jsonPath("$.status").value(401))
+                .andExpect(jsonPath("$.code").value("UNAUTHORIZED"))
+                .andExpect(jsonPath("$.message").value("Authentication is required"))
+                .andExpect(jsonPath("$.path").value("/api/calendar"))
+                .andExpect(jsonPath("$.fieldErrors").isEmpty());
     }
 }
