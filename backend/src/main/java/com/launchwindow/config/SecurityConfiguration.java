@@ -41,8 +41,11 @@ public class SecurityConfiguration {
                         .permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login")
                         .permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+                        .permitAll()
                         .anyRequest()
                         .authenticated())
+
                 .oauth2ResourceServer(oauth -> oauth
                         .authenticationEntryPoint(errorHandler)
                         .accessDeniedHandler(errorHandler)

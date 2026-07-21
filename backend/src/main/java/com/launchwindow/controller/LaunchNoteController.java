@@ -1,9 +1,11 @@
 package com.launchwindow.controller;
 
+import com.launchwindow.config.OpenApiConfiguration;
 import com.launchwindow.dto.LaunchNoteRequest;
 import com.launchwindow.dto.LaunchNoteResponse;
 import com.launchwindow.service.note.LaunchNoteCommandService;
 import com.launchwindow.service.note.LaunchNoteQueryService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
+@SecurityRequirement(name = OpenApiConfiguration.SECURITY_SCHEME_NAME)
 public class LaunchNoteController {
     private final LaunchNoteQueryService queryService;
     private final LaunchNoteCommandService commandService;

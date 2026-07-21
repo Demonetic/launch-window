@@ -1,0 +1,128 @@
+@baseUrl = http://localhost:8080
+@launchId = 1
+@noteId = 1
+
+### Register
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "http_client_user",
+  "email": "http-client@example.com",
+  "password": "TestPassword123!"
+}
+
+### Login with username
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "identifier": "http_client_user",
+  "password": "TestPassword123!"
+}
+
+> {%client.global.set("auth_token", response.body.accessToken);%}
+
+### Login with email
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "identifier": "http-client@example.com",
+  "password": "TestPassword123!"
+}
+
+> {%client.global.set("auth_token", response.body.accessToken);%}
+
+### Current user
+GET {{baseUrl}}/api/users/me
+Authorization: Bearer {{auth_token}}
+
+### Upcoming launches
+GET {{baseUrl}}/api/launches?limit=20
+
+### Best viewing conditions
+GET {{baseUrl}}/api/launches/best-viewing?days=7&limit=3
+
+### Launch details
+GET {{baseUrl}}/api/launches/{{launchId}}
+
+### Launch weather
+GET {{baseUrl}}/api/launches/{{launchId}}/weather
+
+### Initial calendar page
+GET {{baseUrl}}/api/calendar?limit=20
+Authorization: Bearer {{auth_token}}
+
+### Save launch to calendar
+PUT {{baseUrl}}/api/calendar/{{launchId}}
+Authorization: Bearer {{auth_token}}
+
+### Load future calendar entries
+GET {{baseUrl}}/api/calendar?afterTime=2026-08-01T12:00:00Z&afterId=1&limit=20
+Authorization: Bearer {{auth_token}}
+
+### Load previous calendar entries
+GET {{baseUrl}}/api/calendar?beforeTime=2026-08-01T12:00:00Z&beforeId=1&limit=20
+Authorization: Bearer {{auth_token}}
+
+### Remove launch from calendar
+DELETE {{baseUrl}}/api/calendar/{{launchId}}
+Authorization: Bearer {{auth_token}}
+
+### Get notes for launch
+GET {{baseUrl}}/api/launches/{{launchId}}/notes
+Authorization: Bearer {{auth_token}}
+
+### Create note
+POST {{baseUrl}}/api/launches/{{launchId}}/notes
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "content": "Watch the cloud cover before launch."
+}
+
+> {%
+    if (response.status === 201) {
+        client.global.set("note_id", response.body.id);
+    }
+%}
+
+### Update created note
+PUT {{baseUrl}}/api/notes/{{note_id}}
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "content": "Updated note from IntelliJ HTTP Client."
+}
+
+### Delete created note
+DELETE {{baseUrl}}/api/notes/{{note_id}}
+Authorization: Bearer {{auth_token}}
+
+### Validation error
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "a",
+  "email": "invalid",
+  "password": "short"
+}
+
+### Invalid login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "identifier": "missing",
+  "password": "wrong-password"
+}
+
+### Protected endpoint without token
+GET {{baseUrl}}/api/calendar
+
+### Invalid pagination
+GET {{baseUrl}}/api/launches?afterTime=2026-08-01T12:00:00Z

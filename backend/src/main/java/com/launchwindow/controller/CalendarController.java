@@ -1,9 +1,11 @@
 package com.launchwindow.controller;
 
+import com.launchwindow.config.OpenApiConfiguration;
 import com.launchwindow.dto.CalendarEntryResponse;
 import com.launchwindow.dto.CalendarPageResponse;
 import com.launchwindow.exception.InvalidPaginationException;
 import com.launchwindow.service.calendar.CalendarService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -13,6 +15,7 @@ import java.time.Instant;
 
 @RestController
 @RequestMapping("/api/calendar")
+@SecurityRequirement(name = OpenApiConfiguration.SECURITY_SCHEME_NAME)
 public class CalendarController {
     private final CalendarService service;
 
