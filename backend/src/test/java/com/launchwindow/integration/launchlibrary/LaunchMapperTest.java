@@ -9,8 +9,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class LaunchMapperTest {
     private final LaunchMapper mapper = new LaunchMapper(new LaunchStatusMapper());
@@ -84,5 +83,60 @@ class LaunchMapperTest {
                 ),
                 () -> assertEquals(syncedAt, result.lastSyncedAt())
         );
+    }
+
+    @Test
+    void mapsMissingOptionalDataToSafeFallbacks() {
+        Instant launchTime = Instant.parse("2026-08-01T10:15:30Z");
+        Instant syncedAt = Instant.parse("2026-07-22T12:00:00Z");
+
+        LaunchLibraryLaunchDto source = new LaunchLibraryLaunchDto(
+                "launch-123",
+                "Test launch",
+                null,
+                launchTime,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        LaunchDetails result = mapper.map(source, syncedAt);
+
+        assertAll(
+                () -> assertEquals(LaunchStatus.UNKNOWN, result.status()),
+                () -> assertEquals("Unknown rocket", result.rocketName()),
+                () -> assertNull(result.description()),
+                () -> assertNull(result.imageUrl()),
+                () -> assertNull(result.webcastUrl()),
+                () -> assertNull(result.missionType()),
+                () -> assertNull(result.organizationName()),
+                () -> assertNull(result.padName()),
+                () -> assertNull(result.locationName()),
+                () -> assertNull(result.latitude()),
+                () -> assertNull(result.longitude())
+        );
+    }
+
+    @Test
+    void skipsMissingAndBlankVideoUrls() {
+        LaunchLibraryLaunchDto source = new LaunchLibraryLaunchDto(
+                "launch-123",
+                "Test launch",
+                new LaunchLibraryStatusDto(1, "Go", "Go"),
+                Instant.parse("2026-08-01T10:15:30Z"),
+                null,
+                null,
+                null,
+                null,
+                null,
+                List.of(new LaunchLibraryVideoDto(" "), new LaunchLibraryVideoDto("https://example.com/webcast"))
+        );
+
+        LaunchDetails result = mapper.map(source, Instant.parse("2026-07-22T12:00:00Z"));
+
+        assertEquals("https://example.com/webcast", result.webcastUrl());
     }
 }

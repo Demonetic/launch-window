@@ -9,5 +9,4 @@ public enum ApiErrorCode {
     RESOURCE_NOT_FOUND,
     UNAUTHORIZED,
     ACCESS_DENIED,
-    INTERNAL_ERROR
 }
