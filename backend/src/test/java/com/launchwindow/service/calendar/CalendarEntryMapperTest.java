@@ -2,9 +2,11 @@ package com.launchwindow.service.calendar;
 
 import com.launchwindow.dto.CalendarEntryResponse;
 import com.launchwindow.dto.LaunchSummaryResponse;
+import com.launchwindow.dto.WeatherSummaryResponse;
 import com.launchwindow.model.CalendarEntry;
 import com.launchwindow.model.Launch;
 import com.launchwindow.model.LaunchStatus;
+import com.launchwindow.model.ViewingCondition;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -37,6 +39,9 @@ class CalendarEntryMapperTest {
         when(launch.getPadName()).thenReturn("SLC-40");
         when(launch.getLocationName()).thenReturn("Cape Canaveral");
 
+        WeatherSummaryResponse weather = new WeatherSummaryResponse((short) 85, ViewingCondition.EXCELLENT,
+                        Instant.parse("2026-07-23T14:00:00Z"));
+
         LaunchSummaryResponse launchResponse =
                 new LaunchSummaryResponse(
                         4L,
@@ -48,7 +53,7 @@ class CalendarEntryMapperTest {
                         "SpaceX",
                         "SLC-40",
                         "Cape Canaveral",
-                        null
+                        weather
                 );
 
         CalendarEntryResponse expected =
@@ -58,6 +63,6 @@ class CalendarEntryMapperTest {
                         launchResponse
                 );
 
-        assertEquals(expected, new CalendarEntryMapper().map(entry));
+        assertEquals(expected, new CalendarEntryMapper().map(entry, weather));
     }
 }
