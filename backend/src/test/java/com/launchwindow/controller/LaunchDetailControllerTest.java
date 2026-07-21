@@ -58,7 +58,12 @@ class LaunchDetailControllerTest {
                 .thenReturn(Optional.empty());
 
         mockMvc.perform(get("/api/launches/999"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.code").value("RESOURCE_NOT_FOUND"))
+                .andExpect(jsonPath("$.message").value("Launch with id 999 was not found"))
+                .andExpect(jsonPath("$.path").value("/api/launches/999"))
+                .andExpect(jsonPath("$.fieldErrors").isEmpty());
     }
 
     private LaunchDetailResponse detail() {

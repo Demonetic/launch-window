@@ -3,6 +3,7 @@ package com.launchwindow.controller;
 import com.launchwindow.config.OpenApiConfiguration;
 import com.launchwindow.dto.LaunchNoteRequest;
 import com.launchwindow.dto.LaunchNoteResponse;
+import com.launchwindow.exception.ResourceNotFoundException;
 import com.launchwindow.service.note.LaunchNoteCommandService;
 import com.launchwindow.service.note.LaunchNoteQueryService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -33,35 +34,29 @@ public class LaunchNoteController {
     }
 
     @PostMapping("/launches/{launchId}/notes")
-    public ResponseEntity<LaunchNoteResponse> createNote(@AuthenticationPrincipal Jwt jwt,
-                                                         @PathVariable Long launchId,
+    public ResponseEntity<LaunchNoteResponse> createNote(@AuthenticationPrincipal Jwt jwt, @PathVariable Long launchId,
                                                          @Valid @RequestBody LaunchNoteRequest request) {
         return commandService.createNote(jwt.getSubject(), launchId, request.content())
                 .map(note -> ResponseEntity
                         .status(HttpStatus.CREATED)
                         .body(note))
-                .orElseGet(() -> ResponseEntity
-                        .notFound()
-                        .build());
+                .orElseThrow(() -> new ResourceNotFoundException("Launch with id " + launchId + " was not found"));
     }
 
     @PutMapping("/notes/{noteId}")
-    public ResponseEntity<LaunchNoteResponse> updateNote(@AuthenticationPrincipal Jwt jwt,
-                                                         @PathVariable Long noteId,
-                                                         @Valid @RequestBody LaunchNoteRequest request) {
+    public LaunchNoteResponse updateNote(@AuthenticationPrincipal Jwt jwt, @PathVariable Long noteId, @Valid @RequestBody LaunchNoteRequest request) {
         return commandService.updateNote(jwt.getSubject(), noteId, request.content())
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity
-                        .notFound()
-                        .build());
+                .orElseThrow(() -> new ResourceNotFoundException("Note with id " + noteId + " was not found"));
     }
 
     @DeleteMapping("/notes/{noteId}")
     public ResponseEntity<Void> deleteNote(@AuthenticationPrincipal Jwt jwt, @PathVariable Long noteId) {
         boolean deleted = commandService.deleteNote(jwt.getSubject(), noteId);
 
-        return deleted
-                ? ResponseEntity.noContent().build()
-                : ResponseEntity.notFound().build();
+        if (!deleted) {
+            throw new ResourceNotFoundException("Note with id " + noteId + " was not found");
+        }
+
+        return ResponseEntity.noContent().build();
     }
 }

@@ -47,7 +47,12 @@ class CalendarControllerCommandTest {
         when(service.saveLaunch("launch_test", 99L)).thenReturn(Optional.empty());
 
         mockMvc.perform(put("/api/calendar/99").with(jwt().jwt(token -> token.subject("launch_test"))))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.code").value("RESOURCE_NOT_FOUND"))
+                .andExpect(jsonPath("$.message").value("Launch with id 99 was not found"))
+                .andExpect(jsonPath("$.path").value("/api/calendar/99"))
+                .andExpect(jsonPath("$.fieldErrors").isEmpty());
     }
 
     @Test
@@ -63,6 +68,11 @@ class CalendarControllerCommandTest {
         when(service.removeLaunch("launch_test", 99L)).thenReturn(false);
 
         mockMvc.perform(delete("/api/calendar/99").with(jwt().jwt(token -> token.subject("launch_test"))))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.code").value("RESOURCE_NOT_FOUND"))
+                .andExpect(jsonPath("$.message").value("Calendar entry for launch 99 was not found"))
+                .andExpect(jsonPath("$.path").value("/api/calendar/99"))
+                .andExpect(jsonPath("$.fieldErrors").isEmpty());
     }
 }

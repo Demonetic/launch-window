@@ -4,6 +4,7 @@ import com.launchwindow.config.OpenApiConfiguration;
 import com.launchwindow.dto.CalendarEntryResponse;
 import com.launchwindow.dto.CalendarPageResponse;
 import com.launchwindow.exception.InvalidPaginationException;
+import com.launchwindow.exception.ResourceNotFoundException;
 import com.launchwindow.service.calendar.CalendarService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
@@ -46,20 +47,19 @@ public class CalendarController {
     }
 
     @PutMapping("/{launchId}")
-    public ResponseEntity<CalendarEntryResponse> saveLaunch(@AuthenticationPrincipal Jwt jwt, @PathVariable Long launchId) {
+    public CalendarEntryResponse saveLaunch(@AuthenticationPrincipal Jwt jwt, @PathVariable Long launchId) {
         return service.saveLaunch(jwt.getSubject(), launchId)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity
-                        .notFound()
-                        .build());
+                .orElseThrow(() -> new ResourceNotFoundException("Launch with id " + launchId + " was not found"));
     }
 
     @DeleteMapping("/{launchId}")
     public ResponseEntity<Void> removeLaunch(@AuthenticationPrincipal Jwt jwt, @PathVariable Long launchId) {
         boolean removed = service.removeLaunch(jwt.getSubject(), launchId);
 
-        return removed
-                ? ResponseEntity.noContent().build()
-                : ResponseEntity.notFound().build();
+        if (!removed) {
+            throw new ResourceNotFoundException("Calendar entry for launch " + launchId + " was not found");
+        }
+
+        return ResponseEntity.noContent().build();
     }
 }

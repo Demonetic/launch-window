@@ -20,35 +20,17 @@ import java.util.Map;
 public class GlobalExceptionHandler {
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<ApiErrorResponse> handleUserAlreadyExists(UserAlreadyExistsException exception, HttpServletRequest request) {
-        return createResponse(
-                HttpStatus.CONFLICT,
-                ApiErrorCode.USER_ALREADY_EXISTS,
-                exception.getMessage(),
-                request,
-                Map.of()
-        );
+        return createResponse(HttpStatus.CONFLICT, ApiErrorCode.USER_ALREADY_EXISTS, exception.getMessage(), request, Map.of());
     }
 
     @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<ApiErrorResponse> handleInvalidCredentials(InvalidCredentialsException exception, HttpServletRequest request) {
-        return createResponse(
-                HttpStatus.UNAUTHORIZED,
-                ApiErrorCode.INVALID_CREDENTIALS,
-                exception.getMessage(),
-                request,
-                Map.of()
-        );
+        return createResponse(HttpStatus.UNAUTHORIZED, ApiErrorCode.INVALID_CREDENTIALS, exception.getMessage(), request, Map.of());
     }
 
     @ExceptionHandler(InvalidPaginationException.class)
     public ResponseEntity<ApiErrorResponse> handleInvalidPagination(InvalidPaginationException exception, HttpServletRequest request) {
-        return createResponse(
-                HttpStatus.BAD_REQUEST,
-                ApiErrorCode.INVALID_PAGINATION,
-                exception.getMessage(),
-                request,
-                Map.of()
-        );
+        return createResponse(HttpStatus.BAD_REQUEST, ApiErrorCode.INVALID_PAGINATION, exception.getMessage(), request, Map.of());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -62,24 +44,12 @@ public class GlobalExceptionHandler {
                                 : error.getDefaultMessage()
                 ));
 
-        return createResponse(
-                HttpStatus.BAD_REQUEST,
-                ApiErrorCode.VALIDATION_FAILED,
-                "Request validation failed",
-                request,
-                fieldErrors
-        );
+        return createResponse(HttpStatus.BAD_REQUEST, ApiErrorCode.VALIDATION_FAILED,"Request validation failed", request, fieldErrors);
     }
 
     @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class, MissingServletRequestParameterException.class})
     public ResponseEntity<ApiErrorResponse> handleMalformedRequest(Exception exception, HttpServletRequest request) {
-        return createResponse(
-                HttpStatus.BAD_REQUEST,
-                ApiErrorCode.MALFORMED_REQUEST,
-                "Request could not be read",
-                request,
-                Map.of()
-        );
+        return createResponse(HttpStatus.BAD_REQUEST, ApiErrorCode.MALFORMED_REQUEST, "Request could not be read", request, Map.of());
     }
 
     private ResponseEntity<ApiErrorResponse> createResponse(HttpStatus status, ApiErrorCode code, String message,
@@ -96,5 +66,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(status)
                 .body(error);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleResourceNotFound(ResourceNotFoundException exception, HttpServletRequest request) {
+        return createResponse(HttpStatus.NOT_FOUND, ApiErrorCode.RESOURCE_NOT_FOUND, exception.getMessage(), request, Map.of());
     }
 }

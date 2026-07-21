@@ -74,7 +74,12 @@ class LaunchNoteControllerUpdateDeleteTest {
                                   "content": "Updated note."
                                 }
                                 """))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.code").value("RESOURCE_NOT_FOUND"))
+                .andExpect(jsonPath("$.message").value("Note with id 99 was not found"))
+                .andExpect(jsonPath("$.path").value("/api/notes/99"))
+                .andExpect(jsonPath("$.fieldErrors").isEmpty());
     }
 
     @Test
@@ -92,6 +97,11 @@ class LaunchNoteControllerUpdateDeleteTest {
 
         mockMvc.perform(delete("/api/notes/99")
                         .with(jwt().jwt(token -> token.subject("launch_test"))))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.code").value("RESOURCE_NOT_FOUND"))
+                .andExpect(jsonPath("$.message").value("Note with id 99 was not found"))
+                .andExpect(jsonPath("$.path").value("/api/notes/99"))
+                .andExpect(jsonPath("$.fieldErrors").isEmpty());
     }
 }

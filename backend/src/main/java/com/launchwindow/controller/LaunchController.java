@@ -4,10 +4,10 @@ import com.launchwindow.dto.LaunchDetailResponse;
 import com.launchwindow.dto.LaunchPageResponse;
 import com.launchwindow.dto.LaunchSummaryResponse;
 import com.launchwindow.dto.WeatherResponse;
+import com.launchwindow.exception.ResourceNotFoundException;
 import com.launchwindow.service.launch.LaunchQueryService;
 import com.launchwindow.service.launch.BestViewingQueryService;
 import com.launchwindow.service.weather.WeatherQueryService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,16 +49,14 @@ public class LaunchController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<LaunchDetailResponse> getLaunch(@PathVariable Long id) {
+    public LaunchDetailResponse getLaunch(@PathVariable Long id) {
         return launchService.getLaunch(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElseThrow(() -> new ResourceNotFoundException("Launch with id " + id + " was not found"));
     }
 
     @GetMapping("/{id}/weather")
-    public ResponseEntity<WeatherResponse> getWeather(@PathVariable Long id) {
+    public WeatherResponse getWeather(@PathVariable Long id) {
         return weatherService.getLatestWeather(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElseThrow(() -> new ResourceNotFoundException("Weather for launch " + id + " was not found"));
     }
 }

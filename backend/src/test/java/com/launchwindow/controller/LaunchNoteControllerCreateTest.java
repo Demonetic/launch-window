@@ -88,6 +88,11 @@ class LaunchNoteControllerCreateTest {
                                   "content": "Test note"
                                 }
                                 """))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.code").value("RESOURCE_NOT_FOUND"))
+                .andExpect(jsonPath("$.message").value("Launch with id 99 was not found"))
+                .andExpect(jsonPath("$.path").value("/api/launches/99/notes"))
+                .andExpect(jsonPath("$.fieldErrors").isEmpty());
     }
 }

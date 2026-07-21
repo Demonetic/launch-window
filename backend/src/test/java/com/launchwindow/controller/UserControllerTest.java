@@ -59,8 +59,14 @@ class UserControllerTest {
     void missingTokenUserReturnsNotFound() throws Exception {
         when(service.getUser("missing")).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/api/users/me").with(jwt().jwt(token -> token
-                                .subject("missing"))))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/users/me")
+                        .with(jwt().jwt(token -> token.subject("missing"))))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.timestamp").isString())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.code").value("RESOURCE_NOT_FOUND"))
+                .andExpect(jsonPath("$.message").value("Authenticated user was not found"))
+                .andExpect(jsonPath("$.path").value("/api/users/me"))
+                .andExpect(jsonPath("$.fieldErrors").isEmpty());
     }
 }

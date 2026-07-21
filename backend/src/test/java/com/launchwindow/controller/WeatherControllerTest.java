@@ -67,8 +67,14 @@ class WeatherControllerTest {
 
     @Test
     void missingWeather_returnsNotFound() throws Exception {
-        when(weatherService.getLatestWeather(99L)).thenReturn(Optional.empty());
+        when(weatherService.getLatestWeather(999L)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/api/launches/99/weather")).andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/launches/999/weather"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.code").value("RESOURCE_NOT_FOUND"))
+                .andExpect(jsonPath("$.message").value("Weather for launch 999 was not found"))
+                .andExpect(jsonPath("$.path").value("/api/launches/999/weather"))
+                .andExpect(jsonPath("$.fieldErrors").isEmpty());
     }
 }
