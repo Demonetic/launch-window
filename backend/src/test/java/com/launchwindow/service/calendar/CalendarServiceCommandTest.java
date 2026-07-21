@@ -12,6 +12,9 @@ import com.launchwindow.service.weather.WeatherSummaryQueryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -42,7 +45,8 @@ class CalendarServiceCommandTest {
                 launchRepository,
                 calendarRepository,
                 mapper,
-                weatherSummaryService
+                weatherSummaryService,
+                Clock.fixed(Instant.parse("2026-07-21T12:00:00Z"), ZoneOffset.UTC)
         );
     }
 

@@ -8,6 +8,9 @@ import com.launchwindow.repository.LaunchRepository;
 import com.launchwindow.service.weather.WeatherSummaryQueryService;
 import org.junit.jupiter.api.Test;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -15,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 class CalendarServiceMissingDataTest {
+    private static final Clock FIXED_CLOCK = Clock.fixed(Instant.parse("2026-07-21T12:00:00Z"), ZoneOffset.UTC);
 
     @Test
     void shouldRejectCommandsForMissingUser() {
@@ -29,7 +33,8 @@ class CalendarServiceMissingDataTest {
                 launchRepository,
                 calendarRepository,
                 mapper,
-                weatherSummaryService
+                weatherSummaryService,
+               FIXED_CLOCK
         );
 
         when(userRepository.findByUsername("missing")).thenReturn(Optional.empty());
@@ -54,7 +59,8 @@ class CalendarServiceMissingDataTest {
                 launchRepository,
                 calendarRepository,
                 mapper,
-                weatherSummaryService
+                weatherSummaryService,
+                FIXED_CLOCK
         );
 
         when(userRepository.findByUsername("launch_test")).thenReturn(Optional.of(mock(AppUser.class)));

@@ -1,6 +1,7 @@
 package com.launchwindow.controller;
 
 import com.launchwindow.config.SecurityConfiguration;
+import com.launchwindow.dto.CalendarPageResponse;
 import com.launchwindow.service.calendar.CalendarService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(CalendarController.class)
 @Import(SecurityConfiguration.class)
@@ -32,14 +34,21 @@ class CalendarControllerQueryTest {
 
     @Test
     void authenticatedUserCanGetOwnCalendar() throws Exception {
-        when(service.getCalendar("launch_test")).thenReturn(List.of());
+        CalendarPageResponse page = new CalendarPageResponse(List.of(),
+                null, null, false, false);
+
+        when(service.getInitialPage("launch_test", 20)).thenReturn(page);
 
         mockMvc.perform(get("/api/calendar").with(jwt().jwt(token -> token.subject("launch_test"))))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$").isEmpty());
+                .andExpect(jsonPath("$.items").isArray())
+                .andExpect(jsonPath("$.items").isEmpty())
+                .andExpect(jsonPath("$.previousCursor").doesNotExist())
+                .andExpect(jsonPath("$.nextCursor").doesNotExist())
+                .andExpect(jsonPath("$.hasPrevious").value(false))
+                .andExpect(jsonPath("$.hasNext").value(false));
 
-        verify(service).getCalendar("launch_test");
+        verify(service).getInitialPage("launch_test", 20);
     }
 
     @Test
