@@ -1,6 +1,7 @@
 package com.launchwindow.service.weather;
 
 import com.launchwindow.config.OpenMeteoProperties;
+import com.launchwindow.exception.WeatherProviderException;
 import com.launchwindow.integration.openmeteo.OpenMeteoClient;
 import com.launchwindow.integration.openmeteo.WeatherForecastMapper;
 import com.launchwindow.integration.openmeteo.dto.OpenMeteoResponse;
@@ -10,6 +11,8 @@ import com.launchwindow.model.WeatherSnapshot;
 import com.launchwindow.repository.LaunchRepository;
 import com.launchwindow.repository.WeatherSnapshotRepository;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
@@ -20,6 +23,7 @@ import java.util.Optional;
 
 @Service
 public class WeatherSyncService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WeatherSyncService.class);
     private final OpenMeteoClient client;
     private final WeatherForecastMapper mapper;
     private final LaunchRepository launchRepository;
@@ -66,11 +70,20 @@ public class WeatherSyncService {
     }
 
     private Optional<WeatherDetails> fetchDetails(Launch launch, Instant fetchedAt) {
-        OpenMeteoResponse response = client.fetchForecast(launch.getLatitude(), launch.getLongitude());
+        try {
+            OpenMeteoResponse response = client.fetchForecast(launch.getLatitude(), launch.getLongitude());
 
-        return mapper.map(response, launch.getLaunchTime(), fetchedAt);
+            return mapper.map(response, launch.getLaunchTime(), fetchedAt);
+        } catch (WeatherProviderException exception) {
+            LOGGER.warn(
+                    "Weather synchronization failed for launch {}: {}",
+                    launch.getExternalId(),
+                    exception.getMessage()
+            );
+
+            return Optional.empty();
+        }
     }
-
     private boolean saveForecast(Launch launch, WeatherDetails details) {
         Optional<WeatherSnapshot> existing = weatherRepository.findByLaunch_Id(launch.getId());
 

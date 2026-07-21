@@ -1,6 +1,7 @@
 package com.launchwindow.service.weather;
 
 import com.launchwindow.config.OpenMeteoProperties;
+import com.launchwindow.exception.WeatherProviderException;
 import com.launchwindow.integration.openmeteo.OpenMeteoClient;
 import com.launchwindow.integration.openmeteo.WeatherForecastMapper;
 import com.launchwindow.integration.openmeteo.dto.OpenMeteoResponse;
@@ -82,6 +83,38 @@ class WeatherSyncServiceTest {
         verify(weatherRepository).save(any(WeatherSnapshot.class));
         verify(existingSnapshot).update(updatedDetails);
         verify(weatherRepository).findByLaunch_Id(1L);
+        verify(weatherRepository).findByLaunch_Id(2L);
+    }
+
+    @Test
+    void providerFailureSkipsAffectedLaunchAndContinuesSync() {
+        Launch failedLaunch = mock(Launch.class);
+        Launch successfulLaunch = launch(2);
+
+        when(failedLaunch.getExternalId()).thenReturn("failed-launch");
+
+        when(successfulLaunch.getId()).thenReturn(2L);
+
+        OpenMeteoResponse successfulResponse = mock(OpenMeteoResponse.class);
+
+        WeatherDetails successfulDetails = details(NOW.plusSeconds(3600));
+
+        when(failedLaunch.getExternalId()).thenReturn("failed-launch");
+        when(launchRepository
+                .findAllByLaunchTimeBetweenAndLatitudeIsNotNullAndLongitudeIsNotNullOrderByLaunchTimeAsc(any(), any()))
+                .thenReturn(List.of(failedLaunch, successfulLaunch));
+        when(client.fetchForecast(any(), any()))
+                .thenThrow(new WeatherProviderException("Open-Meteo request failed"))
+                .thenReturn(successfulResponse);
+        when(mapper.map(successfulResponse, successfulLaunch.getLaunchTime(), NOW)).thenReturn(Optional.of(successfulDetails));
+        when(weatherRepository.findByLaunch_Id(2L)).thenReturn(Optional.empty());
+
+        WeatherSyncResult result = service.syncUpcomingWeather();
+
+        assertEquals(new WeatherSyncResult(2, 1, 0, 1), result);
+
+        verify(weatherRepository).save(any(WeatherSnapshot.class));
+        verify(weatherRepository, never()).findByLaunch_Id(1L);
         verify(weatherRepository).findByLaunch_Id(2L);
     }
 }
