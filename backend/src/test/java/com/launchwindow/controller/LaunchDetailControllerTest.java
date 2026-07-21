@@ -4,6 +4,7 @@ import com.launchwindow.config.SecurityConfiguration;
 import com.launchwindow.dto.LaunchDetailResponse;
 import com.launchwindow.model.LaunchStatus;
 import com.launchwindow.service.launch.LaunchQueryService;
+import com.launchwindow.service.launch.BestViewingQueryService;
 import com.launchwindow.service.weather.WeatherQueryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,10 @@ class LaunchDetailControllerTest {
     @MockitoBean
     private WeatherQueryService weatherService;
     @MockitoBean
+    private BestViewingQueryService bestViewingService;
+    @MockitoBean
     private JwtDecoder jwtDecoder;
+
 
     @Test
     void anonymousUserCanGetLaunchDetail() throws Exception {

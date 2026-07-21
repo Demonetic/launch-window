@@ -28,11 +28,17 @@ public interface LaunchRepository extends JpaRepository<Launch, Long> {
           )
         ORDER BY launch.launchTime ASC, launch.id ASC
         """)
-    List<Launch> findUpcomingPage(
-            @Param("now") Instant now,
-            @Param("afterTime") Instant afterTime,
-            @Param("afterId") Long afterId,
-            Pageable pageable
-    );
+    List<Launch> findUpcomingPage(@Param("now") Instant now, @Param("afterTime") Instant afterTime, @Param("afterId") Long afterId, Pageable pageable);
 
+    @Query("""
+        SELECT launch
+        FROM WeatherSnapshot weather
+        JOIN weather.launch launch
+        WHERE launch.launchTime > :now
+          AND launch.launchTime <= :endTime
+        ORDER BY weather.viewingScore DESC,
+                 launch.launchTime ASC,
+                 launch.id ASC
+        """)
+    List<Launch> findBestViewingLaunches(@Param("now") Instant now, @Param("endTime") Instant endTime, Pageable pageable);
 }

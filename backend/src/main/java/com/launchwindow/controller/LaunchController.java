@@ -2,8 +2,10 @@ package com.launchwindow.controller;
 
 import com.launchwindow.dto.LaunchDetailResponse;
 import com.launchwindow.dto.LaunchPageResponse;
+import com.launchwindow.dto.LaunchSummaryResponse;
 import com.launchwindow.dto.WeatherResponse;
 import com.launchwindow.service.launch.LaunchQueryService;
+import com.launchwindow.service.launch.BestViewingQueryService;
 import com.launchwindow.service.weather.WeatherQueryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,16 +16,19 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.Instant;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/launches")
 public class LaunchController {
     private final LaunchQueryService launchService;
     private final WeatherQueryService weatherService;
+    private final BestViewingQueryService bestViewingService;
 
-    public LaunchController(LaunchQueryService launchService, WeatherQueryService weatherService) {
+    public LaunchController(LaunchQueryService launchService, WeatherQueryService weatherService, BestViewingQueryService bestViewingService) {
         this.launchService = launchService;
         this.weatherService = weatherService;
+        this.bestViewingService = bestViewingService;
     }
 
     @GetMapping
@@ -35,6 +40,12 @@ public class LaunchController {
                 afterId,
                 limit
         );
+    }
+
+    @GetMapping("/best-viewing")
+    public List<LaunchSummaryResponse> getBestViewingLaunches(@RequestParam(defaultValue = "7") int days,
+                                                              @RequestParam(defaultValue = "3") int limit) {
+        return bestViewingService.getBestViewingLaunches(days, limit);
     }
 
     @GetMapping("/{id}")

@@ -9,6 +9,7 @@ import com.launchwindow.exception.InvalidPaginationException;
 import com.launchwindow.model.LaunchStatus;
 import com.launchwindow.model.ViewingCondition;
 import com.launchwindow.service.launch.LaunchQueryService;
+import com.launchwindow.service.launch.BestViewingQueryService;
 import com.launchwindow.service.weather.WeatherQueryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,8 @@ class LaunchControllerTest {
     private WeatherQueryService weatherService;
     @MockitoBean
     private JwtDecoder jwtDecoder;
+    @MockitoBean
+    private BestViewingQueryService bestViewingService;
 
     @Test
     void anonymousUserCanGetUpcomingLaunches() throws Exception {
@@ -115,5 +118,59 @@ class LaunchControllerTest {
                         .param("afterTime", "not-a-date")
                         .param("afterId", "42"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void anonymousUserCanGetBestViewingLaunches() throws Exception {
+        WeatherSummaryResponse weather = new WeatherSummaryResponse((short) 85, ViewingCondition.EXCELLENT, Instant.parse("2026-08-01T10:00:00Z"));
+
+        LaunchSummaryResponse launch = new LaunchSummaryResponse(
+                1L,
+                "Best launch",
+                LaunchStatus.GO,
+                Instant.parse("2026-08-01T10:15:30Z"),
+                null,
+                "Falcon 9",
+                "SpaceX",
+                "LC-39A",
+                "Kennedy Space Center",
+                weather
+        );
+
+        when(bestViewingService.getBestViewingLaunches(7, 3)).thenReturn(List.of(launch));
+
+        mockMvc.perform(get("/api/launches/best-viewing"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].name").value("Best launch"))
+                .andExpect(jsonPath("$[0].weather.viewingScore").value(85))
+                .andExpect(jsonPath("$[0].weather.viewingCondition").value("EXCELLENT"));
+
+        verify(bestViewingService).getBestViewingLaunches(7, 3);
+    }
+
+    @Test
+    void bestViewingAcceptsCustomDaysAndLimit() throws Exception {
+        when(bestViewingService.getBestViewingLaunches(10, 5)).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/launches/best-viewing")
+                        .param("days", "10")
+                        .param("limit", "5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
+
+        verify(bestViewingService).getBestViewingLaunches(10, 5);
+    }
+
+    @Test
+    void invalidBestViewingLimitReturnsBadRequest() throws Exception {
+        when(bestViewingService.getBestViewingLaunches(7, 11))
+                .thenThrow(new InvalidPaginationException("limit must be between 1 and 10"));
+
+        mockMvc.perform(get("/api/launches/best-viewing").param("limit", "11"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").value("limit must be between 1 and 10"));
     }
 }
