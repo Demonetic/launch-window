@@ -139,4 +139,49 @@ class LaunchMapperTest {
 
         assertEquals("https://example.com/webcast", result.webcastUrl());
     }
+
+    @Test
+    void mapsOutOfRangeCoordinatesToNull() {
+        LaunchLibraryLaunchDto source = launchWithCoordinates(
+                new BigDecimal("90.000001"),
+                new BigDecimal("-180.000001")
+        );
+
+        LaunchDetails result = mapper.map(
+                source,
+                Instant.parse("2026-07-22T12:00:00Z")
+        );
+
+        assertAll(
+                () -> assertNull(result.latitude()),
+                () -> assertNull(result.longitude())
+        );
+    }
+
+    @Test
+    void preservesCoordinateBoundaryValues() {
+        LaunchLibraryLaunchDto source = launchWithCoordinates(new BigDecimal("-90"), new BigDecimal("180"));
+
+        LaunchDetails result = mapper.map(source, Instant.parse("2026-07-22T12:00:00Z"));
+
+        assertAll(
+                () -> assertEquals(new BigDecimal("-90"), result.latitude()),
+                () -> assertEquals(new BigDecimal("180"), result.longitude())
+        );
+    }
+
+    private LaunchLibraryLaunchDto launchWithCoordinates(BigDecimal latitude, BigDecimal longitude) {
+        return new LaunchLibraryLaunchDto(
+                "launch-123",
+                "Test launch",
+                new LaunchLibraryStatusDto(1, "Go", "Go"),
+                Instant.parse("2026-08-01T10:15:30Z"),
+                null,
+                null,
+                null,
+                new LaunchLibraryPadDto("Test pad", latitude, longitude, new LaunchLibraryLocationDto("Test location")),
+                null,
+                null
+        );
+    }
 }

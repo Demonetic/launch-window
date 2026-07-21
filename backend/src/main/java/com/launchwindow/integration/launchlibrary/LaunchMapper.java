@@ -13,6 +13,10 @@ import java.util.Objects;
 @Component
 public class LaunchMapper {
     private static final String UNKNOWN_ROCKET = "Unknown rocket";
+    private static final BigDecimal MIN_LATITUDE = new BigDecimal("-90");
+    private static final BigDecimal MAX_LATITUDE = new BigDecimal("90");
+    private static final BigDecimal MIN_LONGITUDE = new BigDecimal("-180");
+    private static final BigDecimal MAX_LONGITUDE = new BigDecimal("180");
 
     private final LaunchStatusMapper statusMapper;
 
@@ -78,11 +82,33 @@ public class LaunchMapper {
     }
 
     private BigDecimal latitude(LaunchLibraryLaunchDto source) {
-        return source.pad() == null ? null : source.pad().latitude();
+        BigDecimal latitude = source.pad() == null
+                ? null
+                : source.pad().latitude();
+
+        return isWithinRange(latitude, MIN_LATITUDE, MAX_LATITUDE)
+                ? latitude
+                : null;
     }
 
     private BigDecimal longitude(LaunchLibraryLaunchDto source) {
-        return source.pad() == null ? null : source.pad().longitude();
+        BigDecimal longitude = source.pad() == null
+                ? null
+                : source.pad().longitude();
+
+        return isWithinRange(longitude, MIN_LONGITUDE, MAX_LONGITUDE)
+                ? longitude
+                : null;
+    }
+
+    private boolean isWithinRange(
+            BigDecimal value,
+            BigDecimal minimum,
+            BigDecimal maximum
+    ) {
+        return value != null
+                && value.compareTo(minimum) >= 0
+                && value.compareTo(maximum) <= 0;
     }
 
     private String firstVideoUrl(List<LaunchLibraryVideoDto> videos) {
