@@ -12,10 +12,10 @@ class LaunchSyncSchedulerTest {
         LaunchSyncService service = mock(LaunchSyncService.class);
         LaunchSyncScheduler scheduler = new LaunchSyncScheduler(service);
 
-        when(service.syncUpcomingLaunches()).thenReturn(new LaunchSyncResult(10, 2, 8));
+        when(service.synchronizeLaunches()).thenReturn(new LaunchSyncResult(10, 2, 8));
 
         scheduler.synchronize();
 
-        verify(service).syncUpcomingLaunches();
+        verify(service).synchronizeLaunches();
     }
 }

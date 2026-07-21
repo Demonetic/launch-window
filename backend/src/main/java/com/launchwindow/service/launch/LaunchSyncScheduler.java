@@ -20,7 +20,7 @@ public class LaunchSyncScheduler {
     @Scheduled(fixedDelayString = "${launch-library.sync.interval}",
             initialDelayString = "${launch-library.sync.initial-delay}")
     public void synchronize() {
-        LaunchSyncResult result = service.syncUpcomingLaunches();
+        LaunchSyncResult result = service.synchronizeLaunches();
 
         LOGGER.info("Launch sync completed: processed={}, created={}, updated={}",
                 result.processed(), result.created(), result.updated());

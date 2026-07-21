@@ -9,6 +9,7 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.Set;
 @Component
 public class LaunchLibraryClient {
     private static final String UPCOMING_LAUNCHES_PATH = "/launches/upcoming/";
+    private static final String LAUNCHES_PATH = "/launches/";
     private final RestClient restClient;
     private final URI baseUri;
     private final int pageSize;
@@ -33,24 +35,18 @@ public class LaunchLibraryClient {
     }
 
     public List<LaunchLibraryLaunchDto> fetchUpcomingLaunches() {
-        List<LaunchLibraryLaunchDto> launches = new ArrayList<>();
-        Set<URI> visitedUris = new HashSet<>();
-        URI nextUri = createInitialUri();
+        return fetchLaunches(createUpcomingUri());
+    }
 
-        for (int page = 0; page < maxPages && nextUri != null && launches.size() < maxLaunches; page++) {
+    public List<LaunchLibraryLaunchDto> fetchRecentLaunches(Instant from, Instant until) {
+        Objects.requireNonNull(from, "Start time is required");
+        Objects.requireNonNull(until, "End time is required");
 
-            validateUri(nextUri);
-
-            if (!visitedUris.add(nextUri)) {
-                throw new IllegalStateException("Launch Library returned a repeated pagination URL");
-            }
-
-            LaunchLibraryResponse response = fetchPage(nextUri);
-            addResults(launches, response.results());
-            nextUri = resolveNextUri(response.next());
+        if (from.isAfter(until)) {
+            throw new IllegalArgumentException("Start time must not be after end time");
         }
 
-        return List.copyOf(launches);
+        return fetchLaunches(createRecentUri(from, until));
     }
 
     private LaunchLibraryResponse fetchPage(URI uri) {
@@ -72,7 +68,7 @@ public class LaunchLibraryClient {
         launches.addAll(results.subList(0, Math.min(results.size(), remainingCapacity)));
     }
 
-    private URI createInitialUri() {
+    private URI createUpcomingUri() {
         return UriComponentsBuilder.fromUri(baseUri)
                 .path(UPCOMING_LAUNCHES_PATH)
                 .queryParam("limit", pageSize)
@@ -96,5 +92,40 @@ public class LaunchLibraryClient {
         if (!sameOrigin) {
             throw new IllegalStateException("Launch Library returned an untrusted pagination URL");
         }
+    }
+
+    private List<LaunchLibraryLaunchDto> fetchLaunches(URI initialUri) {
+        List<LaunchLibraryLaunchDto> launches = new ArrayList<>();
+        Set<URI> visitedUris = new HashSet<>();
+        URI nextUri = initialUri;
+
+        for (int page = 0;
+                page < maxPages && nextUri != null && launches.size() < maxLaunches;
+                page++
+        ) {
+            validateUri(nextUri);
+
+            if (!visitedUris.add(nextUri)) {
+                throw new IllegalStateException("Launch Library returned a repeated pagination URL");
+            }
+
+            LaunchLibraryResponse response = fetchPage(nextUri);
+            addResults(launches, response.results());
+            nextUri = resolveNextUri(response.next());
+        }
+
+        return List.copyOf(launches);
+    }
+
+    private URI createRecentUri(Instant from, Instant until) {
+        return UriComponentsBuilder.fromUri(baseUri)
+                .path(LAUNCHES_PATH)
+                .queryParam("limit", pageSize)
+                .queryParam("mode", "normal")
+                .queryParam("net__gte", from)
+                .queryParam("net__lte", until)
+                .queryParam("ordering", "net")
+                .build()
+                .toUri();
     }
 }

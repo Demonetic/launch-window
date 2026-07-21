@@ -26,7 +26,7 @@ class LaunchSyncLiveTest {
     void syncsUpcomingLaunchesFromLiveApi() {
         long launchesBeforeSync = repository.count();
 
-        LaunchSyncResult result = service.syncUpcomingLaunches();
+        LaunchSyncResult result = service.synchronizeLaunches();
 
         assertTrue(result.processed() > 0);
         assertEquals(

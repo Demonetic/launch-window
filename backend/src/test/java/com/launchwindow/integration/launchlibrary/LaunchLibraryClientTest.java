@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.client.MockRestServiceServer;
 
+import java.time.Instant;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -116,6 +117,38 @@ class LaunchLibraryClientTest {
         assertEquals("Launch Library returned a repeated pagination URL", exception.getMessage());
 
         server.verify();
+    }
+
+    @Test
+    void fetchRecentLaunches_requestsSelectedTimeWindow() {
+        Instant from = Instant.parse("2026-07-19T12:00:00Z");
+        Instant until = Instant.parse("2026-07-21T12:00:00Z");
+
+        String expectedUrl =
+                "https://launch-library.test/launches/"
+                        + "?limit=10"
+                        + "&mode=normal"
+                        + "&net__gte=2026-07-19T12:00:00Z"
+                        + "&net__lte=2026-07-21T12:00:00Z"
+                        + "&ordering=net";
+
+        server.expect(requestTo(expectedUrl))
+                .andRespond(withSuccess(responseBody("recent-launch", null), MediaType.APPLICATION_JSON));
+
+        List<LaunchLibraryLaunchDto> result = client.fetchRecentLaunches(from, until);
+
+        assertEquals(1, result.size());
+        assertEquals("recent-launch", result.getFirst().id());
+
+        server.verify();
+    }
+
+    @Test
+    void fetchRecentLaunches_rejectsReversedTimeWindow() {
+        Instant from = Instant.parse("2026-07-21T12:00:00Z");
+        Instant until = Instant.parse("2026-07-19T12:00:00Z");
+
+        assertThrows(IllegalArgumentException.class, () -> client.fetchRecentLaunches(from, until));
     }
 
     private String responseBody(String launchId, String nextUrl) {
