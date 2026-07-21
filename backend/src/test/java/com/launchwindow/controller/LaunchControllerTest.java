@@ -25,8 +25,8 @@ import java.util.List;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(LaunchController.class)
 @Import(SecurityConfiguration.class)
@@ -184,5 +184,24 @@ class LaunchControllerTest {
                 .andExpect(jsonPath("$.code").value("INVALID_PAGINATION"))
                 .andExpect(jsonPath("$.path").value("/api/launches/best-viewing"))
                 .andExpect(jsonPath("$.fieldErrors").isEmpty());
+    }
+
+    @Test
+    void frontendOriginCanMakePreflightRequest() throws Exception {
+        mockMvc.perform(options("/api/launches")
+                        .header("Origin", "http://localhost:5173")
+                        .header("Access-Control-Request-Method", "GET"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Access-Control-Allow-Origin", "http://localhost:5173"))
+                .andExpect(header().string("Access-Control-Allow-Methods", org.hamcrest.Matchers.containsString("GET")));
+    }
+
+    @Test
+    void unknownOriginIsRejected() throws Exception {
+        mockMvc.perform(options("/api/launches")
+                        .header("Origin", "https://untrusted.example")
+                        .header("Access-Control-Request-Method", "GET"))
+                .andExpect(status().isForbidden())
+                .andExpect(header().doesNotExist("Access-Control-Allow-Origin"));
     }
 }

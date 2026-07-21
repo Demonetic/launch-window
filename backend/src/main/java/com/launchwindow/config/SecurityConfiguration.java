@@ -1,5 +1,9 @@
 package com.launchwindow.config;
 
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import tools.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,12 +17,18 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
+import java.util.List;
+
 @Configuration
+@EnableConfigurationProperties(CorsProperties.class)
 public class SecurityConfiguration {
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, RestSecurityErrorHandler errorHandler) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, RestSecurityErrorHandler errorHandler,
+                                                   CorsConfigurationSource corsConfigurationSource) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors
+                        .configurationSource(corsConfigurationSource))
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exceptions -> exceptions
@@ -56,6 +66,32 @@ public class SecurityConfiguration {
         authenticationConverter.setJwtGrantedAuthoritiesConverter(authoritiesConverter);
 
         return authenticationConverter;
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource(CorsProperties properties) {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.setAllowedOrigins(properties.allowedOrigins());
+
+        configuration.setAllowedMethods(List.of(
+                "GET",
+                "POST",
+                "PUT",
+                "PATCH",
+                "DELETE",
+                "OPTIONS"
+        ));
+
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        configuration.setAllowCredentials(false);
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration("/api/**", configuration);
+
+        return source;
     }
 
     @Bean
