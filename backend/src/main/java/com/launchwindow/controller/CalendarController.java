@@ -3,6 +3,7 @@ package com.launchwindow.controller;
 import com.launchwindow.config.OpenApiConfiguration;
 import com.launchwindow.dto.CalendarEntryResponse;
 import com.launchwindow.dto.CalendarPageResponse;
+import com.launchwindow.dto.SavedLaunchIdsResponse;
 import com.launchwindow.exception.InvalidPaginationException;
 import com.launchwindow.exception.ResourceNotFoundException;
 import com.launchwindow.service.calendar.CalendarService;
@@ -13,6 +14,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/calendar")
@@ -44,6 +46,11 @@ public class CalendarController {
         }
 
         return service.getInitialPage(jwt.getSubject(), limit);
+    }
+
+    @GetMapping("/saved-launch-ids")
+    public SavedLaunchIdsResponse getSavedLaunchIds(@AuthenticationPrincipal Jwt jwt, @RequestParam List<Long> launchIds) {
+        return service.getSavedLaunchIds(jwt.getSubject(), launchIds);
     }
 
     @PutMapping("/{launchId}")

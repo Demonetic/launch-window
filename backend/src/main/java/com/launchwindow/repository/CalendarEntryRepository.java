@@ -20,11 +20,7 @@ public interface CalendarEntryRepository extends JpaRepository<CalendarEntry, Lo
               AND launch.launchTime < :now
             ORDER BY launch.launchTime DESC, launch.id DESC
             """)
-    List<CalendarEntry> findPreviousInitial(
-            @Param("userId") Long userId,
-            @Param("now") Instant now,
-            Pageable pageable
-    );
+    List<CalendarEntry> findPreviousInitial(@Param("userId") Long userId, @Param("now") Instant now, Pageable pageable);
 
     @Query("""
             SELECT entry
@@ -34,11 +30,7 @@ public interface CalendarEntryRepository extends JpaRepository<CalendarEntry, Lo
               AND launch.launchTime >= :now
             ORDER BY launch.launchTime ASC, launch.id ASC
             """)
-    List<CalendarEntry> findNextInitial(
-            @Param("userId") Long userId,
-            @Param("now") Instant now,
-            Pageable pageable
-    );
+    List<CalendarEntry> findNextInitial(@Param("userId") Long userId, @Param("now") Instant now, Pageable pageable);
 
     @Query("""
             SELECT entry
@@ -51,12 +43,8 @@ public interface CalendarEntryRepository extends JpaRepository<CalendarEntry, Lo
               )
             ORDER BY launch.launchTime DESC, launch.id DESC
             """)
-    List<CalendarEntry> findPreviousPage(
-            @Param("userId") Long userId,
-            @Param("beforeTime") Instant beforeTime,
-            @Param("beforeId") Long beforeId,
-            Pageable pageable
-    );
+    List<CalendarEntry> findPreviousPage(@Param("userId") Long userId, @Param("beforeTime") Instant beforeTime,
+                                         @Param("beforeId") Long beforeId, Pageable pageable);
 
     @Query("""
             SELECT entry
@@ -69,12 +57,16 @@ public interface CalendarEntryRepository extends JpaRepository<CalendarEntry, Lo
               )
             ORDER BY launch.launchTime ASC, launch.id ASC
             """)
-    List<CalendarEntry> findNextPage(
-            @Param("userId") Long userId,
-            @Param("afterTime") Instant afterTime,
-            @Param("afterId") Long afterId,
-            Pageable pageable
-    );
+    List<CalendarEntry> findNextPage(@Param("userId") Long userId, @Param("afterTime") Instant afterTime,
+                                     @Param("afterId") Long afterId, Pageable pageable);
+
+    @Query("""
+        SELECT entry.launch.id
+        FROM CalendarEntry entry
+        WHERE entry.user.id = :userId
+          AND entry.launch.id IN :launchIds
+        """)
+    List<Long> findSavedLaunchIds(@Param("userId") Long userId, @Param("launchIds") List<Long> launchIds);
 
     Optional<CalendarEntry> findByUser_IdAndLaunch_Id(Long userId, Long launchId);
 }

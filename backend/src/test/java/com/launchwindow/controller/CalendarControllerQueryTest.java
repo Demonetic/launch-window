@@ -2,6 +2,7 @@ package com.launchwindow.controller;
 
 import com.launchwindow.config.SecurityConfiguration;
 import com.launchwindow.dto.CalendarPageResponse;
+import com.launchwindow.dto.SavedLaunchIdsResponse;
 import com.launchwindow.service.calendar.CalendarService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,5 +62,23 @@ class CalendarControllerQueryTest {
                 .andExpect(jsonPath("$.message").value("Authentication is required"))
                 .andExpect(jsonPath("$.path").value("/api/calendar"))
                 .andExpect(jsonPath("$.fieldErrors").isEmpty());
+    }
+
+    @Test
+    void authenticatedUserCanCheckSavedLaunchIds() throws Exception {
+        SavedLaunchIdsResponse response = new SavedLaunchIdsResponse(List.of(3L, 2L));
+
+        when(service.getSavedLaunchIds("launch_test", List.of(3L, 1L, 2L))).thenReturn(response);
+
+        mockMvc.perform(get("/api/calendar/saved-launch-ids")
+                        .param("launchIds", "3,1,2")
+                        .with(jwt().jwt(token -> token.subject("launch_test"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.savedLaunchIds").isArray())
+                .andExpect(jsonPath("$.savedLaunchIds.length()").value(2))
+                .andExpect(jsonPath("$.savedLaunchIds[0]").value(3))
+                .andExpect(jsonPath("$.savedLaunchIds[1]").value(2));
+
+        verify(service).getSavedLaunchIds("launch_test", List.of(3L, 1L, 2L));
     }
 }

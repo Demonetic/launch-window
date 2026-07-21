@@ -41,6 +41,10 @@ Authorization: Bearer {{auth_token}}
 ### Upcoming launches
 GET {{baseUrl}}/api/launches?limit=20
 
+### Check which launches are saved
+GET {{baseUrl}}/api/calendar/saved-launch-ids?launchIds=1,2,3
+Authorization: Bearer {{auth_token}}
+
 ### Best viewing conditions
 GET {{baseUrl}}/api/launches/best-viewing?days=7&limit=3
 

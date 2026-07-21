@@ -1,9 +1,6 @@
 package com.launchwindow.service.calendar;
 
-import com.launchwindow.dto.CalendarCursor;
-import com.launchwindow.dto.CalendarEntryResponse;
-import com.launchwindow.dto.CalendarPageResponse;
-import com.launchwindow.dto.WeatherSummaryResponse;
+import com.launchwindow.dto.*;
 import com.launchwindow.exception.InvalidPaginationException;
 import com.launchwindow.model.AppUser;
 import com.launchwindow.model.CalendarEntry;
@@ -21,10 +18,12 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 @Service
 public class CalendarService {
+    private static final int MAX_SAVED_LOOKUP_IDS = 50;
     private final AppUserRepository userRepository;
     private final LaunchRepository launchRepository;
     private final CalendarEntryRepository calendarRepository;
@@ -135,6 +134,29 @@ public class CalendarService {
         return createPage(entries, hasPrevious, false);
     }
 
+    @Transactional(readOnly = true)
+    public SavedLaunchIdsResponse getSavedLaunchIds(String username, List<Long> launchIds) {
+        validateLaunchIds(launchIds);
+
+        List<Long> distinctLaunchIds = launchIds.stream()
+                .distinct()
+                .toList();
+
+        Optional<AppUser> user = userRepository.findByUsername(username);
+
+        if (user.isEmpty()) {
+            return new SavedLaunchIdsResponse(List.of());
+        }
+
+        Set<Long> savedIds = Set.copyOf(calendarRepository.findSavedLaunchIds(user.get().getId(), distinctLaunchIds));
+
+        List<Long> orderedSavedIds = distinctLaunchIds.stream()
+                .filter(savedIds::contains)
+                .toList();
+
+        return new SavedLaunchIdsResponse(orderedSavedIds);
+    }
+
     @Transactional
     public Optional<CalendarEntryResponse> saveLaunch(String username, Long launchId) {
         Optional<AppUser> user = userRepository.findByUsername(username);
@@ -205,6 +227,14 @@ public class CalendarService {
     private void validateLimit(int limit) {
         if (limit < 1 || limit > 100) {
             throw new InvalidPaginationException("Limit must be between 1 and 100");
+        }
+    }
+
+    private void validateLaunchIds(List<Long> launchIds) {
+        if (launchIds == null || launchIds.isEmpty()
+                || launchIds.size() > MAX_SAVED_LOOKUP_IDS
+                || launchIds.stream().anyMatch(id -> id == null || id < 1)) {
+            throw new InvalidPaginationException("Between 1 and 50 positive launch ids must be provided");
         }
     }
 
