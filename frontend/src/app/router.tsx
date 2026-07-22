@@ -1,6 +1,7 @@
 import { createBrowserRouter } from 'react-router'
 import App from '../App'
 import { PlaceholderPage } from '../pages/PlaceholderPage'
+import { ProtectedRoute } from '../features/auth/ProtectedRoute'
 
 export const router = createBrowserRouter([
     {
@@ -15,12 +16,17 @@ export const router = createBrowserRouter([
                 element: <PlaceholderPage title="Launch details" />,
             },
             {
-                path: 'calendar',
-                element: <PlaceholderPage title="Calendar" />,
-            },
-            {
-                path: 'notes',
-                element: <PlaceholderPage title="Notes" />,
+                element: <ProtectedRoute />,
+                children: [
+                    {
+                        path: 'calendar',
+                        element: <PlaceholderPage title="Calendar" />,
+                    },
+                    {
+                        path: 'notes',
+                        element: <PlaceholderPage title="Notes" />,
+                    },
+                ],
             },
             {
                 path: 'login',
