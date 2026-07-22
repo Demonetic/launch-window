@@ -9,6 +9,17 @@ export type LaunchStatus =
     | 'FAILURE'
     | 'UNKNOWN'
 
+export type LaunchSort = 'SOONEST' | 'BEST_VIEWING'
+
+export interface LaunchFilters {
+    sort: LaunchSort
+    days: number | null
+    statuses: LaunchStatus[]
+    query: string
+    forecastAvailable: boolean | null
+    minimumViewingScore: number | null
+}
+
 export type ViewingCondition =
     | 'EXCELLENT'
     | 'GOOD'
@@ -38,6 +49,7 @@ export interface LaunchSummary {
 export interface LaunchCursor {
     afterTime: string
     afterId: number
+    afterViewingScore: number | null
 }
 
 export interface LaunchPage {

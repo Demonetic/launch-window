@@ -1,12 +1,26 @@
-import { useEffect, useRef } from 'react'
+import {
+    useEffect,
+    useRef,
+    useState,
+} from 'react'
 import { Rocket } from 'lucide-react'
-import { LaunchCard } from './LaunchCard'
-import { useUpcomingLaunches } from './useUpcomingLaunches'
 import { BestViewingSection } from './BestViewingSection'
+import { LaunchCard } from './LaunchCard'
+import { LaunchFiltersPanel } from './LaunchFiltersPanel'
+import { DEFAULT_LAUNCH_FILTERS } from './launchFilters'
+import type { LaunchFilters } from './types'
+import { useUpcomingLaunches } from './useUpcomingLaunches'
 import './launches.css'
 
 export function UpcomingLaunchesPage() {
     const loadMoreRef = useRef<HTMLDivElement>(null)
+
+    const [filters, setFilters] = useState<LaunchFilters>(
+        () => ({
+            ...DEFAULT_LAUNCH_FILTERS,
+            statuses: [],
+        }),
+    )
 
     const {
         data,
@@ -16,7 +30,7 @@ export function UpcomingLaunchesPage() {
         isError,
         isFetchingNextPage,
         isPending,
-    } = useUpcomingLaunches()
+    } = useUpcomingLaunches(filters)
 
     const launches =
         data?.pages.flatMap((page) => page.items) ?? []
@@ -30,7 +44,10 @@ export function UpcomingLaunchesPage() {
 
         const observer = new IntersectionObserver(
             ([entry]) => {
-                if (entry?.isIntersecting && !isFetchingNextPage) {
+                if (
+                    entry?.isIntersecting &&
+                    !isFetchingNextPage
+                ) {
                     void fetchNextPage()
                 }
             },
@@ -52,41 +69,58 @@ export function UpcomingLaunchesPage() {
         <main className="launches-page">
             <header className="launches-header">
                 <div>
-                    <p className="page-eyebrow">Mission control</p>
+                    <p className="page-eyebrow">
+                        Mission control
+                    </p>
+
                     <h1>Upcoming launches</h1>
+
                     <p>
-                        Explore upcoming missions and find the best
-                        conditions for watching them.
+                        Explore upcoming missions and find the
+                        best conditions for watching them.
                     </p>
                 </div>
             </header>
 
             <BestViewingSection />
 
+            <LaunchFiltersPanel
+                filters={filters}
+                onChange={setFilters}
+            />
+
             <div className="upcoming-list-heading">
                 <div>
                     <p className="page-eyebrow">
                         Full schedule
                     </p>
+
                     <h2>All upcoming launches</h2>
                 </div>
 
                 <p>
-                    Browse every currently scheduled mission in
-                    chronological order.
+                    Browse scheduled missions using the filters
+                    above.
                 </p>
             </div>
 
             {isPending && (
-                <div className="launch-state" role="status">
+                <div
+                    className="launch-state"
+                    role="status"
+                >
                     <span className="launch-loader" />
                     <p>Loading upcoming launches...</p>
                 </div>
             )}
 
             {isError && (
-                <div className="launch-state launch-error" role="alert">
+                <div
+                    className="launch-state launch-error"
+                    role="alert"
+                >
                     <h2>Launches could not be loaded</h2>
+
                     <p>
                         {error instanceof Error
                             ? error.message
@@ -95,13 +129,23 @@ export function UpcomingLaunchesPage() {
                 </div>
             )}
 
-            {!isPending && !isError && launches.length === 0 && (
-                <div className="launch-state">
-                    <Rocket aria-hidden="true" size={34} />
-                    <h2>No upcoming launches</h2>
-                    <p>New missions will appear here when available.</p>
-                </div>
-            )}
+            {!isPending &&
+                !isError &&
+                launches.length === 0 && (
+                    <div className="launch-state">
+                        <Rocket
+                            aria-hidden="true"
+                            size={34}
+                        />
+
+                        <h2>No matching launches</h2>
+
+                        <p>
+                            Try changing or clearing the current
+                            filters.
+                        </p>
+                    </div>
+                )}
 
             {launches.length > 0 && (
                 <section
@@ -125,13 +169,18 @@ export function UpcomingLaunchesPage() {
                 {isFetchingNextPage && (
                     <>
                         <span className="launch-loader" />
-                        <span>Loading more launches...</span>
+                        <span>
+                            Loading more launches...
+                        </span>
                     </>
                 )}
 
-                {!hasNextPage && launches.length > 0 && (
-                    <span>You have reached the final launch.</span>
-                )}
+                {!hasNextPage &&
+                    launches.length > 0 && (
+                        <span>
+                            You have reached the final launch.
+                        </span>
+                    )}
             </div>
         </main>
     )
