@@ -13,7 +13,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import com.launchwindow.dto.LaunchNotePageResponse;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.Instant;
 import java.util.List;
 
 @RestController
@@ -26,6 +29,13 @@ public class LaunchNoteController {
     public LaunchNoteController(LaunchNoteQueryService queryService, LaunchNoteCommandService commandService) {
         this.queryService = queryService;
         this.commandService = commandService;
+    }
+
+    @GetMapping("/notes")
+    public LaunchNotePageResponse getNotesPage(@AuthenticationPrincipal Jwt jwt, @RequestParam(defaultValue = "20") int limit,
+                                               @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                                               Instant beforeUpdatedAt, @RequestParam(required = false) Long beforeId) {
+        return queryService.getNotesPage(jwt.getSubject(), beforeUpdatedAt, beforeId, limit);
     }
 
     @GetMapping("/launches/{launchId}/notes")
