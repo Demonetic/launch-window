@@ -1,12 +1,6 @@
 package com.launchwindow.service.launch;
 
-import com.launchwindow.dto.LaunchBrowseFilter;
-import com.launchwindow.dto.LaunchCursor;
-import com.launchwindow.dto.LaunchDetailResponse;
-import com.launchwindow.dto.LaunchPageResponse;
-import com.launchwindow.dto.LaunchSort;
-import com.launchwindow.dto.LaunchSummaryResponse;
-import com.launchwindow.dto.WeatherSummaryResponse;
+import com.launchwindow.dto.*;
 import com.launchwindow.exception.InvalidPaginationException;
 import com.launchwindow.model.Launch;
 import com.launchwindow.model.LaunchStatus;
@@ -54,10 +48,14 @@ public class LaunchQueryService {
                 : now.plus(filter.days(), ChronoUnit.DAYS);
 
         boolean filterStatuses = !filter.statuses().isEmpty();
+        boolean filterCountries = !filter.countryCodes().isEmpty();
 
         Set<LaunchStatus> queryStatuses = filterStatuses
                         ? filter.statuses()
                         : EnumSet.allOf(LaunchStatus.class);
+        Set<String> queryCountryCodes = filterCountries
+                ? filter.countryCodes()
+                : Set.of("___");
 
         String queryPattern = filter.query() == null
                 ? null
@@ -71,14 +69,19 @@ public class LaunchQueryService {
         List<Launch> fetchedLaunches =
                 filter.sort() == LaunchSort.BEST_VIEWING
                         ? repository
-                        .findBrowseBestViewingPage(now, endTime, filterStatuses, queryStatuses, queryPattern,
-                                filter.forecastAvailable(), filter.minimumViewingScore(), afterViewingScore, afterTime,
-                                afterId, pageRequest)
+                        .findBrowseBestViewingPage(now, endTime, filterStatuses, queryStatuses, filterCountries, queryCountryCodes,
+                                queryPattern, filter.forecastAvailable(), filter.minimumViewingScore(), afterViewingScore,
+                                afterTime, afterId, pageRequest)
                         : repository
-                        .findBrowseSoonestPage(now, endTime, filterStatuses, queryStatuses, queryPattern,
-                                filter.forecastAvailable(), filter.minimumViewingScore(), afterTime, afterId, pageRequest);
+                        .findBrowseSoonestPage( now, endTime, filterStatuses, queryStatuses, filterCountries, queryCountryCodes,
+                                queryPattern, filter.forecastAvailable(), filter.minimumViewingScore(), afterTime, afterId, pageRequest);
 
         return createPage(fetchedLaunches, limit, filter.sort());
+    }
+
+    @Transactional(readOnly = true)
+    public List<CountryResponse> getUpcomingCountries() {
+        return repository.findUpcomingCountries(clock.instant());
     }
 
     @Transactional
@@ -123,6 +126,8 @@ public class LaunchQueryService {
                 launch.getOrganizationName(),
                 launch.getPadName(),
                 launch.getLocationName(),
+                launch.getCountryCode(),
+                launch.getCountryName(),
                 weather
         );
     }
@@ -141,6 +146,8 @@ public class LaunchQueryService {
                 launch.getOrganizationName(),
                 launch.getPadName(),
                 launch.getLocationName(),
+                launch.getCountryCode(),
+                launch.getCountryName(),
                 launch.getLatitude(),
                 launch.getLongitude(),
                 launch.getLastSyncedAt()
@@ -160,6 +167,13 @@ public class LaunchQueryService {
 
     private void validateBrowse(LaunchBrowseFilter filter, Instant afterTime, Long afterId, Short afterViewingScore, int limit) {
         validateLimit(limit);
+        boolean invalidCountryCode = filter.countryCodes()
+                .stream()
+                .anyMatch(code -> !code.matches("[A-Z]{3}"));
+
+        if (invalidCountryCode) {
+            throw new InvalidPaginationException("countryCodes must contain ISO alpha-3 codes");
+        }
 
         if (filter.days() != null && (filter.days() < 1 || filter.days() > MAX_DAYS)) {
             throw new InvalidPaginationException("days must be between 1 and 365");

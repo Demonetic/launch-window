@@ -1,11 +1,6 @@
 package com.launchwindow.controller;
 
-import com.launchwindow.dto.LaunchBrowseFilter;
-import com.launchwindow.dto.LaunchDetailResponse;
-import com.launchwindow.dto.LaunchPageResponse;
-import com.launchwindow.dto.LaunchSort;
-import com.launchwindow.dto.LaunchSummaryResponse;
-import com.launchwindow.dto.WeatherResponse;
+import com.launchwindow.dto.*;
 import com.launchwindow.exception.ResourceNotFoundException;
 import com.launchwindow.model.LaunchStatus;
 import com.launchwindow.service.launch.BestViewingQueryService;
@@ -38,11 +33,11 @@ public class LaunchController {
     @GetMapping
     public LaunchPageResponse getUpcomingLaunches(@RequestParam(defaultValue = "20") int limit, @RequestParam(defaultValue = "SOONEST") LaunchSort sort,
                                                   @RequestParam(required = false) Integer days, @RequestParam(required = false) Set<LaunchStatus> statuses,
-                                                  @RequestParam(required = false) String query, @RequestParam(required = false) Boolean forecastAvailable,
-                                                  @RequestParam(required = false) Short minimumViewingScore,
+                                                  @RequestParam(required = false) Set<String> countryCodes, @RequestParam(required = false) String query,
+                                                  @RequestParam(required = false) Boolean forecastAvailable, @RequestParam(required = false) Short minimumViewingScore,
                                                   @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant afterTime,
                                                   @RequestParam(required = false) Long afterId, @RequestParam(required = false) Short afterViewingScore) {
-        LaunchBrowseFilter filter = new LaunchBrowseFilter(sort, days, statuses, query, forecastAvailable, minimumViewingScore);
+        LaunchBrowseFilter filter = new LaunchBrowseFilter(sort, days, statuses, countryCodes, query, forecastAvailable, minimumViewingScore);
 
         return launchService.browseUpcomingLaunches(filter, afterTime, afterId, afterViewingScore, limit);
     }
@@ -50,6 +45,11 @@ public class LaunchController {
     @GetMapping("/best-viewing")
     public List<LaunchSummaryResponse> getBestViewingLaunches(@RequestParam(defaultValue = "7") int days, @RequestParam(defaultValue = "3") int limit) {
         return bestViewingService.getBestViewingLaunches(days, limit);
+    }
+
+    @GetMapping("/countries")
+    public List<CountryResponse> getUpcomingCountries() {
+        return launchService.getUpcomingCountries();
     }
 
     @GetMapping("/{id}")

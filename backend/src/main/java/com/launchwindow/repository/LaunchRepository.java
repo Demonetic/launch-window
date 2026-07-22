@@ -1,5 +1,6 @@
 package com.launchwindow.repository;
 
+import com.launchwindow.dto.CountryResponse;
 import com.launchwindow.model.Launch;
 import com.launchwindow.model.LaunchStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,6 +31,19 @@ public interface LaunchRepository extends JpaRepository<Launch, Long> {
     List<Launch> findBestViewingLaunches(@Param("now") Instant now, @Param("endTime") Instant endTime, Pageable pageable);
 
     @Query("""
+    SELECT DISTINCT new com.launchwindow.dto.CountryResponse(
+        launch.countryCode,
+        launch.countryName
+    )
+    FROM Launch launch
+    WHERE launch.launchTime > :now
+      AND launch.countryCode IS NOT NULL
+      AND launch.countryName IS NOT NULL
+    ORDER BY launch.countryName ASC
+    """)
+    List<CountryResponse> findUpcomingCountries(@Param("now") Instant now);
+
+    @Query("""
         SELECT launch
         FROM Launch launch
         LEFT JOIN WeatherSnapshot weather
@@ -42,6 +56,10 @@ public interface LaunchRepository extends JpaRepository<Launch, Long> {
           AND (
                 :filterStatuses = false
                 OR launch.status IN :statuses
+              )
+          AND (
+                :filterCountries = false
+                OR launch.countryCode IN :countryCodes
               )
           AND (
                 :queryPattern IS NULL
@@ -85,6 +103,7 @@ public interface LaunchRepository extends JpaRepository<Launch, Long> {
         """)
     List<Launch> findBrowseSoonestPage(@Param("now") Instant now, @Param("endTime") Instant endTime,
                                        @Param("filterStatuses") boolean filterStatuses, @Param("statuses") Set<LaunchStatus> statuses,
+                                       @Param("filterCountries") boolean filterCountries, @Param("countryCodes") Set<String> countryCodes,
                                        @Param("queryPattern") String queryPattern, @Param("forecastAvailable") Boolean forecastAvailable,
                                        @Param("minimumViewingScore") Short minimumViewingScore, @Param("afterTime") Instant afterTime,
                                        @Param("afterId") Long afterId, Pageable pageable);
@@ -102,6 +121,10 @@ public interface LaunchRepository extends JpaRepository<Launch, Long> {
           AND (
                 :filterStatuses = false
                 OR launch.status IN :statuses
+              )
+          AND (
+                :filterCountries = false
+                OR launch.countryCode IN :countryCodes
               )
           AND (
                 :queryPattern IS NULL
@@ -155,6 +178,7 @@ public interface LaunchRepository extends JpaRepository<Launch, Long> {
         """)
     List<Launch> findBrowseBestViewingPage(@Param("now") Instant now, @Param("endTime") Instant endTime,
                                            @Param("filterStatuses") boolean filterStatuses, @Param("statuses") Set<LaunchStatus> statuses,
+                                           @Param("filterCountries") boolean filterCountries, @Param("countryCodes") Set<String> countryCodes,
                                            @Param("queryPattern") String queryPattern, @Param("forecastAvailable") Boolean forecastAvailable,
                                            @Param("minimumViewingScore") Short minimumViewingScore, @Param("afterViewingScore") Short afterViewingScore,
                                            @Param("afterTime") Instant afterTime, @Param("afterId") Long afterId, Pageable pageable);

@@ -48,12 +48,12 @@ class LaunchBrowseQueryServiceTest {
         Launch second = launch(2L, secondTime);
         Launch extra = mock(Launch.class);
 
-        LaunchBrowseFilter filter =
-                new LaunchBrowseFilter(LaunchSort.SOONEST, 30, Set.of(LaunchStatus.GO), "  SpaceX  ", true, (short) 60);
+        LaunchBrowseFilter filter = new LaunchBrowseFilter(LaunchSort.SOONEST, 30, Set.of(LaunchStatus.GO),
+                Set.of("USA"), "  SpaceX  ", true, (short) 60);
 
         when(repository.findBrowseSoonestPage(CURRENT_TIME, CURRENT_TIME.plusSeconds(30L * 24 * 60 * 60),
-                true, Set.of(LaunchStatus.GO), "%spacex%", true, (short) 60,
-                null, null, PageRequest.of(0, 3)))
+                true, Set.of(LaunchStatus.GO), true, Set.of("USA"),"%spacex%",
+                true, (short) 60, null, null, PageRequest.of(0, 3)))
                 .thenReturn(List.of(first, second, extra));
         when(weatherService.getByLaunchIds(List.of(1L, 2L))).thenReturn(Map.of());
 
@@ -84,9 +84,9 @@ class LaunchBrowseQueryServiceTest {
         LaunchBrowseFilter filter =
                 new LaunchBrowseFilter(LaunchSort.BEST_VIEWING, null, Set.of(), null, null, null);
 
-        when(repository.findBrowseBestViewingPage(CURRENT_TIME, null, false, EnumSet.allOf(LaunchStatus.class),
-                null, null, null, null, null, null,
-                PageRequest.of(0, 3))).thenReturn(List.of(first, second, extra));
+        when(repository.findBrowseBestViewingPage(CURRENT_TIME, null, false, EnumSet.allOf(LaunchStatus.class),false,
+                Set.of("___"), null, null, null, null, null,
+                null, PageRequest.of(0, 3))).thenReturn(List.of(first, second, extra));
         when(weatherService.getByLaunchIds(List.of(1L, 2L))).thenReturn(Map.of(2L, weather));
 
         LaunchPageResponse result =
@@ -108,9 +108,9 @@ class LaunchBrowseQueryServiceTest {
         LaunchBrowseFilter filter =
                 new LaunchBrowseFilter(LaunchSort.BEST_VIEWING, null, Set.of(), null, null, null);
 
-        when(repository.findBrowseBestViewingPage(CURRENT_TIME, null, false, EnumSet.allOf(LaunchStatus.class),
-                null, null, null, null, null, null,
-                PageRequest.of(0, 2))).thenReturn(List.of(launch, extra));
+        when(repository.findBrowseBestViewingPage(CURRENT_TIME, null, false, EnumSet.allOf(LaunchStatus.class), false,
+                Set.of("___"), null, null, null, null, null,
+                null, PageRequest.of(0, 2))).thenReturn(List.of(launch, extra));
         when(weatherService.getByLaunchIds(List.of(4L))).thenReturn(Map.of());
 
         LaunchPageResponse result =
@@ -127,6 +127,8 @@ class LaunchBrowseQueryServiceTest {
                 new LaunchBrowseFilter(LaunchSort.SOONEST, null, Set.of(), null, null, (short) 101);
         LaunchBrowseFilter conflictingWeather =
                 new LaunchBrowseFilter(LaunchSort.SOONEST, null, Set.of(), null, false, (short) 50);
+        LaunchBrowseFilter invalidCountry =
+                new LaunchBrowseFilter(LaunchSort.SOONEST, null, Set.of(), Set.of("SWEDEN"), null, null, null);
 
         assertThrows(
                 InvalidPaginationException.class,
@@ -136,8 +138,10 @@ class LaunchBrowseQueryServiceTest {
                 () -> service.browseUpcomingLaunches(invalidScore, null, null, null, 20));
         assertThrows(
                 InvalidPaginationException.class,
-                () -> service.browseUpcomingLaunches(conflictingWeather, null, null, null, 20)
-        );
+                () -> service.browseUpcomingLaunches(conflictingWeather, null, null, null, 20));
+        assertThrows(
+                InvalidPaginationException.class,
+                () -> service.browseUpcomingLaunches(invalidCountry, null, null, null, 20));
 
         verifyNoInteractions(repository, weatherService);
     }

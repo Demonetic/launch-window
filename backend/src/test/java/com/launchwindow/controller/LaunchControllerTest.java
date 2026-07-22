@@ -210,8 +210,8 @@ class LaunchControllerTest {
     void anonymousUserCanFilterAndSortLaunches() throws Exception {
         Instant afterTime = Instant.parse("2026-08-01T10:15:30Z");
 
-        LaunchBrowseFilter filter = new LaunchBrowseFilter(LaunchSort.BEST_VIEWING, 14,
-                Set.of(LaunchStatus.GO, LaunchStatus.TO_BE_CONFIRMED), "falcon", true, (short) 70);
+        LaunchBrowseFilter filter = new LaunchBrowseFilter(LaunchSort.BEST_VIEWING, 14, Set.of(LaunchStatus.GO, LaunchStatus.TO_BE_CONFIRMED),
+                Set.of("USA", "CHN"), "falcon", true, (short) 70);
 
         LaunchPageResponse page = new LaunchPageResponse(List.of(), null, false);
 
@@ -222,6 +222,7 @@ class LaunchControllerTest {
                         .param("days", "14")
                         .param("statuses", "GO", "TO_BE_CONFIRMED")
                         .param("query", "falcon")
+                        .param("countryCodes", "USA", "CHN")
                         .param("forecastAvailable", "true")
                         .param("minimumViewingScore", "70")
                         .param("afterViewingScore", "85")
@@ -246,5 +247,36 @@ class LaunchControllerTest {
                 .andExpect(jsonPath("$.message").value("Request could not be read"))
                 .andExpect(jsonPath("$.path").value("/api/launches"))
                 .andExpect(jsonPath("$.fieldErrors").isEmpty());
+    }
+
+    @Test
+    void anonymousUserCanGetUpcomingLaunchCountries() throws Exception {
+        when(launchService.getUpcomingCountries())
+                .thenReturn(List.of(new CountryResponse("CHN", "China"),
+                        new CountryResponse("USA", "United States")));
+
+        mockMvc.perform(get("/api/launches/countries"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].code").value("CHN"))
+                .andExpect(jsonPath("$[0].name").value("China"))
+                .andExpect(jsonPath("$[1].code").value("USA"))
+                .andExpect(jsonPath("$[1].name").value("United States"));
+
+        verify(launchService).getUpcomingCountries();
+    }
+
+    @Test
+    void invalidCountryCodeReturnsBadRequest() throws Exception {
+        LaunchBrowseFilter filter = new LaunchBrowseFilter(LaunchSort.SOONEST, null, null,
+                Set.of("SWEDEN"), null, null, null);
+
+        when(launchService.browseUpcomingLaunches(filter, null, null, null, 20))
+                .thenThrow(new InvalidPaginationException("countryCodes must contain ISO alpha-3 codes"));
+
+        mockMvc.perform(get("/api/launches").param("countryCodes", "SWEDEN"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.code").value("INVALID_PAGINATION"))
+                .andExpect(jsonPath("$.message").value("countryCodes must contain ISO alpha-3 codes"));
     }
 }

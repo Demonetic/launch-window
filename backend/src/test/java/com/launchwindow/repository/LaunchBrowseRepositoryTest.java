@@ -39,15 +39,15 @@ class LaunchBrowseRepositoryTest {
         Launch later = saveLaunch("later", "Later launch", LaunchStatus.GO, CURRENT_TIME.plus(2, ChronoUnit.DAYS));
 
         List<Launch> firstPage = launchRepository.findBrowseSoonestPage(CURRENT_TIME, null, false,
-                Set.of(LaunchStatus.GO), null, null, null, null, null,
-                PageRequest.of(0, 10)
+                Set.of(LaunchStatus.GO), false, Set.of("___"),null, null,
+                null, null, null, PageRequest.of(0, 10)
         );
 
         assertIds(firstPage, first, second, later);
 
         List<Launch> nextPage = launchRepository.findBrowseSoonestPage(CURRENT_TIME, null, false,
-                Set.of(LaunchStatus.GO), null, null, null, equalTime, first.getId(),
-                PageRequest.of(0, 10)
+                Set.of(LaunchStatus.GO), false, Set.of("___"),null, null,
+                null, equalTime, first.getId(), PageRequest.of(0, 10)
         );
 
         assertIds(nextPage, second, later);
@@ -62,8 +62,8 @@ class LaunchBrowseRepositoryTest {
         saveLaunch("outside-period", "Falcon outside period", LaunchStatus.GO, CURRENT_TIME.plus(8, ChronoUnit.DAYS));
 
         List<Launch> result = launchRepository.findBrowseSoonestPage(CURRENT_TIME, CURRENT_TIME.plus(7, ChronoUnit.DAYS), true,
-                Set.of(LaunchStatus.GO), "%falcon%", null, null, null, null,
-                PageRequest.of(0, 10)
+                Set.of(LaunchStatus.GO), false, Set.of("___"),"%falcon%", null,
+                null, null, null, PageRequest.of(0, 10)
         );
 
         assertIds(result, matching);
@@ -79,15 +79,15 @@ class LaunchBrowseRepositoryTest {
         saveWeather(poor, (short) 40);
 
         List<Launch> withGoodForecast = launchRepository.findBrowseSoonestPage(CURRENT_TIME, null, false,
-                Set.of(LaunchStatus.GO), null, true, (short) 70, null, null,
-                PageRequest.of(0, 10)
+                Set.of(LaunchStatus.GO), false, Set.of("___"),null, true, (short) 70,
+                null, null, PageRequest.of(0, 10)
         );
 
         assertIds(withGoodForecast, excellent);
 
         List<Launch> withoutForecast = launchRepository.findBrowseSoonestPage(CURRENT_TIME, null, false,
-                Set.of(LaunchStatus.GO), null, false, null, null, null,
-                PageRequest.of(0, 10)
+                Set.of(LaunchStatus.GO), false, Set.of("___"),null, false,
+                null, null, null, PageRequest.of(0, 10)
         );
 
         assertIds(withoutForecast, missing);
@@ -110,8 +110,8 @@ class LaunchBrowseRepositoryTest {
         saveWeather(lower, (short) 30);
 
         List<Launch> result = launchRepository.findBrowseBestViewingPage(CURRENT_TIME, null, false,
-                Set.of(LaunchStatus.GO), null, null, null, null, null, null,
-                PageRequest.of(0, 10)
+                Set.of(LaunchStatus.GO), false, Set.of("___"),null, null,
+                null, null, null, null, PageRequest.of(0, 10)
         );
 
         assertIds(result, best, firstEqual, secondEqual, lower, missing);
@@ -134,14 +134,55 @@ class LaunchBrowseRepositoryTest {
         saveWeather(lower, (short) 30);
 
         List<Launch> result = launchRepository.findBrowseBestViewingPage(CURRENT_TIME, null, false,
-                Set.of(LaunchStatus.GO), null, null, null, (short) 80, equalTime, firstEqual.getId(),
-                PageRequest.of(0, 10)
+                Set.of(LaunchStatus.GO), false, Set.of("___"),null, null,
+                null, (short) 80, equalTime, firstEqual.getId(), PageRequest.of(0, 10)
         );
 
         assertIds(result, secondEqual, lower, missing);
     }
 
+    @Test
+    void soonestSortFiltersByMultipleCountries() {
+        Launch usa = saveLaunch("country-usa", "USA launch", LaunchStatus.GO,
+                CURRENT_TIME.plus(1, ChronoUnit.DAYS), "USA", "United States");
+
+        Launch china = saveLaunch("country-china", "China launch", LaunchStatus.GO,
+                CURRENT_TIME.plus(2, ChronoUnit.DAYS), "CHN", "China");
+
+        saveLaunch("country-kazakhstan", "Kazakhstan launch", LaunchStatus.GO,
+                CURRENT_TIME.plus(3, ChronoUnit.DAYS), "KAZ", "Kazakhstan");
+
+        List<Launch> result =
+                launchRepository.findBrowseSoonestPage(
+                        CURRENT_TIME,
+                        null,
+                        false,
+                        Set.of(LaunchStatus.GO),
+                        true,
+                        Set.of("USA", "CHN"),
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        PageRequest.of(0, 10)
+                );
+
+        assertIds(result, usa, china);
+    }
+
     private Launch saveLaunch(String externalId, String name, LaunchStatus status, Instant launchTime) {
+        return saveLaunch(
+                externalId,
+                name,
+                status,
+                launchTime,
+                null,
+                null
+        );
+    }
+
+    private Launch saveLaunch(String externalId, String name, LaunchStatus status, Instant launchTime, String countryCode, String countryName) {
         LaunchDetails details = new LaunchDetails(
                 externalId,
                 name,
@@ -155,6 +196,8 @@ class LaunchBrowseRepositoryTest {
                 "Test organization",
                 "Test pad",
                 "Test location",
+                countryCode,
+                countryName,
                 new BigDecimal("28.500000"),
                 new BigDecimal("-80.600000"),
                 CURRENT_TIME
