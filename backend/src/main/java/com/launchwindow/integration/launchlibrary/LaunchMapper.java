@@ -13,6 +13,7 @@ import java.util.Objects;
 @Component
 public class LaunchMapper {
     private static final String UNKNOWN_ROCKET = "Unknown rocket";
+    private final CountryNameResolver countryNameResolver;
     private static final BigDecimal MIN_LATITUDE = new BigDecimal("-90");
     private static final BigDecimal MAX_LATITUDE = new BigDecimal("90");
     private static final BigDecimal MIN_LONGITUDE = new BigDecimal("-180");
@@ -20,8 +21,9 @@ public class LaunchMapper {
 
     private final LaunchStatusMapper statusMapper;
 
-    public LaunchMapper(LaunchStatusMapper statusMapper) {
+    public LaunchMapper(LaunchStatusMapper statusMapper, CountryNameResolver countryNameResolver) {
         this.statusMapper = statusMapper;
+        this.countryNameResolver = countryNameResolver;
     }
 
     public LaunchDetails map(LaunchLibraryLaunchDto source, Instant syncedAt) {
@@ -41,6 +43,8 @@ public class LaunchMapper {
                 organizationName(source),
                 padName(source),
                 locationName(source),
+                countryCode(source),
+                countryName(source),
                 latitude(source),
                 longitude(source),
                 syncedAt
@@ -91,6 +95,20 @@ public class LaunchMapper {
                 : null;
     }
 
+    private String countryCode(
+            LaunchLibraryLaunchDto source
+    ) {
+        if (source.pad() == null || source.pad().location() == null) {
+            return null;
+        }
+
+        return countryNameResolver.normalize(source.pad().location().countryCode());
+    }
+
+    private String countryName(LaunchLibraryLaunchDto source) {
+        return countryNameResolver.resolve(countryCode(source));
+    }
+
     private BigDecimal longitude(LaunchLibraryLaunchDto source) {
         BigDecimal longitude = source.pad() == null
                 ? null
@@ -101,14 +119,8 @@ public class LaunchMapper {
                 : null;
     }
 
-    private boolean isWithinRange(
-            BigDecimal value,
-            BigDecimal minimum,
-            BigDecimal maximum
-    ) {
-        return value != null
-                && value.compareTo(minimum) >= 0
-                && value.compareTo(maximum) <= 0;
+    private boolean isWithinRange(BigDecimal value, BigDecimal minimum, BigDecimal maximum) {
+        return value != null && value.compareTo(minimum) >= 0 && value.compareTo(maximum) <= 0;
     }
 
     private String firstVideoUrl(List<LaunchLibraryVideoDto> videos) {

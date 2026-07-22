@@ -54,6 +54,12 @@ public class Launch {
     @Column(name = "location_name", length = 255)
     private String locationName;
 
+    @Column(name = "country_code", length = 3)
+    private String countryCode;
+
+    @Column(name = "country_name", length = 100)
+    private String countryName;
+
     @Column(precision = 9, scale = 6)
     private BigDecimal latitude;
 
@@ -80,6 +86,8 @@ public class Launch {
         this.organizationName = details.organizationName();
         this.padName = details.padName();
         this.locationName = details.locationName();
+        this.countryCode = details.countryCode();
+        this.countryName = details.countryName();
         this.latitude = details.latitude();
         this.longitude = details.longitude();
         this.lastSyncedAt = details.lastSyncedAt();

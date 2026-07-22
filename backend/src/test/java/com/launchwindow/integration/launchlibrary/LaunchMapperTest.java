@@ -12,7 +12,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class LaunchMapperTest {
-    private final LaunchMapper mapper = new LaunchMapper(new LaunchStatusMapper());
+    private final LaunchMapper mapper = new LaunchMapper(new LaunchStatusMapper(), new CountryNameResolver());
 
     @Test
     void mapsLaunchLibraryDataToLaunchDetails() {
@@ -36,7 +36,7 @@ class LaunchMapperTest {
                         "Launch Complex 39B",
                         new BigDecimal("28.627000"),
                         new BigDecimal("-80.621000"),
-                        new LaunchLibraryLocationDto("Kennedy Space Center")
+                        new LaunchLibraryLocationDto("Kennedy Space Center", "USA")
                 ),
                 new LaunchLibraryAgencyDto("NASA"),
                 List.of(
@@ -51,36 +51,20 @@ class LaunchMapperTest {
         assertAll(
                 () -> assertEquals("launch-123", result.externalId()),
                 () -> assertEquals("Artemis Test Launch", result.name()),
-                () -> assertEquals(
-                        "Test mission description",
-                        result.description()
-                ),
+                () -> assertEquals("Test mission description", result.description()),
                 () -> assertEquals(LaunchStatus.GO, result.status()),
                 () -> assertEquals(launchTime, result.launchTime()),
-                () -> assertEquals(
-                        "https://example.com/image.jpg",
-                        result.imageUrl()
-                ),
-                () -> assertEquals(
-                        "https://example.com/webcast",
-                        result.webcastUrl()
-                ),
+                () -> assertEquals("https://example.com/image.jpg", result.imageUrl()),
+                () -> assertEquals("https://example.com/webcast", result.webcastUrl()),
                 () -> assertEquals("SLS Block 1", result.rocketName()),
                 () -> assertEquals("Exploration", result.missionType()),
                 () -> assertEquals("NASA", result.organizationName()),
                 () -> assertEquals("Launch Complex 39B", result.padName()),
-                () -> assertEquals(
-                        "Kennedy Space Center",
-                        result.locationName()
-                ),
-                () -> assertEquals(
-                        new BigDecimal("28.627000"),
-                        result.latitude()
-                ),
-                () -> assertEquals(
-                        new BigDecimal("-80.621000"),
-                        result.longitude()
-                ),
+                () -> assertEquals("Kennedy Space Center", result.locationName()),
+                () -> assertEquals("USA", result.countryCode()),
+                () -> assertEquals("United States", result.countryName()),
+                () -> assertEquals(new BigDecimal("28.627000"), result.latitude()),
+                () -> assertEquals(new BigDecimal("-80.621000"), result.longitude()),
                 () -> assertEquals(syncedAt, result.lastSyncedAt())
         );
     }
@@ -179,7 +163,7 @@ class LaunchMapperTest {
                 null,
                 null,
                 null,
-                new LaunchLibraryPadDto("Test pad", latitude, longitude, new LaunchLibraryLocationDto("Test location")),
+                new LaunchLibraryPadDto("Test pad", latitude, longitude, new LaunchLibraryLocationDto("Test location", null)),
                 null,
                 null
         );
