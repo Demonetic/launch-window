@@ -12,6 +12,7 @@ import {
     viewingLabels,
 } from './launchPresentation'
 import type { LaunchSummary } from './types'
+import { LaunchImage } from './LaunchImage'
 
 interface LaunchCardProps {
     launch: LaunchSummary
@@ -28,11 +29,10 @@ export function LaunchCard({ launch }: LaunchCardProps) {
             }}
         >
             <div className="launch-card-image">
-                {launch.imageUrl ? (
-                    <img src={launch.imageUrl} alt="" />
-                ) : (
-                    <Rocket aria-hidden="true" size={38} />
-                )}
+                <LaunchImage
+                    src={launch.imageUrl}
+                    fallbackSize={38}
+                />
 
                 <span
                     className={`launch-status launch-status-${toClassName(

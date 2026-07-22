@@ -1,7 +1,6 @@
 import {
     CalendarClock,
     CloudSun,
-    Rocket,
 } from 'lucide-react'
 import { Link } from 'react-router'
 import {
@@ -10,6 +9,7 @@ import {
     viewingLabels,
 } from './launchPresentation'
 import type { LaunchSummary } from './types'
+import { LaunchImage } from './LaunchImage'
 
 interface BestViewingCardProps {
     launch: LaunchSummary
@@ -28,14 +28,10 @@ export function BestViewingCard({
             }}
         >
             <div className="best-viewing-image">
-                {launch.imageUrl ? (
-                    <img src={launch.imageUrl} alt="" />
-                ) : (
-                    <Rocket
-                        aria-hidden="true"
-                        size={28}
-                    />
-                )}
+                <LaunchImage
+                    src={launch.imageUrl}
+                    fallbackSize={28}
+                />
             </div>
 
             <div className="best-viewing-content">

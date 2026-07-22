@@ -15,6 +15,7 @@ export interface LaunchFilters {
     sort: LaunchSort
     days: number | null
     statuses: LaunchStatus[]
+    countryCodes: string[]
     query: string
     forecastAvailable: boolean | null
     minimumViewingScore: number | null
@@ -33,6 +34,11 @@ export interface WeatherSummary {
     forecastTime: string
 }
 
+export interface LaunchCountry {
+    code: string
+    name: string
+}
+
 export interface LaunchSummary {
     id: number
     name: string
@@ -43,6 +49,8 @@ export interface LaunchSummary {
     organizationName: string | null
     padName: string | null
     locationName: string | null
+    countryCode: string | null
+    countryName: string | null
     weather: WeatherSummary | null
 }
 
@@ -71,6 +79,8 @@ export interface LaunchDetail {
     organizationName: string | null
     padName: string | null
     locationName: string | null
+    countryCode: string | null
+    countryName: string | null
     latitude: number | null
     longitude: number | null
     lastSyncedAt: string

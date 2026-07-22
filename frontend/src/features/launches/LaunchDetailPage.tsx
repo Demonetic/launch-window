@@ -22,6 +22,7 @@ import { LaunchWeatherPanel } from './LaunchWeatherPanel'
 import { useLaunchDetail } from './useLaunchDetail'
 import { LaunchNotesPanel } from '../notes/LaunchNotesPanel'
 import './launchDetail.css'
+import { LaunchImage } from './LaunchImage'
 
 interface LaunchNavigationState {
     returnLabel?: string
@@ -118,14 +119,10 @@ export function LaunchDetailPage() {
 
             <section className="launch-detail-hero">
                 <div className="launch-detail-image">
-                    {launch.imageUrl ? (
-                        <img src={launch.imageUrl} alt="" />
-                    ) : (
-                        <Rocket
-                            aria-hidden="true"
-                            size={54}
-                        />
-                    )}
+                    <LaunchImage
+                        src={launch.imageUrl}
+                        fallbackSize={54}
+                    />
                 </div>
 
                 <div className="launch-detail-introduction">

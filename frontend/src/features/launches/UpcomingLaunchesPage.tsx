@@ -19,6 +19,7 @@ export function UpcomingLaunchesPage() {
         () => ({
             ...DEFAULT_LAUNCH_FILTERS,
             statuses: [],
+            countryCodes: [],
         }),
     )
 

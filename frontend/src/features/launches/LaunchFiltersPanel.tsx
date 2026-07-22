@@ -8,6 +8,7 @@ import {
     useState,
     type FormEvent,
 } from 'react'
+import { LaunchCountryFilter } from './LaunchCountryFilter'
 import { LaunchFilterControls } from './LaunchFilterControls'
 import { LaunchStatusFilter } from './LaunchStatusFilter'
 import {
@@ -46,7 +47,8 @@ export function LaunchFiltersPanel({
 
     function toggleStatus(status: LaunchStatus) {
         setDraft((current) => {
-            const selected = current.statuses.includes(status)
+            const selected =
+                current.statuses.includes(status)
 
             return {
                 ...current,
@@ -68,6 +70,7 @@ export function LaunchFiltersPanel({
             ...draft,
             query: draft.query.trim(),
             statuses: [...draft.statuses],
+            countryCodes: [...draft.countryCodes],
         })
     }
 
@@ -140,6 +143,15 @@ export function LaunchFiltersPanel({
                 onUpdate={updateDraft}
             />
 
+            <LaunchCountryFilter
+                selectedCodes={draft.countryCodes}
+                onChange={(countryCodes) =>
+                    updateDraft({
+                        countryCodes,
+                    })
+                }
+            />
+
             <LaunchStatusFilter
                 statuses={draft.statuses}
                 onToggle={toggleStatus}
@@ -183,5 +195,6 @@ function copyFilters(
     return {
         ...filters,
         statuses: [...filters.statuses],
+        countryCodes: [...filters.countryCodes],
     }
 }

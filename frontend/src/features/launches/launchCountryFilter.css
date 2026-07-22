@@ -1,0 +1,98 @@
+.launch-country-filter {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.launch-country-filter legend {
+    margin-bottom: 9px;
+    color: #8d96b2;
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.launch-country-control {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.launch-country-select {
+    display: flex;
+    width: min(100%, 270px);
+    min-height: 42px;
+    align-items: center;
+    gap: 8px;
+    padding: 0 11px;
+    border: 1px solid rgb(255 255 255 / 9%);
+    border-radius: 12px;
+    color: #9da8ff;
+    background: #090d18;
+}
+
+.launch-country-select select {
+    min-width: 0;
+    flex: 1;
+    border: 0;
+    outline: 0;
+    color: #e9ebf7;
+    background: transparent;
+}
+
+.launch-country-select select:disabled {
+    color: #646d86;
+    cursor: not-allowed;
+}
+
+.selected-launch-countries {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.selected-launch-countries > span {
+    display: inline-flex;
+    min-height: 34px;
+    align-items: center;
+    gap: 7px;
+    padding: 0 6px 0 11px;
+    border: 1px solid rgb(139 153 255 / 28%);
+    border-radius: 999px;
+    color: #c7ceff;
+    background: rgb(139 153 255 / 11%);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.selected-launch-countries button {
+    display: grid;
+    width: 24px;
+    height: 24px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    color: #929dce;
+    background: transparent;
+    cursor: pointer;
+}
+
+.selected-launch-countries button:hover {
+    color: #f7f8fc;
+    background: rgb(255 255 255 / 8%);
+}
+
+@media (max-width: 620px) {
+    .launch-country-control {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .launch-country-select {
+        width: 100%;
+    }
+}

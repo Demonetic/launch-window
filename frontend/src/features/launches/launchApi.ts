@@ -9,6 +9,7 @@ import type {
     LaunchPage,
     LaunchSummary,
     LaunchWeather,
+    LaunchCountry,
 } from './types'
 
 const DEFAULT_PAGE_SIZE = 12
@@ -29,6 +30,10 @@ export function getUpcomingLaunches(
 
     filters.statuses.forEach((status) => {
         parameters.append('statuses', status)
+    })
+
+    filters.countryCodes.forEach((countryCode) => {
+        parameters.append('countryCodes', countryCode,)
     })
 
     const query = filters.query.trim()
@@ -73,6 +78,13 @@ export function getLaunch(
 ): Promise<LaunchDetail> {
     return apiRequest<LaunchDetail>(
         `/api/launches/${launchId}`,
+    )
+}
+
+export function getUpcomingLaunchCountries():
+    Promise<LaunchCountry[]> {
+    return apiRequest<LaunchCountry[]>(
+        '/api/launches/countries',
     )
 }
 
