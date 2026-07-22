@@ -6,6 +6,7 @@ import { RegisterPage } from '../features/auth/RegisterPage'
 import { PlaceholderPage } from '../pages/PlaceholderPage'
 import { UpcomingLaunchesPage } from '../features/launches/UpcomingLaunchesPage'
 import { LaunchDetailPage } from '../features/launches/LaunchDetailPage'
+import { CalendarPage } from '../features/calendar/CalendarPage'
 
 export const router = createBrowserRouter([
     {
@@ -24,7 +25,7 @@ export const router = createBrowserRouter([
                 children: [
                     {
                         path: 'calendar',
-                        element: <PlaceholderPage title="Calendar" />,
+                        element: <CalendarPage />,
                     },
                     {
                         path: 'notes',
