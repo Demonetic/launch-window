@@ -8,6 +8,7 @@ public record LaunchNoteOverviewResponse(
         String launchName,
         Instant launchTime,
         String organizationName,
+        String imageUrl,
         String content,
         Instant createdAt,
         Instant updatedAt
