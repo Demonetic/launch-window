@@ -36,7 +36,8 @@ class LaunchMapperTest {
                         "Launch Complex 39B",
                         new BigDecimal("28.627000"),
                         new BigDecimal("-80.621000"),
-                        new LaunchLibraryLocationDto("Kennedy Space Center", "USA")
+                        new LaunchLibraryLocationDto("Kennedy Space Center", null),
+                        new LaunchLibraryCountryDto("USA")
                 ),
                 new LaunchLibraryAgencyDto("NASA"),
                 List.of(
@@ -66,6 +67,24 @@ class LaunchMapperTest {
                 () -> assertEquals(new BigDecimal("28.627000"), result.latitude()),
                 () -> assertEquals(new BigDecimal("-80.621000"), result.longitude()),
                 () -> assertEquals(syncedAt, result.lastSyncedAt())
+        );
+    }
+
+    @Test
+    void fallsBackToLocationCountryCode() {
+        LaunchLibraryLaunchDto source = new LaunchLibraryLaunchDto("launch-country-fallback", "Fallback launch",
+                        new LaunchLibraryStatusDto(1, "Go", "Go"),
+                        Instant.parse("2026-08-01T10:15:30Z"), null, null, null,
+                        new LaunchLibraryPadDto("Test pad",
+                                new BigDecimal("28.500000"),
+                                new BigDecimal("-80.600000"),
+                                new LaunchLibraryLocationDto("Test location", "KAZ")), null, null);
+
+        LaunchDetails result = mapper.map(source, Instant.parse("2026-07-22T12:00:00Z"));
+
+        assertAll(
+                () -> assertEquals("KAZ", result.countryCode()),
+                () -> assertEquals("Kazakhstan", result.countryName())
         );
     }
 

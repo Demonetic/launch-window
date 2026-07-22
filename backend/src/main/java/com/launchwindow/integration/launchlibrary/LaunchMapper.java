@@ -95,10 +95,20 @@ public class LaunchMapper {
                 : null;
     }
 
-    private String countryCode(
-            LaunchLibraryLaunchDto source
-    ) {
-        if (source.pad() == null || source.pad().location() == null) {
+    private String countryCode(LaunchLibraryLaunchDto source) {
+        if (source.pad() == null) {
+            return null;
+        }
+
+        if (source.pad().country() != null) {
+            String padCountryCode = source.pad().country().alpha3Code();
+
+            if (padCountryCode != null && !padCountryCode.isBlank()) {
+                return countryNameResolver.normalize(padCountryCode);
+            }
+        }
+
+        if (source.pad().location() == null) {
             return null;
         }
 

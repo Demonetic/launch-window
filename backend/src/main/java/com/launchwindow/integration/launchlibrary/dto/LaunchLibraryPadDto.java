@@ -9,6 +9,21 @@ public record LaunchLibraryPadDto(
         String name,
         BigDecimal latitude,
         BigDecimal longitude,
-        LaunchLibraryLocationDto location
+        LaunchLibraryLocationDto location,
+        LaunchLibraryCountryDto country
 ) {
+    public LaunchLibraryPadDto(
+            String name,
+            BigDecimal latitude,
+            BigDecimal longitude,
+            LaunchLibraryLocationDto location
+    ) {
+        this(
+                name,
+                latitude,
+                longitude,
+                location,
+                null
+        );
+    }
 }
