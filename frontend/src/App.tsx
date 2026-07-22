@@ -1,10 +1,7 @@
+import { Outlet } from 'react-router'
+
 function App() {
-  return (
-      <main>
-        <h1>Launch Window</h1>
-        <p>Frontend is ready for liftoff.</p>
-      </main>
-  )
+    return <Outlet />
 }
 
 export default App
