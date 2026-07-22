@@ -8,6 +8,7 @@ import { UpcomingLaunchesPage } from '../features/launches/UpcomingLaunchesPage'
 import { LaunchDetailPage } from '../features/launches/LaunchDetailPage'
 import { CalendarPage } from '../features/calendar/CalendarPage'
 import { AccountPage } from '../features/account/AccountPage'
+import { NotesPage } from '../features/notes/NotesPage'
 
 export const router = createBrowserRouter([
     {
@@ -30,7 +31,7 @@ export const router = createBrowserRouter([
                     },
                     {
                         path: 'notes',
-                        element: <PlaceholderPage title="Notes" />,
+                        element: <NotesPage />,
                     },
                     {
                         path: 'account',
