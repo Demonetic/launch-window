@@ -2,6 +2,8 @@ import { createBrowserRouter } from 'react-router'
 import App from '../App'
 import { PlaceholderPage } from '../pages/PlaceholderPage'
 import { ProtectedRoute } from '../features/auth/ProtectedRoute'
+import { LoginPage } from '../features/auth/LoginPage'
+import { RegisterPage } from '../features/auth/RegisterPage'
 
 export const router = createBrowserRouter([
     {
@@ -30,11 +32,11 @@ export const router = createBrowserRouter([
             },
             {
                 path: 'login',
-                element: <PlaceholderPage title="Log in" />,
+                element: <LoginPage />,
             },
             {
                 path: 'register',
-                element: <PlaceholderPage title="Create account" />,
+                element: <RegisterPage />,
             },
             {
                 path: '*',
