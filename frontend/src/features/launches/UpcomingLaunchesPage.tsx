@@ -1,27 +1,24 @@
 import {
     useEffect,
     useRef,
-    useState,
 } from 'react'
 import { Rocket } from 'lucide-react'
 import { BestViewingSection } from './BestViewingSection'
 import { LaunchCard } from './LaunchCard'
 import { LaunchFiltersPanel } from './LaunchFiltersPanel'
-import { DEFAULT_LAUNCH_FILTERS } from './launchFilters'
-import type { LaunchFilters } from './types'
+import { useLaunchFilterParams } from './useLaunchFilterParams'
 import { useUpcomingLaunches } from './useUpcomingLaunches'
+import type { LaunchFilters } from './types'
 import './launches.css'
 
 export function UpcomingLaunchesPage() {
-    const loadMoreRef = useRef<HTMLDivElement>(null)
+    const loadMoreRef =
+        useRef<HTMLDivElement>(null)
 
-    const [filters, setFilters] = useState<LaunchFilters>(
-        () => ({
-            ...DEFAULT_LAUNCH_FILTERS,
-            statuses: [],
-            countryCodes: [],
-        }),
-    )
+    const {
+        filters,
+        setFilters,
+    } = useLaunchFilterParams()
 
     const {
         data,
@@ -34,10 +31,13 @@ export function UpcomingLaunchesPage() {
     } = useUpcomingLaunches(filters)
 
     const launches =
-        data?.pages.flatMap((page) => page.items) ?? []
+        data?.pages.flatMap(
+            (page) => page.items,
+        ) ?? []
 
     useEffect(() => {
-        const loadMoreElement = loadMoreRef.current
+        const loadMoreElement =
+            loadMoreRef.current
 
         if (!loadMoreElement || !hasNextPage) {
             return
@@ -86,6 +86,7 @@ export function UpcomingLaunchesPage() {
             <BestViewingSection />
 
             <LaunchFiltersPanel
+                key={createFilterKey(filters)}
                 filters={filters}
                 onChange={setFilters}
             />
@@ -111,7 +112,9 @@ export function UpcomingLaunchesPage() {
                     role="status"
                 >
                     <span className="launch-loader" />
-                    <p>Loading upcoming launches...</p>
+                    <p>
+                        Loading upcoming launches...
+                    </p>
                 </div>
             )}
 
@@ -120,7 +123,9 @@ export function UpcomingLaunchesPage() {
                     className="launch-state launch-error"
                     role="alert"
                 >
-                    <h2>Launches could not be loaded</h2>
+                    <h2>
+                        Launches could not be loaded
+                    </h2>
 
                     <p>
                         {error instanceof Error
@@ -142,8 +147,8 @@ export function UpcomingLaunchesPage() {
                         <h2>No matching launches</h2>
 
                         <p>
-                            Try changing or clearing the current
-                            filters.
+                            Try changing or clearing the
+                            current filters.
                         </p>
                     </div>
                 )}
@@ -185,4 +190,10 @@ export function UpcomingLaunchesPage() {
             </div>
         </main>
     )
+}
+
+function createFilterKey(
+    filters: LaunchFilters,
+): string {
+    return JSON.stringify(filters)
 }
