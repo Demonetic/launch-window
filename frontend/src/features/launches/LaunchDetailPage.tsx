@@ -6,7 +6,12 @@ import {
     MapPin,
     Rocket,
 } from 'lucide-react'
-import { Link, useParams } from 'react-router'
+import {
+    useLocation,
+    useNavigate,
+    useParams,
+} from 'react-router'
+import { CalendarToggleButton } from '../calendar/CalendarToggleButton'
 import { ApiClientError } from '../../lib/api'
 import {
     formatDateTime,
@@ -17,22 +22,51 @@ import { LaunchWeatherPanel } from './LaunchWeatherPanel'
 import { useLaunchDetail } from './useLaunchDetail'
 import './launchDetail.css'
 
+interface LaunchNavigationState {
+    returnLabel?: string
+    returnTo?: string
+}
+
 export function LaunchDetailPage() {
     const { launchId } = useParams()
+    const location = useLocation()
+    const navigate = useNavigate()
+
     const parsedLaunchId = Number(launchId)
+
+    const navigationState =
+        location.state as LaunchNavigationState | null
+
+    const returnLabel =
+        navigationState?.returnLabel ?? 'Upcoming launches'
 
     const {
         isValidLaunchId,
         launchQuery,
         weatherQuery,
     } = useLaunchDetail(
-        Number.isNaN(parsedLaunchId) ? null : parsedLaunchId,
+        Number.isNaN(parsedLaunchId)
+            ? null
+            : parsedLaunchId,
     )
+
+    function handleBack() {
+        if (navigationState?.returnTo) {
+            void navigate(-1)
+            return
+        }
+
+        void navigate('/')
+    }
 
     if (!isValidLaunchId) {
         return (
             <main className="launch-detail-page">
-                <DetailError message="The launch ID is invalid." />
+                <DetailError
+                    message="The launch ID is invalid."
+                    returnLabel={returnLabel}
+                    onBack={handleBack}
+                />
             </main>
         )
     }
@@ -61,6 +95,8 @@ export function LaunchDetailPage() {
                             ? 'This launch could not be found.'
                             : 'The launch could not be loaded.'
                     }
+                    returnLabel={returnLabel}
+                    onBack={handleBack}
                 />
             </main>
         )
@@ -70,17 +106,24 @@ export function LaunchDetailPage() {
 
     return (
         <main className="launch-detail-page">
-            <Link className="detail-back-link" to="/">
+            <button
+                className="detail-back-link"
+                type="button"
+                onClick={handleBack}
+            >
                 <ArrowLeft aria-hidden="true" size={18} />
-                Upcoming launches
-            </Link>
+                {returnLabel}
+            </button>
 
             <section className="launch-detail-hero">
                 <div className="launch-detail-image">
                     {launch.imageUrl ? (
                         <img src={launch.imageUrl} alt="" />
                     ) : (
-                        <Rocket aria-hidden="true" size={54} />
+                        <Rocket
+                            aria-hidden="true"
+                            size={54}
+                        />
                     )}
                 </div>
 
@@ -111,16 +154,20 @@ export function LaunchDetailPage() {
                     <div className="launch-detail-primary-data">
                         <p>
                             <CalendarClock aria-hidden="true" />
+
                             <span>
                                 <small>Launch time</small>
                                 <strong>
-                                    {formatDateTime(launch.launchTime)}
+                                    {formatDateTime(
+                                        launch.launchTime,
+                                    )}
                                 </strong>
                             </span>
                         </p>
 
                         <p>
                             <Rocket aria-hidden="true" />
+
                             <span>
                                 <small>Rocket</small>
                                 <strong>
@@ -131,17 +178,26 @@ export function LaunchDetailPage() {
                         </p>
                     </div>
 
-                    {launch.webcastUrl && (
-                        <a
-                            className="webcast-link"
-                            href={launch.webcastUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                        >
-                            Watch webcast
-                            <ExternalLink aria-hidden="true" size={17} />
-                        </a>
-                    )}
+                    <div className="launch-detail-actions">
+                        <CalendarToggleButton
+                            launchId={launch.id}
+                        />
+
+                        {launch.webcastUrl && (
+                            <a
+                                className="webcast-link"
+                                href={launch.webcastUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                            >
+                                Watch webcast
+                                <ExternalLink
+                                    aria-hidden="true"
+                                    size={17}
+                                />
+                            </a>
+                        )}
+                    </div>
                 </div>
             </section>
 
@@ -158,6 +214,7 @@ export function LaunchDetailPage() {
                     <div className="mission-facts">
                         <p>
                             <Building2 aria-hidden="true" />
+
                             <span>
                                 <small>Organization</small>
                                 <strong>
@@ -169,6 +226,7 @@ export function LaunchDetailPage() {
 
                         <p>
                             <MapPin aria-hidden="true" />
+
                             <span>
                                 <small>Launch site</small>
                                 <strong>
@@ -194,15 +252,33 @@ export function LaunchDetailPage() {
     )
 }
 
-function DetailError({ message }: { message: string }) {
+interface DetailErrorProps {
+    message: string
+    returnLabel: string
+    onBack: () => void
+}
+
+function DetailError({
+                         message,
+                         returnLabel,
+                         onBack,
+                     }: DetailErrorProps) {
     return (
-        <div className="launch-state launch-error" role="alert">
+        <div
+            className="launch-state launch-error"
+            role="alert"
+        >
             <h1>Launch unavailable</h1>
             <p>{message}</p>
-            <Link className="detail-back-link" to="/">
+
+            <button
+                className="detail-back-link"
+                type="button"
+                onClick={onBack}
+            >
                 <ArrowLeft aria-hidden="true" size={18} />
-                Return to upcoming launches
-            </Link>
+                Return to {returnLabel.toLowerCase()}
+            </button>
         </div>
     )
 }

@@ -22,6 +22,10 @@ export function LaunchCard({ launch }: LaunchCardProps) {
         <Link
             className="launch-card"
             to={`/launches/${launch.id}`}
+            state={{
+                returnLabel: 'Upcoming launches',
+                returnTo: '/',
+            }}
         >
             <div className="launch-card-image">
                 {launch.imageUrl ? (

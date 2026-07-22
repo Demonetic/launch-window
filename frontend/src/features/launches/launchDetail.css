@@ -4,6 +4,11 @@
 }
 
 .detail-back-link {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
     display: inline-flex;
     width: fit-content;
     align-items: center;
@@ -297,6 +302,70 @@
 
 .detail-error {
     color: #ffb3ba;
+}
+
+.launch-detail-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.launch-detail-actions .webcast-link {
+    margin-top: 0;
+}
+
+.calendar-toggle {
+    display: grid;
+    gap: 6px;
+}
+
+.calendar-toggle-button {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 0 17px;
+    border: 1px solid rgb(154 166 255 / 32%);
+    border-radius: 13px;
+    color: #cbd1ff;
+    background: rgb(132 146 255 / 10%);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition:
+            border-color 160ms ease,
+            background 160ms ease,
+            transform 160ms ease;
+}
+
+.calendar-toggle-button:hover:not(:disabled) {
+    border-color: rgb(154 166 255 / 62%);
+    background: rgb(132 146 255 / 18%);
+    transform: translateY(-2px);
+}
+
+.calendar-toggle-button-saved {
+    color: #b8f3d0;
+    border-color: rgb(75 190 126 / 34%);
+    background: rgb(57 159 103 / 13%);
+}
+
+.calendar-toggle-button:disabled {
+    cursor: wait;
+    opacity: 0.7;
+}
+
+.calendar-toggle p {
+    margin: 0;
+    color: #ffb3ba;
+    font-size: 11px;
+}
+
+.calendar-toggle-spinner {
+    animation: launch-spin 700ms linear infinite;
 }
 
 @media (max-width: 1050px) {

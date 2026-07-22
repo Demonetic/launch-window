@@ -1,6 +1,6 @@
-import { Outlet } from 'react-router'
 import { DesktopNavigation } from './DesktopNavigation'
 import { MobileNavigation } from './MobileNavigation'
+import {Outlet, ScrollRestoration,} from 'react-router'
 import './layout.css'
 
 export function AppShell() {
@@ -13,6 +13,7 @@ export function AppShell() {
             </div>
 
             <MobileNavigation />
+            <ScrollRestoration />
         </div>
     )
 }
