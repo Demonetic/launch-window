@@ -1,10 +1,7 @@
 package com.launchwindow.controller;
 
 import com.launchwindow.config.SecurityConfiguration;
-import com.launchwindow.dto.LaunchCursor;
-import com.launchwindow.dto.LaunchPageResponse;
-import com.launchwindow.dto.LaunchSummaryResponse;
-import com.launchwindow.dto.WeatherSummaryResponse;
+import com.launchwindow.dto.*;
 import com.launchwindow.exception.InvalidPaginationException;
 import com.launchwindow.model.LaunchStatus;
 import com.launchwindow.model.ViewingCondition;
@@ -21,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -60,8 +58,9 @@ class LaunchControllerTest {
         );
         LaunchCursor cursor = new LaunchCursor(Instant.parse("2026-08-01T10:15:30Z"), 1L);
         LaunchPageResponse page = new LaunchPageResponse(List.of(launch), cursor, true);
+        LaunchBrowseFilter filter = new LaunchBrowseFilter(LaunchSort.SOONEST, null, null, null, null, null);
 
-        when(launchService.getUpcomingLaunches(null, null, 20)).thenReturn(page);
+        when(launchService.browseUpcomingLaunches(filter, null, null, null, 20)).thenReturn(page);
 
         mockMvc.perform(get("/api/launches"))
                 .andExpect(status().isOk())
@@ -73,9 +72,10 @@ class LaunchControllerTest {
                 .andExpect(jsonPath("$.items[0].weather.viewingCondition").value("EXCELLENT"))
                 .andExpect(jsonPath("$.hasNext").value(true))
                 .andExpect(jsonPath("$.nextCursor.afterTime").value("2026-08-01T10:15:30Z"))
-                .andExpect(jsonPath("$.nextCursor.afterId").value(1));
+                .andExpect(jsonPath("$.nextCursor.afterId").value(1))
+                .andExpect(jsonPath("$.nextCursor.afterViewingScore").doesNotExist());
 
-        verify(launchService).getUpcomingLaunches(null, null, 20);
+        verify(launchService).browseUpcomingLaunches(filter, null, null, null, 20);
     }
 
     @Test
@@ -83,8 +83,9 @@ class LaunchControllerTest {
         Instant afterTime = Instant.parse("2026-08-01T10:15:30Z");
 
         LaunchPageResponse page = new LaunchPageResponse(List.of(), null, false);
+        LaunchBrowseFilter filter = new LaunchBrowseFilter(LaunchSort.SOONEST, null, null, null, null, null);
 
-        when(launchService.getUpcomingLaunches(afterTime, 42L, 10)).thenReturn(page);
+        when(launchService.browseUpcomingLaunches(filter, afterTime, 42L, null, 10)).thenReturn(page);
 
         mockMvc.perform(get("/api/launches")
                         .param("afterTime", afterTime.toString())
@@ -96,14 +97,16 @@ class LaunchControllerTest {
                 .andExpect(jsonPath("$.hasNext").value(false))
                 .andExpect(jsonPath("$.nextCursor").doesNotExist());
 
-        verify(launchService).getUpcomingLaunches(afterTime, 42L, 10);
+        verify(launchService).browseUpcomingLaunches(filter, afterTime, 42L, null, 10);
     }
 
     @Test
     void incompleteCursorReturnsBadRequest() throws Exception {
         Instant afterTime = Instant.parse("2026-08-01T10:15:30Z");
 
-        when(launchService.getUpcomingLaunches(afterTime, null, 20))
+        LaunchBrowseFilter filter = new LaunchBrowseFilter(LaunchSort.SOONEST, null, null, null, null, null);
+
+        when(launchService.browseUpcomingLaunches(filter, afterTime, null, null, 20))
                 .thenThrow(new InvalidPaginationException("afterTime and afterId must be provided together"));
 
         mockMvc.perform(get("/api/launches").param("afterTime", afterTime.toString()))
@@ -117,9 +120,7 @@ class LaunchControllerTest {
 
     @Test
     void invalidCursorTimeReturnsBadRequest() throws Exception {
-        mockMvc.perform(get("/api/launches")
-                        .param("afterTime", "not-a-date")
-                        .param("afterId", "42"))
+        mockMvc.perform(get("/api/launches").param("afterTime", "not-a-date").param("afterId", "42"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.timestamp").isString())
                 .andExpect(jsonPath("$.status").value(400))
@@ -203,5 +204,47 @@ class LaunchControllerTest {
                         .header("Access-Control-Request-Method", "GET"))
                 .andExpect(status().isForbidden())
                 .andExpect(header().doesNotExist("Access-Control-Allow-Origin"));
+    }
+
+    @Test
+    void anonymousUserCanFilterAndSortLaunches() throws Exception {
+        Instant afterTime = Instant.parse("2026-08-01T10:15:30Z");
+
+        LaunchBrowseFilter filter = new LaunchBrowseFilter(LaunchSort.BEST_VIEWING, 14,
+                Set.of(LaunchStatus.GO, LaunchStatus.TO_BE_CONFIRMED), "falcon", true, (short) 70);
+
+        LaunchPageResponse page = new LaunchPageResponse(List.of(), null, false);
+
+        when(launchService.browseUpcomingLaunches(filter, afterTime, 42L, (short) 85, 10)).thenReturn(page);
+
+        mockMvc.perform(get("/api/launches")
+                        .param("sort", "BEST_VIEWING")
+                        .param("days", "14")
+                        .param("statuses", "GO", "TO_BE_CONFIRMED")
+                        .param("query", "falcon")
+                        .param("forecastAvailable", "true")
+                        .param("minimumViewingScore", "70")
+                        .param("afterViewingScore", "85")
+                        .param("afterTime", afterTime.toString())
+                        .param("afterId", "42")
+                        .param("limit", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items").isArray())
+                .andExpect(jsonPath("$.items").isEmpty())
+                .andExpect(jsonPath("$.hasNext").value(false))
+                .andExpect(jsonPath("$.nextCursor").doesNotExist());
+
+        verify(launchService).browseUpcomingLaunches(filter, afterTime, 42L, (short) 85, 10);
+    }
+
+    @Test
+    void invalidLaunchSortReturnsBadRequest() throws Exception {
+        mockMvc.perform(get("/api/launches").param("sort", "RANDOM"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.code").value("MALFORMED_REQUEST"))
+                .andExpect(jsonPath("$.message").value("Request could not be read"))
+                .andExpect(jsonPath("$.path").value("/api/launches"))
+                .andExpect(jsonPath("$.fieldErrors").isEmpty());
     }
 }

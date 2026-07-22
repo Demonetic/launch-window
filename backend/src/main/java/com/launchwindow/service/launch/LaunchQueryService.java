@@ -1,28 +1,38 @@
 package com.launchwindow.service.launch;
 
+import com.launchwindow.dto.LaunchBrowseFilter;
+import com.launchwindow.dto.LaunchCursor;
 import com.launchwindow.dto.LaunchDetailResponse;
+import com.launchwindow.dto.LaunchPageResponse;
+import com.launchwindow.dto.LaunchSort;
 import com.launchwindow.dto.LaunchSummaryResponse;
 import com.launchwindow.dto.WeatherSummaryResponse;
 import com.launchwindow.exception.InvalidPaginationException;
 import com.launchwindow.model.Launch;
+import com.launchwindow.model.LaunchStatus;
 import com.launchwindow.repository.LaunchRepository;
 import com.launchwindow.service.weather.WeatherSummaryQueryService;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.launchwindow.dto.LaunchCursor;
-import com.launchwindow.dto.LaunchPageResponse;
-import org.springframework.data.domain.PageRequest;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class LaunchQueryService {
     private static final int MIN_LIMIT = 1;
     private static final int MAX_LIMIT = 50;
+    private static final int MAX_DAYS = 365;
+    private static final int MAX_QUERY_LENGTH = 100;
+
     private final LaunchRepository repository;
     private final WeatherSummaryQueryService weatherSummaryService;
     private final Clock clock;
@@ -34,39 +44,72 @@ public class LaunchQueryService {
     }
 
     @Transactional(readOnly = true)
-    public LaunchPageResponse getUpcomingLaunches(Instant afterTime, Long afterId, int limit) {
-        validatePagination(afterTime, afterId, limit);
+    public LaunchPageResponse browseUpcomingLaunches(LaunchBrowseFilter filter, Instant afterTime, Long afterId,
+                                                     Short afterViewingScore, int limit) {
+        validateBrowse(filter, afterTime, afterId, afterViewingScore, limit);
 
-        List<Launch> fetchedLaunches = repository.findUpcomingPage(clock.instant(), afterTime,
-                afterId, PageRequest.of(0, limit + 1));
+        Instant now = clock.instant();
+        Instant endTime = filter.days() == null
+                ? null
+                : now.plus(filter.days(), ChronoUnit.DAYS);
 
-        boolean hasNext = fetchedLaunches.size() > limit;
+        boolean filterStatuses = !filter.statuses().isEmpty();
 
-        List<Launch> pageLaunches = fetchedLaunches.stream()
-                .limit(limit)
-                .toList();
+        Set<LaunchStatus> queryStatuses = filterStatuses
+                        ? filter.statuses()
+                        : EnumSet.allOf(LaunchStatus.class);
 
-        List<Long> launchIds = pageLaunches.stream()
-                .map(Launch::getId)
-                .toList();
+        String queryPattern = filter.query() == null
+                ? null
+                : "%"
+                + filter.query()
+                .toLowerCase(Locale.ROOT)
+                + "%";
 
-        Map<Long, WeatherSummaryResponse> weatherByLaunchId = weatherSummaryService.getByLaunchIds(launchIds);
+        PageRequest pageRequest = PageRequest.of(0, limit + 1);
 
-        List<LaunchSummaryResponse> items = pageLaunches.stream()
-                .map(launch -> toSummary(launch, weatherByLaunchId.get(launch.getId())))
-                .toList();
+        List<Launch> fetchedLaunches =
+                filter.sort() == LaunchSort.BEST_VIEWING
+                        ? repository
+                        .findBrowseBestViewingPage(now, endTime, filterStatuses, queryStatuses, queryPattern,
+                                filter.forecastAvailable(), filter.minimumViewingScore(), afterViewingScore, afterTime,
+                                afterId, pageRequest)
+                        : repository
+                        .findBrowseSoonestPage(now, endTime, filterStatuses, queryStatuses, queryPattern,
+                                filter.forecastAvailable(), filter.minimumViewingScore(), afterTime, afterId, pageRequest);
 
-        LaunchCursor nextCursor = hasNext
-                ? toCursor(pageLaunches.getLast())
-                : null;
-
-        return new LaunchPageResponse(items, nextCursor, hasNext);
+        return createPage(fetchedLaunches, limit, filter.sort());
     }
 
     @Transactional
     public Optional<LaunchDetailResponse> getLaunch(Long id) {
         return repository.findById(id)
                 .map(this::toDetail);
+    }
+
+    private LaunchPageResponse createPage(List<Launch> fetchedLaunches, int limit, LaunchSort sort) {
+        boolean hasNext = fetchedLaunches.size() > limit;
+
+        List<Launch> pageLaunches = fetchedLaunches.stream()
+                        .limit(limit)
+                        .toList();
+
+        List<Long> launchIds = pageLaunches.stream()
+                        .map(Launch::getId)
+                        .toList();
+
+        Map<Long, WeatherSummaryResponse> weatherByLaunchId = weatherSummaryService.getByLaunchIds(launchIds);
+
+        List<LaunchSummaryResponse> items =
+                pageLaunches.stream()
+                        .map(launch -> toSummary(launch, weatherByLaunchId.get(launch.getId())))
+                        .toList();
+
+        LaunchCursor nextCursor = hasNext
+                ? toCursor(pageLaunches.getLast(), sort, weatherByLaunchId.get(pageLaunches.getLast().getId()))
+                : null;
+
+        return new LaunchPageResponse(items, nextCursor, hasNext);
     }
 
     private LaunchSummaryResponse toSummary(Launch launch, WeatherSummaryResponse weather) {
@@ -104,19 +147,76 @@ public class LaunchQueryService {
         );
     }
 
-    private void validatePagination(Instant afterTime, Long afterId, int limit) {
-        boolean onlyOneCursorPartProvided = (afterTime == null) != (afterId == null);
+    private LaunchCursor toCursor(Launch launch, LaunchSort sort, WeatherSummaryResponse weather) {
+        Short viewingScore =
+                sort == LaunchSort.BEST_VIEWING
+                        ? weather == null
+                        ? (short) -1
+                        : weather.viewingScore()
+                        : null;
 
-        if (onlyOneCursorPartProvided) {
-            throw new InvalidPaginationException("afterTime and afterId must be provided together");
+        return new LaunchCursor(launch.getLaunchTime(), launch.getId(), viewingScore);
+    }
+
+    private void validateBrowse(LaunchBrowseFilter filter, Instant afterTime, Long afterId, Short afterViewingScore, int limit) {
+        validateLimit(limit);
+
+        if (filter.days() != null && (filter.days() < 1 || filter.days() > MAX_DAYS)) {
+            throw new InvalidPaginationException("days must be between 1 and 365");
         }
 
-        if (limit < MIN_LIMIT || limit > MAX_LIMIT) {
-            throw new InvalidPaginationException("limit must be between 1 and 50");
+        if (filter.query() != null && filter.query().length() > MAX_QUERY_LENGTH) {
+            throw new InvalidPaginationException("query must not exceed 100 characters");
+        }
+
+        if (filter.minimumViewingScore() != null && (filter.minimumViewingScore() < 0 || filter.minimumViewingScore() > 100)) {
+            throw new InvalidPaginationException("minimumViewingScore must be between 0 and 100");
+        }
+
+        if (Boolean.FALSE.equals(filter.forecastAvailable()) && filter.minimumViewingScore() != null) {
+            throw new InvalidPaginationException("minimumViewingScore cannot be used when forecastAvailable is false");
+        }
+
+        if (filter.sort() == LaunchSort.BEST_VIEWING) {
+            validateBestViewingCursor(afterTime, afterId, afterViewingScore);
+        } else {
+            validateSoonestCursor(afterTime, afterId, afterViewingScore);
         }
     }
 
-    private LaunchCursor toCursor(Launch launch) {
-        return new LaunchCursor(launch.getLaunchTime(), launch.getId());
+    private void validateSoonestCursor(Instant afterTime, Long afterId, Short afterViewingScore) {
+        if (afterViewingScore != null) {
+            throw new InvalidPaginationException("afterViewingScore is only valid for BEST_VIEWING");
+        }
+
+        boolean onlyOneCursorPartProvided = (afterTime == null) != (afterId == null);
+
+        if (onlyOneCursorPartProvided || afterId != null && afterId < 1) {
+            throw new InvalidPaginationException("afterTime and afterId must be provided together");
+        }
+    }
+
+    private void validateBestViewingCursor(Instant afterTime, Long afterId, Short afterViewingScore) {
+        boolean anyCursorPartProvided = afterTime != null || afterId != null || afterViewingScore != null;
+
+        boolean allCursorPartsProvided = afterTime != null && afterId != null && afterViewingScore != null;
+
+        if (anyCursorPartProvided && !allCursorPartsProvided) {
+            throw new InvalidPaginationException("BEST_VIEWING cursor requires score, time and id");
+        }
+
+        if (afterId != null && afterId < 1) {
+            throw new InvalidPaginationException("afterId must be positive");
+        }
+
+        if (afterViewingScore != null && (afterViewingScore < -1 || afterViewingScore > 100)) {
+            throw new InvalidPaginationException("afterViewingScore must be between -1 and 100");
+        }
+    }
+
+    private void validateLimit(int limit) {
+        if (limit < MIN_LIMIT || limit > MAX_LIMIT) {
+            throw new InvalidPaginationException("limit must be between 1 and 50");
+        }
     }
 }
