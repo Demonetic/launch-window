@@ -5,6 +5,7 @@ import { ProtectedRoute } from '../features/auth/ProtectedRoute'
 import { RegisterPage } from '../features/auth/RegisterPage'
 import { PlaceholderPage } from '../pages/PlaceholderPage'
 import { UpcomingLaunchesPage } from '../features/launches/UpcomingLaunchesPage'
+import { LaunchDetailPage } from '../features/launches/LaunchDetailPage'
 
 export const router = createBrowserRouter([
     {
@@ -16,7 +17,7 @@ export const router = createBrowserRouter([
             },
             {
                 path: 'launches/:launchId',
-                element: <PlaceholderPage title="Launch details" />,
+                element: <LaunchDetailPage />,
             },
             {
                 element: <ProtectedRoute />,

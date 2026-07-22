@@ -45,3 +45,34 @@ export interface LaunchPage {
     nextCursor: LaunchCursor | null
     hasNext: boolean
 }
+
+export interface LaunchDetail {
+    id: number
+    name: string
+    description: string | null
+    status: LaunchStatus
+    launchTime: string
+    imageUrl: string | null
+    webcastUrl: string | null
+    rocketName: string | null
+    missionType: string | null
+    organizationName: string | null
+    padName: string | null
+    locationName: string | null
+    latitude: number | null
+    longitude: number | null
+    lastSyncedAt: string
+}
+
+export interface LaunchWeather {
+    launchId: number
+    forecastTime: string
+    temperatureC: number
+    cloudCoverPercent: number
+    precipitationProbabilityPercent: number
+    windSpeedKmh: number
+    visibilityMeters: number | null
+    viewingScore: number
+    viewingCondition: ViewingCondition
+    fetchedAt: string
+}
