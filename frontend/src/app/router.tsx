@@ -4,6 +4,7 @@ import { LoginPage } from '../features/auth/LoginPage'
 import { ProtectedRoute } from '../features/auth/ProtectedRoute'
 import { RegisterPage } from '../features/auth/RegisterPage'
 import { PlaceholderPage } from '../pages/PlaceholderPage'
+import { UpcomingLaunchesPage } from '../features/launches/UpcomingLaunchesPage'
 
 export const router = createBrowserRouter([
     {
@@ -11,7 +12,7 @@ export const router = createBrowserRouter([
         children: [
             {
                 index: true,
-                element: <PlaceholderPage title="Launch Window" />,
+                element: <UpcomingLaunchesPage />,
             },
             {
                 path: 'launches/:launchId',
