@@ -6,6 +6,7 @@ import type {
     LaunchCursor,
     LaunchDetail,
     LaunchPage,
+    LaunchSummary,
     LaunchWeather,
 } from './types'
 
@@ -54,4 +55,18 @@ export async function getLaunchWeather(
 
         throw error
     }
+}
+
+export function getBestViewingLaunches(
+    days = 7,
+    limit = 3,
+): Promise<LaunchSummary[]> {
+    const parameters = new URLSearchParams({
+        days: String(days),
+        limit: String(limit),
+    })
+
+    return apiRequest<LaunchSummary[]>(
+        `/api/launches/best-viewing?${parameters.toString()}`,
+    )
 }

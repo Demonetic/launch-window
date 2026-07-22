@@ -32,6 +32,33 @@
     line-height: 1.65;
 }
 
+/* Upcoming list heading */
+
+.upcoming-list-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-top: 10px;
+}
+
+.upcoming-list-heading h2 {
+    margin: 0;
+    font-size: clamp(24px, 3vw, 34px);
+    letter-spacing: -0.035em;
+}
+
+.upcoming-list-heading > p {
+    max-width: 380px;
+    margin: 0;
+    color: #858ea7;
+    font-size: 12px;
+    line-height: 1.6;
+    text-align: right;
+}
+
+/* Full launch grid */
+
 .launch-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -67,7 +94,11 @@
     overflow: hidden;
     color: #8f9aef;
     background:
-            radial-gradient(circle at 70% 20%, rgb(137 150 255 / 28%), transparent 35%),
+            radial-gradient(
+                    circle at 70% 20%,
+                    rgb(137 150 255 / 28%),
+                    transparent 35%
+            ),
             linear-gradient(145deg, #181d34, #0d1020);
 }
 
@@ -204,6 +235,8 @@
     color: #858da4;
 }
 
+/* Shared launch states */
+
 .launch-state {
     display: grid;
     min-height: 260px;
@@ -262,6 +295,14 @@
 @media (max-width: 640px) {
     .launches-page {
         gap: 24px;
+    }
+
+    .upcoming-list-heading {
+        display: grid;
+    }
+
+    .upcoming-list-heading > p {
+        text-align: left;
     }
 
     .launch-grid {

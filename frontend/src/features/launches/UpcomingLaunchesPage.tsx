@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { Rocket } from 'lucide-react'
 import { LaunchCard } from './LaunchCard'
 import { useUpcomingLaunches } from './useUpcomingLaunches'
+import { BestViewingSection } from './BestViewingSection'
 import './launches.css'
 
 export function UpcomingLaunchesPage() {
@@ -59,6 +60,22 @@ export function UpcomingLaunchesPage() {
                     </p>
                 </div>
             </header>
+
+            <BestViewingSection />
+
+            <div className="upcoming-list-heading">
+                <div>
+                    <p className="page-eyebrow">
+                        Full schedule
+                    </p>
+                    <h2>All upcoming launches</h2>
+                </div>
+
+                <p>
+                    Browse every currently scheduled mission in
+                    chronological order.
+                </p>
+            </div>
 
             {isPending && (
                 <div className="launch-state" role="status">
