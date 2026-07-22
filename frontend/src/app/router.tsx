@@ -7,6 +7,7 @@ import { PlaceholderPage } from '../pages/PlaceholderPage'
 import { UpcomingLaunchesPage } from '../features/launches/UpcomingLaunchesPage'
 import { LaunchDetailPage } from '../features/launches/LaunchDetailPage'
 import { CalendarPage } from '../features/calendar/CalendarPage'
+import { AccountPage } from '../features/account/AccountPage'
 
 export const router = createBrowserRouter([
     {
@@ -33,7 +34,7 @@ export const router = createBrowserRouter([
                     },
                     {
                         path: 'account',
-                        element: <PlaceholderPage title="Account" />,
+                        element: <AccountPage />,
                     },
                 ],
             },
