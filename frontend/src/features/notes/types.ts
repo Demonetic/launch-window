@@ -12,6 +12,7 @@ export interface NoteOverview {
     launchName: string
     launchTime: string
     organizationName: string | null
+    imageUrl: string | null
     content: string
     createdAt: string
     updatedAt: string

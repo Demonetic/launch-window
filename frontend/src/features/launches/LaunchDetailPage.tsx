@@ -20,6 +20,7 @@ import {
 } from './launchPresentation'
 import { LaunchWeatherPanel } from './LaunchWeatherPanel'
 import { useLaunchDetail } from './useLaunchDetail'
+import { LaunchNotesPanel } from '../notes/LaunchNotesPanel'
 import './launchDetail.css'
 
 interface LaunchNavigationState {
@@ -248,6 +249,8 @@ export function LaunchDetailPage() {
                     weather={weatherQuery.data}
                 />
             </div>
+
+            <LaunchNotesPanel launchId={launch.id} />
         </main>
     )
 }

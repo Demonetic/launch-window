@@ -33,6 +33,7 @@ export function NoteCard({
         useState(false)
     const [isConfirmingDelete, setIsConfirmingDelete] =
         useState(false)
+    const [imageFailed, setImageFailed] = useState(false)
 
     async function handleUpdate(content: string) {
         await onUpdate(note.id, content)
@@ -50,10 +51,19 @@ export function NoteCard({
                     }}
                 >
                     <span className="note-launch-icon">
-                        <Rocket
-                            aria-hidden="true"
-                            size={18}
-                        />
+                        {note.imageUrl && !imageFailed ? (
+                            <img
+                                src={note.imageUrl}
+                                alt=""
+                                referrerPolicy="no-referrer"
+                                onError={() => setImageFailed(true)}
+                            />
+                        ) : (
+                            <Rocket
+                                aria-hidden="true"
+                                size={18}
+                            />
+                        )}
                     </span>
 
                     <span>
