@@ -18,15 +18,14 @@ public class LaunchNoteMapper {
     }
 
     public LaunchNoteOverviewResponse mapOverview(LaunchNote note) {
-        return
-                new LaunchNoteOverviewResponse(
+        return new LaunchNoteOverviewResponse(
                 note.getId(),
                 note.getLaunch().getId(),
                 note.getLaunch().getName(),
                 note.getLaunch().getLaunchTime(),
                 note.getLaunch().getOrganizationName(),
-                note.getContent(),
                 note.getLaunch().getImageUrl(),
+                note.getContent(),
                 note.getCreatedAt(),
                 note.getUpdatedAt()
         );

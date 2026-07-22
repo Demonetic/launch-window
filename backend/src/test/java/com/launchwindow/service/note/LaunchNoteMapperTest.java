@@ -1,5 +1,6 @@
 package com.launchwindow.service.note;
 
+import com.launchwindow.dto.LaunchNoteOverviewResponse;
 import com.launchwindow.dto.LaunchNoteResponse;
 import com.launchwindow.model.Launch;
 import com.launchwindow.model.LaunchNote;
@@ -38,5 +39,42 @@ class LaunchNoteMapperTest {
                 );
 
         assertEquals(expected, new LaunchNoteMapper().map(note));
+    }
+
+    @Test
+    void shouldMapOverviewFieldsInCorrectOrder() {
+        LaunchNote note = mock(LaunchNote.class);
+        Launch launch = mock(Launch.class);
+
+        Instant launchTime = Instant.parse("2026-07-23T11:00:00Z");
+        Instant createdAt = Instant.parse("2026-07-22T11:00:00Z");
+        Instant updatedAt = Instant.parse("2026-07-22T11:30:00Z");
+
+        when(note.getId()).thenReturn(5L);
+        when(note.getLaunch()).thenReturn(launch);
+        when(note.getContent()).thenReturn("My private note");
+        when(note.getCreatedAt()).thenReturn(createdAt);
+        when(note.getUpdatedAt()).thenReturn(updatedAt);
+
+        when(launch.getId()).thenReturn(3L);
+        when(launch.getName()).thenReturn("Test launch");
+        when(launch.getLaunchTime()).thenReturn(launchTime);
+        when(launch.getOrganizationName()).thenReturn("Test organization");
+        when(launch.getImageUrl()).thenReturn("https://example.com/launch.jpg");
+
+        LaunchNoteOverviewResponse expected =
+                new LaunchNoteOverviewResponse(
+                        5L,
+                        3L,
+                        "Test launch",
+                        launchTime,
+                        "Test organization",
+                        "https://example.com/launch.jpg",
+                        "My private note",
+                        createdAt,
+                        updatedAt
+                );
+
+        assertEquals(expected, new LaunchNoteMapper().mapOverview(note));
     }
 }
