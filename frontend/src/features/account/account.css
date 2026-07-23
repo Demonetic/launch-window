@@ -62,19 +62,6 @@
     border-bottom: 1px solid rgb(255 255 255 / 8%);
 }
 
-.account-profile-avatar {
-    display: grid;
-    width: 72px;
-    height: 72px;
-    flex: 0 0 auto;
-    place-items: center;
-    border-radius: 22px;
-    color: #14172a;
-    background: linear-gradient(135deg, #d4d8ff, #929fff);
-    font-size: 28px;
-    font-weight: 900;
-}
-
 .account-profile-heading p {
     margin: 0 0 5px;
     color: #929bb3;
@@ -181,13 +168,6 @@
 
     .account-profile-heading {
         padding: 24px 19px;
-    }
-
-    .account-profile-avatar {
-        width: 58px;
-        height: 58px;
-        border-radius: 18px;
-        font-size: 23px;
     }
 
     .account-information {

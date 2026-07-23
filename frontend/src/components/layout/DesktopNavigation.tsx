@@ -9,6 +9,7 @@ import {
 } from 'react-router'
 import {useAuth} from '../../features/auth/useAuth'
 import {navigationItems} from './navigationItems'
+import { UserAvatar } from '../../features/avatar/UserAvatar'
 
 export function DesktopNavigation() {
     const {
@@ -60,9 +61,11 @@ export function DesktopNavigation() {
                             className="account-summary"
                             to="/account"
                         >
-  <span className="account-avatar">
-    {user.username.charAt(0).toUpperCase()}
-  </span>
+                            <UserAvatar
+                                avatarKey={user.avatarKey}
+                                avatarColor={user.avatarColor}
+                                size="small"
+                            />
 
                             <span>
     <strong>{user.username}</strong>

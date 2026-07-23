@@ -20,6 +20,7 @@ import type {
     AuthSession,
     LoginRequest,
     RegisterRequest,
+    User,
 } from './types'
 
 export function AuthProvider({
@@ -34,6 +35,23 @@ export function AuthProvider({
         queryClient.clear()
     }, [])
 
+    const updateUser = useCallback((user: User) => {
+        setSession((currentSession) => {
+            if (!currentSession) {
+                return currentSession
+            }
+
+            const nextSession: AuthSession = {
+                ...currentSession,
+                user,
+            }
+
+            writeAuthSession(nextSession)
+
+            return nextSession
+        })
+    }, [])
+
     const login = useCallback(
         async (request: LoginRequest) => {
             const response = await loginRequest(request)
@@ -41,7 +59,8 @@ export function AuthProvider({
             const nextSession: AuthSession = {
                 token: response.accessToken,
                 expiresAt:
-                    Date.now() + response.expiresIn * 1000,
+                    Date.now() +
+                    response.expiresIn * 1000,
                 user: response.user,
             }
 
@@ -81,9 +100,16 @@ export function AuthProvider({
             isAuthenticated: session !== null,
             login,
             register,
+            updateUser,
             logout,
         }),
-        [login, logout, register, session],
+        [
+            login,
+            logout,
+            register,
+            session,
+            updateUser,
+        ],
     )
 
     return (

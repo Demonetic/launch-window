@@ -1,10 +1,21 @@
 export type UserRole = 'USER' | 'ADMIN'
+export type AvatarKey =
+    | 'ASTRONAUT'
+    | 'ALIEN'
+    | 'MOON_BASE_ROBOT'
+    | 'ROCKET'
+    | 'SATELLITE'
+    | 'PLANET'
+    | 'LUNAR_ROVER'
+    | 'TELESCOPE'
 
 export interface User {
     id: number
     username: string
     email: string
     role: UserRole
+    avatarKey: AvatarKey
+    avatarColor: string
 }
 
 export interface LoginRequest {
@@ -29,4 +40,9 @@ export interface AuthSession {
     token: string
     expiresAt: number
     user: User
+}
+
+export interface UpdateAvatarRequest {
+    avatarKey: AvatarKey
+    avatarColor: string
 }

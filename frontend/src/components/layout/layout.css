@@ -122,18 +122,6 @@
     background: rgb(255 255 255 / 6%);
 }
 
-.account-avatar {
-    display: grid;
-    width: 38px;
-    height: 38px;
-    flex: 0 0 auto;
-    place-items: center;
-    border-radius: 50%;
-    color: #181b2c;
-    background: #b8c1ff;
-    font-weight: 800;
-}
-
 .account-summary strong {
     overflow: hidden;
     font-size: 14px;

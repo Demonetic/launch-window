@@ -7,6 +7,8 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../auth/useAuth'
 import { useCurrentUser } from './useCurrentUser'
+import { UserAvatar } from '../avatar/UserAvatar'
+import { AvatarPicker } from '../avatar/AvatarPicker'
 import './account.css'
 
 export function AccountPage() {
@@ -62,15 +64,22 @@ export function AccountPage() {
 
             <section className="account-profile-card">
                 <div className="account-profile-heading">
-                    <div className="account-profile-avatar">
-                        {user.username.charAt(0).toUpperCase()}
-                    </div>
+                    <UserAvatar
+                        avatarKey={user.avatarKey}
+                        avatarColor={user.avatarColor}
+                        size="medium"
+                    />
 
                     <div>
                         <p>Launch Window member</p>
                         <h2>{user.username}</h2>
                     </div>
                 </div>
+
+                <AvatarPicker
+                    currentAvatarKey={user.avatarKey}
+                    currentAvatarColor={user.avatarColor}
+                />
 
                 <div className="account-information">
                     <article>
