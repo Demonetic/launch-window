@@ -6,6 +6,7 @@ import com.launchwindow.dto.LoginResponse;
 import com.launchwindow.dto.UserResponse;
 import com.launchwindow.exception.GlobalExceptionHandler;
 import com.launchwindow.exception.InvalidCredentialsException;
+import com.launchwindow.model.AvatarKey;
 import com.launchwindow.model.Role;
 import com.launchwindow.service.auth.LoginService;
 import com.launchwindow.service.auth.RegistrationService;
@@ -41,7 +42,9 @@ class LoginControllerTest {
                 1L,
                 "launch_test",
                 "launch-test@example.com",
-                Role.USER
+                Role.USER,
+                AvatarKey.ASTRONAUT,
+                "#FFFFFF"
         );
         LoginResponse response = new LoginResponse(
                 "signed-token",

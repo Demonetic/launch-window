@@ -2,7 +2,9 @@ package com.launchwindow.controller;
 
 import com.launchwindow.config.SecurityConfiguration;
 import com.launchwindow.dto.UserResponse;
+import com.launchwindow.model.AvatarKey;
 import com.launchwindow.model.Role;
+import com.launchwindow.service.user.UserAvatarService;
 import com.launchwindow.service.user.UserQueryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,9 @@ class UserControllerTest {
     private UserQueryService service;
 
     @MockitoBean
+    private UserAvatarService avatarService;
+
+    @MockitoBean
     private JwtDecoder jwtDecoder;
 
     @Test
@@ -37,7 +42,9 @@ class UserControllerTest {
                 1L,
                 "launch_test",
                 "launch-test@example.com",
-                Role.USER
+                Role.USER,
+                AvatarKey.ASTRONAUT,
+                "#FFFFFF"
         );
 
         when(service.getUser("launch_test")).thenReturn(Optional.of(user));
@@ -47,7 +54,9 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.username").value("launch_test"))
-                .andExpect(jsonPath("$.role").value("USER"));
+                .andExpect(jsonPath("$.role").value("USER"))
+                .andExpect(jsonPath("$.avatarKey").value("ASTRONAUT"))
+                .andExpect(jsonPath("$.avatarColor").value("#FFFFFF"));
     }
 
     @Test

@@ -27,7 +27,9 @@ public class UserQueryService {
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
-                user.getRole()
+                user.getRole(),
+                user.getAvatarKey(),
+                user.getAvatarColor()
         );
     }
 }

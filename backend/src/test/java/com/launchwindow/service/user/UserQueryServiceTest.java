@@ -2,6 +2,7 @@ package com.launchwindow.service.user;
 
 import com.launchwindow.dto.UserResponse;
 import com.launchwindow.model.AppUser;
+import com.launchwindow.model.AvatarKey;
 import com.launchwindow.model.Role;
 import com.launchwindow.repository.AppUserRepository;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,8 @@ class UserQueryServiceTest {
         when(user.getUsername()).thenReturn("launch_test");
         when(user.getEmail()).thenReturn("launch-test@example.com");
         when(user.getRole()).thenReturn(Role.USER);
+        when(user.getAvatarKey()).thenReturn(AvatarKey.ASTRONAUT);
+        when(user.getAvatarColor()).thenReturn("#FFFFFF");
 
         Optional<UserResponse> result = service.getUser("launch_test");
 
@@ -32,7 +35,9 @@ class UserQueryServiceTest {
                 1L,
                 "launch_test",
                 "launch-test@example.com",
-                Role.USER
+                Role.USER,
+                AvatarKey.ASTRONAUT,
+                "#FFFFFF"
         );
 
         assertEquals(Optional.of(expected), result);

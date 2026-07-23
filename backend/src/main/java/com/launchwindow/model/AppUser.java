@@ -30,6 +30,13 @@ public class AppUser {
     @Column(nullable = false, length = 20)
     private Role role;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "avatar_key", nullable = false, length = 30)
+    private AvatarKey avatarKey = AvatarKey.ASTRONAUT;
+
+    @Column(name = "avatar_color", nullable = false, length = 7)
+    private String avatarColor = "#FFFFFF";
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -39,5 +46,10 @@ public class AppUser {
         this.email = email;
         this.passwordHash = passwordHash;
         this.role = role;
+    }
+
+    public void updateAvatar(AvatarKey avatarKey, String avatarColor) {
+        this.avatarKey = avatarKey;
+        this.avatarColor = avatarColor;
     }
 }

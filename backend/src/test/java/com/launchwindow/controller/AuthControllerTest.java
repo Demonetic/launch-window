@@ -5,6 +5,7 @@ import com.launchwindow.dto.RegisterRequest;
 import com.launchwindow.dto.UserResponse;
 import com.launchwindow.exception.GlobalExceptionHandler;
 import com.launchwindow.exception.UserAlreadyExistsException;
+import com.launchwindow.model.AvatarKey;
 import com.launchwindow.model.Role;
 import com.launchwindow.service.auth.LoginService;
 import com.launchwindow.service.auth.RegistrationService;
@@ -40,7 +41,9 @@ class AuthControllerTest {
                 1L,
                 "anna",
                 "anna@example.com",
-                Role.USER
+                Role.USER,
+                AvatarKey.ASTRONAUT,
+                "#FFFFFF"
         );
 
         when(registrationService.register(any(RegisterRequest.class))).thenReturn(response);
@@ -57,7 +60,9 @@ class AuthControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.username").value("anna"))
-                .andExpect(jsonPath("$.role").value("USER"));
+                .andExpect(jsonPath("$.role").value("USER"))
+                .andExpect(jsonPath("$.avatarKey").value("ASTRONAUT"))
+                .andExpect(jsonPath("$.avatarColor").value("#FFFFFF"));
     }
 
     @Test
