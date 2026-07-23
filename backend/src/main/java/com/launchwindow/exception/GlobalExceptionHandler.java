@@ -52,6 +52,12 @@ public class GlobalExceptionHandler {
         return createResponse(HttpStatus.BAD_REQUEST, ApiErrorCode.MALFORMED_REQUEST, "Request could not be read", request, Map.of());
     }
 
+    @ExceptionHandler(InvalidCalendarInvitationException.class)
+    public ResponseEntity<ApiErrorResponse>
+    handleInvalidCalendarInvitation(InvalidCalendarInvitationException exception, HttpServletRequest request) {
+        return createResponse(HttpStatus.BAD_REQUEST, ApiErrorCode.INVALID_CALENDAR_INVITATION, exception.getMessage(), request, Map.of());
+    }
+
     private ResponseEntity<ApiErrorResponse> createResponse(HttpStatus status, ApiErrorCode code, String message,
                                                             HttpServletRequest request, Map<String, String> fieldErrors) {
         ApiErrorResponse error = new ApiErrorResponse(

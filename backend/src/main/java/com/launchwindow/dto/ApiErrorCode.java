@@ -9,4 +9,5 @@ public enum ApiErrorCode {
     RESOURCE_NOT_FOUND,
     UNAUTHORIZED,
     ACCESS_DENIED,
+    INVALID_CALENDAR_INVITATION,
 }
