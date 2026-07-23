@@ -36,6 +36,7 @@ class CalendarServiceSavedLaunchTest {
                 calendarRepository,
                 mock(CalendarEntryMapper.class),
                 mock(WeatherSummaryQueryService.class),
+                mock(CalendarParticipantQueryService.class),
                 Clock.fixed(Instant.parse("2026-07-22T12:00:00Z"), ZoneOffset.UTC)
         );
     }

@@ -90,6 +90,37 @@ class CalendarInvitationRepositoryTest {
                 () -> invitationRepository.saveAndFlush(new CalendarInvitation(entry, inviter, invitee)));
     }
 
+    @Test
+    void findAcceptedGroupsForUser_returnsAllMembersOfSharedEntry() {
+        AppUser owner = saveUser("anna", "anna@example.com");
+        AppUser firstInvitee = saveUser("alex", "alex@example.com");
+        AppUser secondInvitee = saveUser("sam", "sam@example.com");
+        Launch launch = saveLaunch("shared-launch");
+        CalendarEntry entry = calendarRepository.save(new CalendarEntry(owner, launch));
+        CalendarInvitation firstInvitation = new CalendarInvitation(entry, owner, firstInvitee);
+
+        firstInvitation.accept(CURRENT_TIME);
+
+        CalendarInvitation secondInvitation = new CalendarInvitation(entry, owner, secondInvitee);
+
+        secondInvitation.accept(CURRENT_TIME);
+
+        invitationRepository.save(firstInvitation);
+        invitationRepository.save(secondInvitation);
+        invitationRepository.flush();
+
+        List<CalendarInvitation> result = invitationRepository.findAcceptedGroupsForUser(
+                                firstInvitee.getId(), List.of(launch.getId()), CalendarInvitationStatus.ACCEPTED);
+
+        assertEquals(2, result.size());
+
+        assertEquals(List.of(firstInvitee.getId(), secondInvitee.getId()), result.stream()
+                        .map(CalendarInvitation::getInvitee)
+                        .map(AppUser::getId)
+                        .toList()
+        );
+    }
+
     private AppUser saveUser(String username, String email) {
         return userRepository.save(new AppUser(username, email, "password-hash", Role.USER));
     }

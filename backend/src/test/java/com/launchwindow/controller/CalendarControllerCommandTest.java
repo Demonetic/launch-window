@@ -11,6 +11,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.Mockito.when;
@@ -33,7 +34,7 @@ class CalendarControllerCommandTest {
 
     @Test
     void authenticatedUserCanSaveLaunch() throws Exception {
-        CalendarEntryResponse response = new CalendarEntryResponse(10L, null, null);
+        CalendarEntryResponse response = new CalendarEntryResponse(10L, null, null, List.of());
 
         when(service.saveLaunch("launch_test", 4L)).thenReturn(Optional.of(response));
 

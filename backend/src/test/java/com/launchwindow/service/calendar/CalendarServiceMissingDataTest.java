@@ -27,6 +27,7 @@ class CalendarServiceMissingDataTest {
         CalendarEntryRepository calendarRepository = mock(CalendarEntryRepository.class);
         CalendarEntryMapper mapper = mock(CalendarEntryMapper.class);
         WeatherSummaryQueryService weatherSummaryService = mock(WeatherSummaryQueryService.class);
+        CalendarParticipantQueryService participantService = mock(CalendarParticipantQueryService.class);
 
         CalendarService service = new CalendarService(
                 userRepository,
@@ -34,7 +35,8 @@ class CalendarServiceMissingDataTest {
                 calendarRepository,
                 mapper,
                 weatherSummaryService,
-               FIXED_CLOCK
+                participantService,
+                FIXED_CLOCK
         );
 
         when(userRepository.findByUsername("missing")).thenReturn(Optional.empty());
@@ -43,7 +45,7 @@ class CalendarServiceMissingDataTest {
         assertTrue(service.saveLaunch("missing", 4L).isEmpty());
         assertFalse(service.removeLaunch("missing", 4L));
 
-        verifyNoInteractions(calendarRepository, mapper, weatherSummaryService);
+        verifyNoInteractions(calendarRepository, mapper, weatherSummaryService, participantService);
     }
 
     @Test
@@ -53,6 +55,7 @@ class CalendarServiceMissingDataTest {
         CalendarEntryRepository calendarRepository = mock(CalendarEntryRepository.class);
         CalendarEntryMapper mapper = mock(CalendarEntryMapper.class);
         WeatherSummaryQueryService weatherSummaryService = mock(WeatherSummaryQueryService.class);
+        CalendarParticipantQueryService participantService = mock(CalendarParticipantQueryService.class);
 
         CalendarService service = new CalendarService(
                 userRepository,
@@ -60,6 +63,7 @@ class CalendarServiceMissingDataTest {
                 calendarRepository,
                 mapper,
                 weatherSummaryService,
+                participantService,
                 FIXED_CLOCK
         );
 
@@ -68,6 +72,6 @@ class CalendarServiceMissingDataTest {
 
         assertTrue(service.saveLaunch("launch_test", 99L).isEmpty());
 
-        verifyNoInteractions(calendarRepository, mapper, weatherSummaryService);
+        verifyNoInteractions(calendarRepository, mapper, weatherSummaryService, participantService);
     }
 }

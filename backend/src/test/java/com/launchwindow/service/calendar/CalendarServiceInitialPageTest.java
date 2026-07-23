@@ -2,6 +2,7 @@ package com.launchwindow.service.calendar;
 
 import com.launchwindow.dto.CalendarEntryResponse;
 import com.launchwindow.dto.CalendarPageResponse;
+import com.launchwindow.dto.CalendarParticipantResponse;
 import com.launchwindow.dto.WeatherSummaryResponse;
 import com.launchwindow.exception.InvalidPaginationException;
 import com.launchwindow.model.AppUser;
@@ -37,6 +38,7 @@ class CalendarServiceInitialPageTest {
     private CalendarEntryRepository calendarRepository;
     private CalendarEntryMapper mapper;
     private WeatherSummaryQueryService weatherSummaryService;
+    private CalendarParticipantQueryService participantService;
     private CalendarService service;
 
     @BeforeEach
@@ -45,11 +47,12 @@ class CalendarServiceInitialPageTest {
         calendarRepository = mock(CalendarEntryRepository.class);
         mapper = mock(CalendarEntryMapper.class);
         weatherSummaryService = mock(WeatherSummaryQueryService.class);
+        participantService = mock(CalendarParticipantQueryService.class);
 
         Clock clock = Clock.fixed(CURRENT_TIME, ZoneOffset.UTC);
 
-        service = new CalendarService(userRepository, mock(LaunchRepository.class), calendarRepository,
-                mapper, weatherSummaryService, clock);
+        service = new CalendarService(userRepository, mock(LaunchRepository.class), calendarRepository, mapper,
+                weatherSummaryService, participantService, clock);
     }
 
     @Test
@@ -173,25 +176,27 @@ class CalendarServiceInitialPageTest {
     }
 
     @Test
-    void getInitialPage_includesWeatherForCalendarEntries() {
+    void getInitialPage_includesWeatherAndParticipants() {
         AppUser user = user(1L);
 
         CalendarEntry entry = entry(4L, CURRENT_TIME.plus(1, ChronoUnit.HOURS));
         WeatherSummaryResponse weather = mock(WeatherSummaryResponse.class);
         CalendarEntryResponse response = mock(CalendarEntryResponse.class);
+        CalendarParticipantResponse participant = mock(CalendarParticipantResponse.class);
 
         when(userRepository.findByUsername("launch_test")).thenReturn(Optional.of(user));
         when(calendarRepository.findPreviousInitial(eq(1L), eq(CURRENT_TIME), any(Pageable.class))).thenReturn(List.of());
         when(calendarRepository.findNextInitial(eq(1L), eq(CURRENT_TIME), any(Pageable.class))).thenReturn(List.of(entry));
         when(weatherSummaryService.getByLaunchIds(List.of(4L))).thenReturn(Map.of(4L, weather));
-        when(mapper.map(entry, weather)).thenReturn(response);
+        when(participantService.getByLaunchIds(user, List.of(4L))).thenReturn(Map.of(4L, List.of(participant)));
+        when(mapper.map(entry, weather, List.of(participant))).thenReturn(response);
 
         CalendarPageResponse result = service.getInitialPage("launch_test", 20);
 
         assertEquals(List.of(response), result.items());
 
         verify(weatherSummaryService).getByLaunchIds(List.of(4L));
-        verify(mapper).map(entry, weather);
+        verify(mapper).map(entry, weather, List.of(participant));
     }
 
     @Test
@@ -234,7 +239,6 @@ class CalendarServiceInitialPageTest {
                 .iterate(firstId, id -> id >= lastId, id -> id - 1)
                 .mapToObj(id -> {
                     long offset = firstId - id + 1;
-
                     return entry(id, startingTime.minus(offset, ChronoUnit.HOURS));
                 })
                 .toList();
@@ -249,6 +253,7 @@ class CalendarServiceInitialPageTest {
                 .toList();
 
         when(weatherSummaryService.getByLaunchIds(launchIds)).thenReturn(Map.of());
+        when(participantService.getByLaunchIds(any(AppUser.class), eq(launchIds))).thenReturn(Map.of());
 
         Map<CalendarEntry, CalendarEntryResponse> responses = new LinkedHashMap<>();
 
@@ -257,8 +262,7 @@ class CalendarServiceInitialPageTest {
 
             responses.put(entry, response);
 
-            when(mapper.map(entry, null))
-                    .thenReturn(response);
+            when(mapper.map(entry, null, List.of())).thenReturn(response);
         }
 
         return responses;

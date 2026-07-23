@@ -30,6 +30,7 @@ import static org.mockito.Mockito.*;
 class CalendarServiceCursorPageTest {
     private static final Instant CURRENT_TIME = Instant.parse("2026-07-21T12:00:00Z");
 
+    private CalendarParticipantQueryService participantService;
     private AppUserRepository userRepository;
     private CalendarEntryRepository calendarRepository;
     private CalendarEntryMapper mapper;
@@ -42,11 +43,12 @@ class CalendarServiceCursorPageTest {
         calendarRepository = mock(CalendarEntryRepository.class);
         mapper = mock(CalendarEntryMapper.class);
         weatherSummaryService = mock(WeatherSummaryQueryService.class);
+        participantService = mock(CalendarParticipantQueryService.class);
 
         Clock clock = Clock.fixed(CURRENT_TIME, ZoneOffset.UTC);
 
-        service = new CalendarService(userRepository, mock(LaunchRepository.class),
-                calendarRepository, mapper, weatherSummaryService, clock);
+        service = new CalendarService(userRepository, mock(LaunchRepository.class), calendarRepository, mapper,
+                weatherSummaryService, participantService, clock);
     }
 
     @Test
@@ -118,14 +120,15 @@ class CalendarServiceCursorPageTest {
         when(calendarRepository.findNextPage(eq(1L), eq(CURRENT_TIME), eq(3L), any(Pageable.class)))
                 .thenReturn(List.of(entry));
         when(weatherSummaryService.getByLaunchIds(List.of(4L))).thenReturn(Map.of());
-        when(mapper.map(entry, null)).thenReturn(response);
+        when(participantService.getByLaunchIds(user, List.of(4L))).thenReturn(Map.of());
+        when(mapper.map(entry, null, List.of())).thenReturn(response);
 
         CalendarPageResponse result = service.getNextPage("launch_test", CURRENT_TIME, 3L, 20);
 
         assertEquals(List.of(response), result.items());
         assertFalse(result.hasNext());
 
-        verify(mapper).map(entry, null);
+        verify(mapper).map(entry, null, List.of());
     }
 
     @Test
@@ -140,54 +143,29 @@ class CalendarServiceCursorPageTest {
         assertFalse(result.hasPrevious());
         assertFalse(result.hasNext());
 
-        verifyNoInteractions(calendarRepository, mapper, weatherSummaryService);
+        verifyNoInteractions(calendarRepository, mapper, weatherSummaryService, participantService);
     }
 
     @Test
     void getNextPage_rejectsIncompleteCursor() {
-        assertThrows(InvalidPaginationException.class, () -> service.getNextPage(
-                        "launch_test",
-                        null,
-                        1L,
-                        20
-                )
-        );
-        assertThrows(InvalidPaginationException.class, () -> service.getNextPage(
-                        "launch_test",
-                        CURRENT_TIME,
-                        null,
-                        20
-                )
-        );
-        assertThrows(InvalidPaginationException.class, () -> service.getNextPage(
-                        "launch_test",
-                        CURRENT_TIME,
-                        0L,
-                        20
-                )
-        );
+        assertThrows(InvalidPaginationException.class,
+                () -> service.getNextPage("launch_test", null, 1L, 20));
+        assertThrows(InvalidPaginationException.class,
+                () -> service.getNextPage("launch_test", CURRENT_TIME, null, 20));
+        assertThrows(InvalidPaginationException.class,
+                () -> service.getNextPage("launch_test", CURRENT_TIME, 0L, 20));
 
-        verifyNoInteractions(userRepository, calendarRepository, mapper, weatherSummaryService);
+        verifyNoInteractions(userRepository, calendarRepository, mapper, weatherSummaryService, participantService);
     }
 
     @Test
     void getPreviousPage_rejectsInvalidLimit() {
-        assertThrows(InvalidPaginationException.class, () -> service.getPreviousPage(
-                        "launch_test",
-                        CURRENT_TIME,
-                        3L,
-                        0
-                )
-        );
-        assertThrows(InvalidPaginationException.class, () -> service.getPreviousPage(
-                        "launch_test",
-                        CURRENT_TIME,
-                        3L,
-                        101
-                )
-        );
+        assertThrows(InvalidPaginationException.class,
+                () -> service.getPreviousPage("launch_test", CURRENT_TIME, 3L, 0));
+        assertThrows(InvalidPaginationException.class,
+                () -> service.getPreviousPage("launch_test", CURRENT_TIME, 3L, 101));
 
-        verifyNoInteractions(userRepository, calendarRepository, mapper, weatherSummaryService);
+        verifyNoInteractions(userRepository, calendarRepository, mapper, weatherSummaryService, participantService);
     }
 
     private AppUser user(Long id) {AppUser user = mock(AppUser.class);when(user.getId()).thenReturn(id);return user;}
@@ -210,6 +188,7 @@ class CalendarServiceCursorPageTest {
                 .toList();
 
         when(weatherSummaryService.getByLaunchIds(launchIds)).thenReturn(Map.of());
+        when(participantService.getByLaunchIds(any(AppUser.class), eq(launchIds))).thenReturn(Map.of());
 
         Map<CalendarEntry, CalendarEntryResponse> responses = new LinkedHashMap<>();
 
@@ -218,7 +197,7 @@ class CalendarServiceCursorPageTest {
 
             responses.put(entry, response);
 
-            when(mapper.map(entry, null)).thenReturn(response);
+            when(mapper.map(entry, null, List.of())).thenReturn(response);
         }
 
         return responses;

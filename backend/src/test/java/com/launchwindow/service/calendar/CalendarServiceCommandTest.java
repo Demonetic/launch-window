@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 class CalendarServiceCommandTest {
+    private CalendarParticipantQueryService participantService;
     private AppUserRepository userRepository;
     private LaunchRepository launchRepository;
     private CalendarEntryRepository calendarRepository;
@@ -39,6 +40,7 @@ class CalendarServiceCommandTest {
         calendarRepository = mock(CalendarEntryRepository.class);
         mapper = mock(CalendarEntryMapper.class);
         weatherSummaryService = mock(WeatherSummaryQueryService.class);
+        participantService = mock(CalendarParticipantQueryService.class);
 
         service = new CalendarService(
                 userRepository,
@@ -46,8 +48,8 @@ class CalendarServiceCommandTest {
                 calendarRepository,
                 mapper,
                 weatherSummaryService,
-                Clock.fixed(Instant.parse("2026-07-21T12:00:00Z"), ZoneOffset.UTC)
-        );
+                participantService,
+                Clock.fixed(Instant.parse("2026-07-21T12:00:00Z"), ZoneOffset.UTC));
     }
 
     @Test
@@ -63,9 +65,10 @@ class CalendarServiceCommandTest {
         when(launchRepository.findById(4L)).thenReturn(Optional.of(launch));
         when(calendarRepository.findByUser_IdAndLaunch_Id(1L, 4L))
                 .thenReturn(Optional.empty(), Optional.of(entry), Optional.of(entry));
+        when(participantService.getByLaunchIds(user, List.of(4L))).thenReturn(Map.of(4L, List.of()));
         when(calendarRepository.save(any(CalendarEntry.class))).thenReturn(entry);
         when(weatherSummaryService.getByLaunchIds(List.of(4L))).thenReturn(Map.of(4L, weather));
-        when(mapper.map(entry, weather)).thenReturn(response);
+        when(mapper.map(entry, weather, List.of())).thenReturn(response);
 
         Optional<CalendarEntryResponse> firstSave = service.saveLaunch("launch_test", 4L);
         Optional<CalendarEntryResponse> secondSave = service.saveLaunch("launch_test", 4L);

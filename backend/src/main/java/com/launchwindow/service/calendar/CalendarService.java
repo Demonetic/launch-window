@@ -24,21 +24,24 @@ import java.util.stream.Stream;
 @Service
 public class CalendarService {
     private static final int MAX_SAVED_LOOKUP_IDS = 50;
+
     private final AppUserRepository userRepository;
     private final LaunchRepository launchRepository;
     private final CalendarEntryRepository calendarRepository;
     private final CalendarEntryMapper mapper;
     private final WeatherSummaryQueryService weatherSummaryService;
+    private final CalendarParticipantQueryService participantService;
     private final Clock clock;
 
-    public CalendarService(AppUserRepository userRepository, LaunchRepository launchRepository,
-                           CalendarEntryRepository calendarRepository, CalendarEntryMapper mapper,
-                           WeatherSummaryQueryService weatherSummaryService, Clock clock) {
+    public CalendarService(AppUserRepository userRepository, LaunchRepository launchRepository, CalendarEntryRepository calendarRepository,
+                           CalendarEntryMapper mapper, WeatherSummaryQueryService weatherSummaryService,
+                           CalendarParticipantQueryService participantService, Clock clock) {
         this.userRepository = userRepository;
         this.launchRepository = launchRepository;
         this.calendarRepository = calendarRepository;
         this.mapper = mapper;
         this.weatherSummaryService = weatherSummaryService;
+        this.participantService = participantService;
         this.clock = clock;
     }
 
@@ -56,37 +59,33 @@ public class CalendarService {
         int nextTarget = limit - previousTarget;
         int querySize = limit + 1;
 
-        List<CalendarEntry> previousCandidates = calendarRepository.findPreviousInitial(user.get().getId(),
-                clock.instant(), PageRequest.of(0, querySize));
-
-        List<CalendarEntry> nextCandidates = calendarRepository.findNextInitial(user.get().getId(),
-                clock.instant(), PageRequest.of(0, querySize));
+        List<CalendarEntry> previousCandidates = calendarRepository.findPreviousInitial(user.get().getId(), clock.instant(),
+                PageRequest.of(0, querySize));
+        List<CalendarEntry> nextCandidates = calendarRepository.findNextInitial(user.get().getId(), clock.instant(),
+                        PageRequest.of(0, querySize));
 
         int previousCount = Math.min(previousTarget, previousCandidates.size());
         int nextCount = Math.min(nextTarget, nextCandidates.size());
-
         int missing = limit - previousCount - nextCount;
-
         int additionalNext = Math.min(missing, nextCandidates.size() - nextCount);
+
         nextCount += additionalNext;
         missing -= additionalNext;
 
         int additionalPrevious = Math.min(missing, previousCandidates.size() - previousCount);
+
         previousCount += additionalPrevious;
 
         List<CalendarEntry> previous = previousCandidates.stream()
-                .limit(previousCount)
-                .toList()
-                .reversed();
-
+                        .limit(previousCount)
+                        .toList()
+                        .reversed();
         List<CalendarEntry> next = nextCandidates.stream()
-                .limit(nextCount)
-                .toList();
+                        .limit(nextCount)
+                        .toList();
+        List<CalendarEntry> entries = Stream.concat(previous.stream(), next.stream()).toList();
 
-        List<CalendarEntry> entries = Stream.concat(previous.stream(), next.stream())
-                .toList();
-
-        return createPage(entries, previousCandidates.size() > previousCount, nextCandidates.size() > nextCount);
+        return createPage(user.get(), entries, previousCandidates.size() > previousCount, nextCandidates.size() > nextCount);
     }
 
     @Transactional(readOnly = true)
@@ -99,16 +98,16 @@ public class CalendarService {
             return emptyPage();
         }
 
-        List<CalendarEntry> fetchedEntries = calendarRepository.findNextPage(user.get().getId(),
-                afterTime, afterId, PageRequest.of(0, limit + 1));
+        List<CalendarEntry> fetchedEntries =
+                calendarRepository.findNextPage(user.get().getId(), afterTime, afterId, PageRequest.of(0, limit + 1));
 
         boolean hasNext = fetchedEntries.size() > limit;
 
         List<CalendarEntry> entries = fetchedEntries.stream()
-                .limit(limit)
-                .toList();
+                        .limit(limit)
+                        .toList();
 
-        return createPage(entries, false, hasNext);
+        return createPage(user.get(), entries, false, hasNext);
     }
 
     @Transactional(readOnly = true)
@@ -121,17 +120,17 @@ public class CalendarService {
             return emptyPage();
         }
 
-        List<CalendarEntry> fetchedEntries = calendarRepository.findPreviousPage(user.get().getId(),
-                beforeTime, beforeId, PageRequest.of(0, limit + 1));
+        List<CalendarEntry> fetchedEntries =
+                calendarRepository.findPreviousPage(user.get().getId(), beforeTime, beforeId, PageRequest.of(0, limit + 1));
 
         boolean hasPrevious = fetchedEntries.size() > limit;
 
         List<CalendarEntry> entries = fetchedEntries.stream()
-                .limit(limit)
-                .toList()
-                .reversed();
+                        .limit(limit)
+                        .toList()
+                        .reversed();
 
-        return createPage(entries, hasPrevious, false);
+        return createPage(user.get(), entries, hasPrevious, false);
     }
 
     @Transactional(readOnly = true)
@@ -139,8 +138,8 @@ public class CalendarService {
         validateLaunchIds(launchIds);
 
         List<Long> distinctLaunchIds = launchIds.stream()
-                .distinct()
-                .toList();
+                        .distinct()
+                        .toList();
 
         Optional<AppUser> user = userRepository.findByUsername(username);
 
@@ -151,8 +150,8 @@ public class CalendarService {
         Set<Long> savedIds = Set.copyOf(calendarRepository.findSavedLaunchIds(user.get().getId(), distinctLaunchIds));
 
         List<Long> orderedSavedIds = distinctLaunchIds.stream()
-                .filter(savedIds::contains)
-                .toList();
+                        .filter(savedIds::contains)
+                        .toList();
 
         return new SavedLaunchIdsResponse(orderedSavedIds);
     }
@@ -167,11 +166,14 @@ public class CalendarService {
         }
 
         CalendarEntry entry = calendarRepository.findByUser_IdAndLaunch_Id(user.get().getId(), launchId)
-                .orElseGet(() -> calendarRepository.save(new CalendarEntry(user.get(), launch.get())));
+                        .orElseGet(() -> calendarRepository.save(new CalendarEntry(user.get(), launch.get())));
 
         WeatherSummaryResponse weather = weatherSummaryService.getByLaunchIds(List.of(launchId)).get(launchId);
 
-        return Optional.of(mapper.map(entry, weather));
+        List<CalendarParticipantResponse> participants = participantService.getByLaunchIds(user.get(), List.of(launchId))
+                        .getOrDefault(launchId, List.of());
+
+        return Optional.of(mapper.map(entry, weather, participants));
     }
 
     @Transactional
@@ -189,10 +191,11 @@ public class CalendarService {
         }
 
         calendarRepository.delete(entry.get());
+
         return true;
     }
 
-    private CalendarPageResponse createPage(List<CalendarEntry> entries, boolean hasPrevious, boolean hasNext) {
+    private CalendarPageResponse createPage(AppUser user, List<CalendarEntry> entries, boolean hasPrevious, boolean hasNext) {
         if (entries.isEmpty()) {
             return emptyPage();
         }
@@ -203,10 +206,14 @@ public class CalendarService {
                 .toList();
 
         Map<Long, WeatherSummaryResponse> weatherByLaunchId = weatherSummaryService.getByLaunchIds(launchIds);
+        Map<Long, List<CalendarParticipantResponse>> participantsByLaunchId = participantService.getByLaunchIds(user, launchIds);
 
         List<CalendarEntryResponse> items = entries.stream()
-                .map(entry -> mapper.map(entry, weatherByLaunchId.get(entry.getLaunch().getId())))
-                .toList();
+                        .map(entry -> {Long launchId = entry.getLaunch().getId();
+
+                            return mapper.map(entry, weatherByLaunchId.get(launchId),
+                                    participantsByLaunchId.getOrDefault(launchId, List.of()));})
+                        .toList();
 
         CalendarCursor previousCursor = cursorFrom(entries.getFirst());
         CalendarCursor nextCursor = cursorFrom(entries.getLast());
@@ -231,8 +238,7 @@ public class CalendarService {
     }
 
     private void validateLaunchIds(List<Long> launchIds) {
-        if (launchIds == null || launchIds.isEmpty()
-                || launchIds.size() > MAX_SAVED_LOOKUP_IDS
+        if (launchIds == null || launchIds.isEmpty() || launchIds.size() > MAX_SAVED_LOOKUP_IDS
                 || launchIds.stream().anyMatch(id -> id == null || id < 1)) {
             throw new InvalidPaginationException("Between 1 and 50 positive launch ids must be provided");
         }
