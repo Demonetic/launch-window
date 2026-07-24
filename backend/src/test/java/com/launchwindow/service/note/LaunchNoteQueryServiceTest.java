@@ -5,6 +5,7 @@ import com.launchwindow.dto.LaunchNotePageResponse;
 import com.launchwindow.dto.LaunchNoteResponse;
 import com.launchwindow.exception.InvalidPaginationException;
 import com.launchwindow.model.AppUser;
+import com.launchwindow.model.CalendarInvitationStatus;
 import com.launchwindow.model.LaunchNote;
 import com.launchwindow.repository.AppUserRepository;
 import com.launchwindow.repository.LaunchNoteRepository;
@@ -35,14 +36,14 @@ class LaunchNoteQueryServiceTest {
     }
 
     @Test
-    void shouldReturnAuthenticatedUsersLaunchNotes() {
+    void shouldReturnAccessibleLaunchNotes() {
         AppUser user = mock(AppUser.class);
         LaunchNote note = mock(LaunchNote.class);
         LaunchNoteResponse response = mock(LaunchNoteResponse.class);
 
         when(user.getId()).thenReturn(1L);
         when(userRepository.findByUsername("launch_test")).thenReturn(Optional.of(user));
-        when(noteRepository.findAllByUser_IdAndLaunch_IdOrderByCreatedAtDesc(1L, 4L)).thenReturn(List.of(note));
+        when(noteRepository.findAccessibleByLaunchId(1L, 4L, CalendarInvitationStatus.ACCEPTED)).thenReturn(List.of(note));
         when(mapper.map(note)).thenReturn(response);
 
         assertEquals(List.of(response), service.getNotes("launch_test", 4L));

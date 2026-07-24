@@ -5,6 +5,7 @@ import com.launchwindow.dto.LaunchNoteOverviewResponse;
 import com.launchwindow.dto.LaunchNotePageResponse;
 import com.launchwindow.dto.LaunchNoteResponse;
 import com.launchwindow.exception.InvalidPaginationException;
+import com.launchwindow.model.CalendarInvitationStatus;
 import com.launchwindow.model.LaunchNote;
 import com.launchwindow.repository.AppUserRepository;
 import com.launchwindow.repository.LaunchNoteRepository;
@@ -33,7 +34,7 @@ public class LaunchNoteQueryService {
     public List<LaunchNoteResponse> getNotes(String username, Long launchId) {
         return userRepository.findByUsername(username)
                 .map(user -> noteRepository
-                        .findAllByUser_IdAndLaunch_IdOrderByCreatedAtDesc(user.getId(), launchId)
+                        .findAccessibleByLaunchId(user.getId(), launchId, CalendarInvitationStatus.ACCEPTED)
                         .stream()
                         .map(mapper::map)
                         .toList())

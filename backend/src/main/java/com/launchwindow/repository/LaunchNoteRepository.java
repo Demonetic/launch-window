@@ -1,5 +1,6 @@
 package com.launchwindow.repository;
 
+import com.launchwindow.model.CalendarInvitationStatus;
 import com.launchwindow.model.LaunchNote;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,7 +12,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface LaunchNoteRepository extends JpaRepository<LaunchNote, Long> {
-    List<LaunchNote> findAllByUser_IdAndLaunch_IdOrderByCreatedAtDesc(Long userId, Long launchId);
     Optional<LaunchNote> findByIdAndUser_Id(Long noteId, Long userId);
 
     @Query("""
@@ -42,4 +42,36 @@ public interface LaunchNoteRepository extends JpaRepository<LaunchNote, Long> {
             """)
     List<LaunchNote> findOverviewPage(@Param("userId") Long userId, @Param("beforeUpdatedAt") Instant beforeUpdatedAt,
                                       @Param("beforeId") Long beforeId, Pageable pageable);
+
+    @Query("""
+        SELECT DISTINCT note
+        FROM LaunchNote note
+        JOIN FETCH note.user author
+        WHERE note.launch.id = :launchId
+          AND (
+                author.id = :viewerId
+                OR EXISTS (
+                    SELECT invitation.id
+                    FROM CalendarInvitation invitation
+                    WHERE invitation.status = :status
+                      AND invitation.calendarEntry.launch.id = :launchId
+                      AND (
+                            invitation.inviter.id = author.id
+                            OR invitation.invitee.id = author.id
+                          )
+                      AND invitation.calendarEntry.id IN (
+                            SELECT membership.calendarEntry.id
+                            FROM CalendarInvitation membership
+                            WHERE membership.status = :status
+                              AND (
+                                    membership.inviter.id = :viewerId
+                                    OR membership.invitee.id = :viewerId
+                                  )
+                          )
+                )
+              )
+        ORDER BY note.createdAt DESC, note.id DESC
+        """)
+    List<LaunchNote> findAccessibleByLaunchId(@Param("viewerId") Long viewerId, @Param("launchId") Long launchId,
+                                              @Param("status") CalendarInvitationStatus status);
 }

@@ -2,6 +2,7 @@ package com.launchwindow.controller;
 
 import com.launchwindow.config.SecurityConfiguration;
 import com.launchwindow.dto.LaunchNoteResponse;
+import com.launchwindow.model.AvatarKey;
 import com.launchwindow.service.note.LaunchNoteCommandService;
 import com.launchwindow.service.note.LaunchNoteQueryService;
 import org.junit.jupiter.api.Test;
@@ -42,6 +43,10 @@ class LaunchNoteControllerCreateTest {
         LaunchNoteResponse response = new LaunchNoteResponse(
                 10L,
                 4L,
+                1L,
+                "launch_test",
+                AvatarKey.ASTRONAUT,
+                "#FFFFFF",
                 "Watch the webcast.",
                 null,
                 null

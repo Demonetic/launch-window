@@ -5,6 +5,8 @@ import com.launchwindow.dto.LaunchNoteResponse;
 import com.launchwindow.model.Launch;
 import com.launchwindow.model.LaunchNote;
 import org.junit.jupiter.api.Test;
+import com.launchwindow.model.AppUser;
+import com.launchwindow.model.AvatarKey;
 
 import java.time.Instant;
 
@@ -18,25 +20,26 @@ class LaunchNoteMapperTest {
     void shouldMapPrivateLaunchNote() {
         LaunchNote note = mock(LaunchNote.class);
         Launch launch = mock(Launch.class);
+        AppUser author = mock(AppUser.class);
 
         Instant createdAt = Instant.parse("2026-07-19T18:00:00Z");
         Instant updatedAt = Instant.parse("2026-07-19T18:30:00Z");
 
         when(note.getId()).thenReturn(10L);
         when(note.getLaunch()).thenReturn(launch);
+        when(note.getUser()).thenReturn(author);
         when(note.getContent()).thenReturn("Watch the webcast.");
         when(note.getCreatedAt()).thenReturn(createdAt);
         when(note.getUpdatedAt()).thenReturn(updatedAt);
         when(launch.getId()).thenReturn(4L);
+        when(author.getId()).thenReturn(1L);
+        when(author.getUsername()).thenReturn("launch_test");
+        when(author.getAvatarKey()).thenReturn(AvatarKey.ASTRONAUT);
+        when(author.getAvatarColor()).thenReturn("#FFFFFF");
 
         LaunchNoteResponse expected =
-                new LaunchNoteResponse(
-                        10L,
-                        4L,
-                        "Watch the webcast.",
-                        createdAt,
-                        updatedAt
-                );
+                new LaunchNoteResponse(10L, 4L, 1L, "launch_test", AvatarKey.ASTRONAUT,
+                        "#FFFFFF", "Watch the webcast.", createdAt, updatedAt);
 
         assertEquals(expected, new LaunchNoteMapper().map(note));
     }
@@ -63,17 +66,8 @@ class LaunchNoteMapperTest {
         when(launch.getImageUrl()).thenReturn("https://example.com/launch.jpg");
 
         LaunchNoteOverviewResponse expected =
-                new LaunchNoteOverviewResponse(
-                        5L,
-                        3L,
-                        "Test launch",
-                        launchTime,
-                        "Test organization",
-                        "https://example.com/launch.jpg",
-                        "My private note",
-                        createdAt,
-                        updatedAt
-                );
+                new LaunchNoteOverviewResponse(5L, 3L, "Test launch", launchTime, "Test organization",
+                        "https://example.com/launch.jpg", "My private note", createdAt, updatedAt);
 
         assertEquals(expected, new LaunchNoteMapper().mapOverview(note));
     }
