@@ -8,6 +8,7 @@ import {
     createLaunchNote,
     getLaunchNotes,
 } from './notesApi'
+import type { LaunchNote } from './types'
 
 export function useLaunchNotes(launchId: number) {
     const {
@@ -18,16 +19,25 @@ export function useLaunchNotes(launchId: number) {
 
     const queryClient = useQueryClient()
 
+    const launchNotesQueryKey = [
+        'notes',
+        'launch',
+        user?.id,
+        launchId,
+    ] as const
+
     const notesQuery = useQuery({
-        queryKey: [
-            'notes',
-            'launch',
-            user?.id,
-            launchId,
-        ],
-        enabled: isAuthenticated && Boolean(token),
+        queryKey: launchNotesQueryKey,
+        enabled:
+            isAuthenticated &&
+            Boolean(token),
         queryFn: () =>
             getLaunchNotes(token!, launchId),
+        refetchInterval: 10_000,
+        refetchIntervalInBackground: true,
+        refetchOnMount: 'always',
+        refetchOnWindowFocus: 'always',
+        staleTime: 5_000,
     })
 
     const createMutation = useMutation({
@@ -37,40 +47,49 @@ export function useLaunchNotes(launchId: number) {
                 launchId,
                 { content },
             ),
-        onSuccess: async () => {
-            await Promise.all([
-                queryClient.invalidateQueries({
-                    queryKey: [
-                        'notes',
-                        'launch',
-                        user?.id,
-                        launchId,
-                    ],
-                }),
-                queryClient.invalidateQueries({
-                    queryKey: [
-                        'notes',
-                        'overview',
-                        user?.id,
-                    ],
-                }),
-            ])
+
+        onSuccess: async (createdNote) => {
+            queryClient.setQueryData<LaunchNote[]>(
+                launchNotesQueryKey,
+                (currentNotes = []) => [
+                    createdNote,
+                    ...currentNotes.filter(
+                        (note) =>
+                            note.id !== createdNote.id,
+                    ),
+                ],
+            )
+
+            await queryClient.invalidateQueries({
+                queryKey: [
+                    'notes',
+                    'overview',
+                    user?.id,
+                ],
+            })
         },
     })
 
     return {
         isAuthenticated,
         notes: notesQuery.data ?? [],
+
         isError:
             notesQuery.isError ||
             createMutation.isError,
+
         isLoading:
             notesQuery.isPending &&
             isAuthenticated,
-        isCreating: createMutation.isPending,
+
+        isCreating:
+        createMutation.isPending,
+
         error:
             createMutation.error ??
             notesQuery.error,
-        createNote: createMutation.mutateAsync,
+
+        createNote:
+        createMutation.mutateAsync,
     }
 }

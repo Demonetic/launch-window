@@ -7,9 +7,11 @@ import {
     useLocation,
     useNavigate,
 } from 'react-router'
-import { formatDateTime } from '../launches/launchPresentation'
+import { useAuth } from '../auth/useAuth'
 import { LaunchNoteComposer } from './LaunchNoteComposer'
+import { LaunchNoteItem } from './LaunchNoteItem'
 import { useLaunchNotes } from './useLaunchNotes'
+import { useNoteActions } from './useNoteActions'
 import './launchNotes.css'
 
 interface LaunchNotesPanelProps {
@@ -21,6 +23,7 @@ export function LaunchNotesPanel({
                                  }: LaunchNotesPanelProps) {
     const location = useLocation()
     const navigate = useNavigate()
+    const { user } = useAuth()
 
     const {
         createNote,
@@ -31,6 +34,25 @@ export function LaunchNotesPanel({
         isLoading,
         notes,
     } = useLaunchNotes(launchId)
+
+    const {
+        deleteError,
+        deletingNoteId,
+        updateError,
+        updatingNoteId,
+        deleteNote,
+        updateNote,
+    } = useNoteActions()
+
+    const actionError =
+        updateError ?? deleteError
+
+    const hasOwnNotes =
+        user !== null &&
+        notes.some(
+            (note) =>
+                note.authorId === user.id,
+        )
 
     function openLogin() {
         void navigate('/login', {
@@ -47,7 +69,8 @@ export function LaunchNotesPanel({
                     <p className="page-eyebrow">
                         Mission journal
                     </p>
-                    <h2>Your notes</h2>
+
+                    <h2>Launch notes</h2>
                 </div>
 
                 {isAuthenticated && (
@@ -64,10 +87,12 @@ export function LaunchNotesPanel({
                         aria-hidden="true"
                         size={28}
                     />
+
                     <p>
-                        Sign in to save private notes about
-                        this launch.
+                        Sign in to write and view notes
+                        connected to this launch.
                     </p>
+
                     <button
                         type="button"
                         onClick={openLogin}
@@ -102,38 +127,53 @@ export function LaunchNotesPanel({
                 </p>
             )}
 
+            {actionError && (
+                <p
+                    className="launch-notes-error"
+                    role="alert"
+                >
+                    {actionError instanceof Error
+                        ? actionError.message
+                        : 'The note could not be updated.'}
+                </p>
+            )}
+
             {isAuthenticated &&
                 !isLoading &&
                 !isError &&
                 notes.length === 0 && (
                     <p className="launch-notes-empty">
-                        You have not written any notes for
+                        No notes have been written for
                         this launch yet.
                     </p>
                 )}
 
-            {notes.length > 0 && (
+            {user && notes.length > 0 && (
                 <div className="launch-note-list">
                     {notes.map((note) => (
-                        <article key={note.id}>
-                            <p>{note.content}</p>
-                            <time dateTime={note.updatedAt}>
-                                Updated{' '}
-                                {formatDateTime(
-                                    note.updatedAt,
-                                )}
-                            </time>
-                        </article>
+                        <LaunchNoteItem
+                            key={note.id}
+                            note={note}
+                            currentUserId={user.id}
+                            isDeleting={
+                                deletingNoteId === note.id
+                            }
+                            isUpdating={
+                                updatingNoteId === note.id
+                            }
+                            onDelete={deleteNote}
+                            onUpdate={updateNote}
+                        />
                     ))}
                 </div>
             )}
 
-            {isAuthenticated && notes.length > 0 && (
+            {isAuthenticated && hasOwnNotes && (
                 <Link
                     className="all-notes-link"
                     to="/notes"
                 >
-                    Manage all notes
+                    Manage your notes
                 </Link>
             )}
         </section>

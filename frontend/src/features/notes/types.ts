@@ -1,6 +1,12 @@
+import type { AvatarKey } from '../auth/types'
+
 export interface LaunchNote {
     id: number
     launchId: number
+    authorId: number
+    authorUsername: string
+    authorAvatarKey: AvatarKey
+    authorAvatarColor: string
     content: string
     createdAt: string
     updatedAt: string

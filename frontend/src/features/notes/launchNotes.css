@@ -221,6 +221,218 @@
     color: #ffffff;
 }
 
+.launch-note-item-header {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.launch-note-author {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 10px;
+}
+
+.launch-note-author > div {
+    display: grid;
+    min-width: 0;
+    gap: 2px;
+}
+
+.launch-note-author strong {
+    overflow: hidden;
+    color: #eef0f8;
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.launch-note-author span {
+    color: #78819a;
+    font-size: 9px;
+    font-weight: 750;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.launch-note-actions {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 7px;
+}
+
+.launch-note-actions button {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border: 1px solid rgb(255 255 255 / 9%);
+    border-radius: 10px;
+    color: #8992aa;
+    background: rgb(255 255 255 / 4%);
+    cursor: pointer;
+}
+
+.launch-note-actions button:hover {
+    border-color: rgb(154 166 255 / 30%);
+    color: #d3d8ff;
+    background: rgb(132 146 255 / 10%);
+}
+
+.launch-note-content {
+    margin: 0;
+    overflow-wrap: anywhere;
+    color: #bdc3d5;
+    font-size: 13px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+}
+
+.launch-note-item-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.launch-note-item-footer span {
+    color: #777f98;
+    font-size: 9px;
+    font-weight: 750;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.launch-note-list .note-edit-form {
+    display: grid;
+    gap: 10px;
+}
+
+.launch-note-list .note-edit-form textarea {
+    width: 100%;
+    min-height: 120px;
+    resize: vertical;
+    padding: 13px;
+    border: 1px solid rgb(154 166 255 / 24%);
+    border-radius: 13px;
+    outline: none;
+    color: #eef0f8;
+    background: rgb(7 10 19 / 65%);
+    font: inherit;
+    font-size: 13px;
+    line-height: 1.65;
+}
+
+.launch-note-list .note-edit-form textarea:focus {
+    border-color: #8f9cf4;
+    box-shadow: 0 0 0 3px rgb(132 146 255 / 10%);
+}
+
+.launch-note-list .note-character-count {
+    color: #717a93;
+    font-size: 10px;
+    text-align: right;
+}
+
+.launch-note-list .note-edit-form > p {
+    margin: 0;
+    color: #ffb3ba;
+    font-size: 11px;
+}
+
+.launch-note-list .note-edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.launch-note-list .note-edit-actions button {
+    display: inline-flex;
+    min-height: 36px;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 0 12px;
+    border: 1px solid rgb(255 255 255 / 10%);
+    border-radius: 10px;
+    color: #aab1c6;
+    background: rgb(255 255 255 / 4%);
+    font: inherit;
+    font-size: 10px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.launch-note-list
+.note-edit-actions
+button[type="submit"] {
+    border-color: transparent;
+    color: #131628;
+    background: linear-gradient(
+            135deg,
+            #d4d8ff,
+            #929fff
+    );
+}
+
+.launch-note-list
+.note-edit-actions
+button:disabled {
+    cursor: wait;
+    opacity: 0.6;
+}
+
+.launch-note-list .note-delete-confirmation {
+    display: grid;
+    gap: 10px;
+    padding: 12px;
+    border: 1px solid rgb(255 117 132 / 18%);
+    border-radius: 12px;
+    background: rgb(98 28 40 / 15%);
+}
+
+.launch-note-list
+.note-delete-confirmation
+p {
+    margin: 0;
+    color: #ffb3ba;
+    font-size: 11px;
+}
+
+.launch-note-list
+.note-delete-confirmation
+> div {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.launch-note-list
+.note-delete-confirmation
+button {
+    min-height: 34px;
+    padding: 0 11px;
+    border: 1px solid rgb(255 255 255 / 9%);
+    border-radius: 9px;
+    color: #aab1c6;
+    background: rgb(255 255 255 / 4%);
+    font: inherit;
+    font-size: 10px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.launch-note-list
+.note-delete-confirmation
+button:last-child {
+    border-color: rgb(255 117 132 / 25%);
+    color: #ffb3ba;
+    background: rgb(98 28 40 / 24%);
+}
+
 @media (max-width: 760px) {
     .launch-notes-heading {
         display: grid;
@@ -236,6 +448,28 @@
 }
 
 @media (max-width: 640px) {
+    .launch-note-item-footer {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .launch-note-list .note-edit-actions button {
+        flex: 1;
+    }
+
+    .launch-note-list
+    .note-delete-confirmation
+    > div {
+        width: 100%;
+    }
+
+    .launch-note-list
+    .note-delete-confirmation
+    button {
+        flex: 1;
+    }
+
     .launch-note-composer-actions {
         justify-content: stretch;
     }

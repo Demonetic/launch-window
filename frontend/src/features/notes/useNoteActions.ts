@@ -7,6 +7,7 @@ import {
     deleteLaunchNote,
     updateLaunchNote,
 } from './notesApi'
+import type { LaunchNote } from './types'
 
 interface UpdateNoteVariables {
     noteId: number
@@ -17,19 +18,14 @@ export function useNoteActions() {
     const { token, user } = useAuth()
     const queryClient = useQueryClient()
 
-    async function invalidateNotes() {
-        await Promise.all([
-            queryClient.invalidateQueries({
-                queryKey: [
-                    'notes',
-                    'overview',
-                    user?.id,
-                ],
-            }),
-            queryClient.invalidateQueries({
-                queryKey: ['notes', 'launch'],
-            }),
-        ])
+    async function invalidateOverview() {
+        await queryClient.invalidateQueries({
+            queryKey: [
+                'notes',
+                'overview',
+                user?.id,
+            ],
+        })
     }
 
     const updateMutation = useMutation({
@@ -40,25 +36,68 @@ export function useNoteActions() {
             updateLaunchNote(token!, noteId, {
                 content,
             }),
-        onSuccess: invalidateNotes,
+
+        onSuccess: async (updatedNote) => {
+            queryClient.setQueriesData<LaunchNote[]>(
+                {
+                    queryKey: [
+                        'notes',
+                        'launch',
+                    ],
+                },
+                (currentNotes) =>
+                    currentNotes?.map((note) =>
+                        note.id === updatedNote.id
+                            ? updatedNote
+                            : note,
+                    ),
+            )
+
+            await invalidateOverview()
+        },
     })
 
     const deleteMutation = useMutation({
         mutationFn: (noteId: number) =>
             deleteLaunchNote(token!, noteId),
-        onSuccess: invalidateNotes,
+
+        onSuccess: async (_, deletedNoteId) => {
+            queryClient.setQueriesData<LaunchNote[]>(
+                {
+                    queryKey: [
+                        'notes',
+                        'launch',
+                    ],
+                },
+                (currentNotes) =>
+                    currentNotes?.filter(
+                        (note) =>
+                            note.id !== deletedNoteId,
+                    ),
+            )
+
+            await invalidateOverview()
+        },
     })
 
     return {
         deleteError: deleteMutation.error,
-        deletingNoteId: deleteMutation.isPending
-            ? deleteMutation.variables
-            : null,
+
+        deletingNoteId:
+            deleteMutation.isPending
+                ? deleteMutation.variables
+                : null,
+
         updateError: updateMutation.error,
-        updatingNoteId: updateMutation.isPending
-            ? updateMutation.variables?.noteId
-            : null,
-        deleteNote: deleteMutation.mutateAsync,
+
+        updatingNoteId:
+            updateMutation.isPending
+                ? updateMutation.variables?.noteId
+                : null,
+
+        deleteNote:
+        deleteMutation.mutateAsync,
+
         updateNote: (
             noteId: number,
             content: string,
