@@ -63,7 +63,7 @@ class LaunchNoteQueryServiceTest {
 
         when(user.getId()).thenReturn(1L);
         when(userRepository.findByUsername("launch_test")).thenReturn(Optional.of(user));
-        when(noteRepository.findOverviewInitial(1L, PageRequest.of(0, 3)))
+        when(noteRepository.findOverviewInitial(1L, CalendarInvitationStatus.ACCEPTED, PageRequest.of(0, 3)))
                 .thenReturn(List.of(firstNote, secondNote, extraNote));
         when(mapper.mapOverview(firstNote)).thenReturn(firstResponse);
         when(mapper.mapOverview(secondNote)).thenReturn(secondResponse);
@@ -93,7 +93,8 @@ class LaunchNoteQueryServiceTest {
         when(user.getId()).thenReturn(1L);
         when(userRepository.findByUsername("launch_test")).thenReturn(Optional.of(user));
 
-        when(noteRepository.findOverviewPage(1L, beforeUpdatedAt, 20L, PageRequest.of(0, 3))).thenReturn(List.of(note));
+        when(noteRepository.findOverviewPage(1L, CalendarInvitationStatus.ACCEPTED, beforeUpdatedAt, 20L,
+                PageRequest.of(0, 3))).thenReturn(List.of(note));
 
         when(mapper.mapOverview(note)).thenReturn(response);
         when(note.getUpdatedAt()).thenReturn(noteUpdatedAt);
@@ -106,8 +107,9 @@ class LaunchNoteQueryServiceTest {
         assertEquals(noteUpdatedAt, result.nextCursor().beforeUpdatedAt());
         assertEquals(14L, result.nextCursor().beforeId());
 
-        verify(noteRepository).findOverviewPage(1L, beforeUpdatedAt, 20L, PageRequest.of(0, 3));
-        verify(noteRepository, never()).findOverviewInitial(anyLong(), any());
+        verify(noteRepository).findOverviewPage(1L, CalendarInvitationStatus.ACCEPTED, beforeUpdatedAt, 20L,
+                PageRequest.of(0, 3));
+        verify(noteRepository, never()).findOverviewInitial(anyLong(), any(), any());
     }
 
     @Test
@@ -116,13 +118,14 @@ class LaunchNoteQueryServiceTest {
 
         when(user.getId()).thenReturn(1L);
         when(userRepository.findByUsername("launch_test")).thenReturn(Optional.of(user));
-        when(noteRepository.findOverviewInitial(1L, PageRequest.of(0, 21))).thenReturn(List.of());
+        when(noteRepository.findOverviewInitial(1L, CalendarInvitationStatus.ACCEPTED, PageRequest.of(0, 21))).thenReturn(List.of());
 
         LaunchNotePageResponse result = service.getNotesPage("launch_test", null, null, 20);
 
         assertTrue(result.items().isEmpty());
         assertNull(result.nextCursor());
         assertFalse(result.hasNext());
+
         verifyNoInteractions(mapper);
     }
 

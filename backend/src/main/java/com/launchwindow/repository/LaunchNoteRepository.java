@@ -15,22 +15,98 @@ public interface LaunchNoteRepository extends JpaRepository<LaunchNote, Long> {
     Optional<LaunchNote> findByIdAndUser_Id(Long noteId, Long userId);
 
     @Query("""
-            SELECT note
+            SELECT DISTINCT note
             FROM LaunchNote note
-            JOIN FETCH note.launch
-            WHERE note.user.id = :userId
-            ORDER BY note.updatedAt DESC, note.id DESC
+            JOIN FETCH note.user author
+            WHERE note.launch.id = :launchId
+              AND (
+                    author.id = :viewerId
+                    OR EXISTS (
+                        SELECT invitation.id
+                        FROM CalendarInvitation invitation
+                        WHERE invitation.status = :status
+                          AND invitation.calendarEntry.launch.id = :launchId
+                          AND (
+                                invitation.inviter.id = author.id
+                                OR invitation.invitee.id = author.id
+                              )
+                          AND invitation.calendarEntry.id IN (
+                                SELECT membership.calendarEntry.id
+                                FROM CalendarInvitation membership
+                                WHERE membership.status = :status
+                                  AND (
+                                        membership.inviter.id = :viewerId
+                                        OR membership.invitee.id = :viewerId
+                                      )
+                              )
+                    )
+                  )
+            ORDER BY note.createdAt DESC, note.id DESC
             """)
-    List<LaunchNote> findOverviewInitial(
-            @Param("userId") Long userId,
-            Pageable pageable
-    );
+    List<LaunchNote> findAccessibleByLaunchId(@Param("viewerId") Long viewerId, @Param("launchId") Long launchId,
+                                              @Param("status") CalendarInvitationStatus status);
 
     @Query("""
-            SELECT note
+            SELECT DISTINCT note
             FROM LaunchNote note
             JOIN FETCH note.launch
-            WHERE note.user.id = :userId
+            JOIN FETCH note.user author
+            WHERE (
+                    author.id = :viewerId
+                    OR EXISTS (
+                        SELECT invitation.id
+                        FROM CalendarInvitation invitation
+                        WHERE invitation.status = :status
+                          AND invitation.calendarEntry.launch.id =
+                              note.launch.id
+                          AND (
+                                invitation.inviter.id = author.id
+                                OR invitation.invitee.id = author.id
+                              )
+                          AND invitation.calendarEntry.id IN (
+                                SELECT membership.calendarEntry.id
+                                FROM CalendarInvitation membership
+                                WHERE membership.status = :status
+                                  AND (
+                                        membership.inviter.id = :viewerId
+                                        OR membership.invitee.id = :viewerId
+                                      )
+                              )
+                    )
+                  )
+            ORDER BY note.updatedAt DESC, note.id DESC
+            """)
+    List<LaunchNote> findOverviewInitial(@Param("viewerId") Long viewerId, @Param("status") CalendarInvitationStatus status,
+                                         Pageable pageable);
+
+    @Query("""
+            SELECT DISTINCT note
+            FROM LaunchNote note
+            JOIN FETCH note.launch
+            JOIN FETCH note.user author
+            WHERE (
+                    author.id = :viewerId
+                    OR EXISTS (
+                        SELECT invitation.id
+                        FROM CalendarInvitation invitation
+                        WHERE invitation.status = :status
+                          AND invitation.calendarEntry.launch.id =
+                              note.launch.id
+                          AND (
+                                invitation.inviter.id = author.id
+                                OR invitation.invitee.id = author.id
+                              )
+                          AND invitation.calendarEntry.id IN (
+                                SELECT membership.calendarEntry.id
+                                FROM CalendarInvitation membership
+                                WHERE membership.status = :status
+                                  AND (
+                                        membership.inviter.id = :viewerId
+                                        OR membership.invitee.id = :viewerId
+                                      )
+                              )
+                    )
+                  )
               AND (
                     note.updatedAt < :beforeUpdatedAt
                     OR (
@@ -40,38 +116,7 @@ public interface LaunchNoteRepository extends JpaRepository<LaunchNote, Long> {
                   )
             ORDER BY note.updatedAt DESC, note.id DESC
             """)
-    List<LaunchNote> findOverviewPage(@Param("userId") Long userId, @Param("beforeUpdatedAt") Instant beforeUpdatedAt,
-                                      @Param("beforeId") Long beforeId, Pageable pageable);
-
-    @Query("""
-        SELECT DISTINCT note
-        FROM LaunchNote note
-        JOIN FETCH note.user author
-        WHERE note.launch.id = :launchId
-          AND (
-                author.id = :viewerId
-                OR EXISTS (
-                    SELECT invitation.id
-                    FROM CalendarInvitation invitation
-                    WHERE invitation.status = :status
-                      AND invitation.calendarEntry.launch.id = :launchId
-                      AND (
-                            invitation.inviter.id = author.id
-                            OR invitation.invitee.id = author.id
-                          )
-                      AND invitation.calendarEntry.id IN (
-                            SELECT membership.calendarEntry.id
-                            FROM CalendarInvitation membership
-                            WHERE membership.status = :status
-                              AND (
-                                    membership.inviter.id = :viewerId
-                                    OR membership.invitee.id = :viewerId
-                                  )
-                          )
-                )
-              )
-        ORDER BY note.createdAt DESC, note.id DESC
-        """)
-    List<LaunchNote> findAccessibleByLaunchId(@Param("viewerId") Long viewerId, @Param("launchId") Long launchId,
-                                              @Param("status") CalendarInvitationStatus status);
+    List<LaunchNote> findOverviewPage(@Param("viewerId") Long viewerId, @Param("status") CalendarInvitationStatus status,
+                                      @Param("beforeUpdatedAt") Instant beforeUpdatedAt, @Param("beforeId") Long beforeId,
+                                      Pageable pageable);
 }

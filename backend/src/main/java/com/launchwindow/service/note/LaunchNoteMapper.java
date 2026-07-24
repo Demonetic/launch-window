@@ -25,6 +25,8 @@ public class LaunchNoteMapper {
     }
 
     public LaunchNoteOverviewResponse mapOverview(LaunchNote note) {
+        AppUser author = note.getUser();
+
         return new LaunchNoteOverviewResponse(
                 note.getId(),
                 note.getLaunch().getId(),
@@ -32,6 +34,10 @@ public class LaunchNoteMapper {
                 note.getLaunch().getLaunchTime(),
                 note.getLaunch().getOrganizationName(),
                 note.getLaunch().getImageUrl(),
+                author.getId(),
+                author.getUsername(),
+                author.getAvatarKey(),
+                author.getAvatarColor(),
                 note.getContent(),
                 note.getCreatedAt(),
                 note.getUpdatedAt()

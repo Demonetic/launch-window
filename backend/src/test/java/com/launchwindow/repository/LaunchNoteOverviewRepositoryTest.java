@@ -1,11 +1,6 @@
 package com.launchwindow.repository;
 
-import com.launchwindow.model.AppUser;
-import com.launchwindow.model.Launch;
-import com.launchwindow.model.LaunchDetails;
-import com.launchwindow.model.LaunchNote;
-import com.launchwindow.model.LaunchStatus;
-import com.launchwindow.model.Role;
+import com.launchwindow.model.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.Test;
@@ -42,7 +37,8 @@ class LaunchNoteOverviewRepositoryTest {
     void initialOverviewReturnsOnlyUsersNotesInCursorOrder() {
         TestNotes notes = saveTestNotes();
 
-        List<LaunchNote> result = noteRepository.findOverviewInitial(notes.user().getId(), PageRequest.of(0, 10));
+        List<LaunchNote> result = noteRepository.findOverviewInitial(notes.user().getId(), CalendarInvitationStatus.ACCEPTED,
+                        PageRequest.of(0, 10));
 
         assertThat(result).extracting(LaunchNote::getId)
                 .containsExactly(notes.second().getId(), notes.first().getId(), notes.older().getId());
@@ -55,8 +51,8 @@ class LaunchNoteOverviewRepositoryTest {
     void overviewCursorUsesUpdatedTimeAndIdTieBreaker() {
         TestNotes notes = saveTestNotes();
 
-        List<LaunchNote> result = noteRepository.findOverviewPage(notes.user().getId(),
-                SHARED_UPDATED_AT, notes.second().getId(), PageRequest.of(0, 10));
+        List<LaunchNote> result = noteRepository.findOverviewPage(notes.user().getId(), CalendarInvitationStatus.ACCEPTED,
+                        SHARED_UPDATED_AT, notes.second().getId(), PageRequest.of(0, 10));
 
         assertThat(result)
                 .extracting(LaunchNote::getId)

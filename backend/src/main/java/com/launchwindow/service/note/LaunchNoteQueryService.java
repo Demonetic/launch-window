@@ -48,9 +48,13 @@ public class LaunchNoteQueryService {
         return userRepository.findByUsername(username)
                 .map(user -> createPage(
                         beforeUpdatedAt == null
-                                ? noteRepository.findOverviewInitial(user.getId(), PageRequest.of(0, limit + 1))
-                                : noteRepository.findOverviewPage(user.getId(), beforeUpdatedAt, beforeId,
-                                PageRequest.of(0, limit + 1)), limit))
+                                ? noteRepository
+                                .findOverviewInitial(user.getId(), CalendarInvitationStatus.ACCEPTED, PageRequest.of(0, limit + 1))
+                                : noteRepository
+                                .findOverviewPage(user.getId(), CalendarInvitationStatus.ACCEPTED, beforeUpdatedAt, beforeId,
+                                        PageRequest.of(0, limit + 1)),
+                        limit
+                ))
                 .orElseGet(this::emptyPage);
     }
 
@@ -58,16 +62,18 @@ public class LaunchNoteQueryService {
         boolean hasNext = fetchedNotes.size() > limit;
 
         List<LaunchNote> notes = fetchedNotes.stream()
-                .limit(limit)
-                .toList();
+                        .limit(limit)
+                        .toList();
 
-        List<LaunchNoteOverviewResponse> items = notes.stream()
-                .map(mapper::mapOverview)
-                .toList();
+        List<LaunchNoteOverviewResponse> items =
+                notes.stream()
+                        .map(mapper::mapOverview)
+                        .toList();
 
-        LaunchNoteCursor nextCursor = notes.isEmpty()
-                ? null
-                : cursorFrom(notes.getLast());
+        LaunchNoteCursor nextCursor =
+                notes.isEmpty()
+                        ? null
+                        : cursorFrom(notes.getLast());
 
         return new LaunchNotePageResponse(items, nextCursor, hasNext);
     }

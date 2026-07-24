@@ -48,6 +48,7 @@ class LaunchNoteMapperTest {
     void shouldMapOverviewFieldsInCorrectOrder() {
         LaunchNote note = mock(LaunchNote.class);
         Launch launch = mock(Launch.class);
+        AppUser author = mock(AppUser.class);
 
         Instant launchTime = Instant.parse("2026-07-23T11:00:00Z");
         Instant createdAt = Instant.parse("2026-07-22T11:00:00Z");
@@ -55,19 +56,24 @@ class LaunchNoteMapperTest {
 
         when(note.getId()).thenReturn(5L);
         when(note.getLaunch()).thenReturn(launch);
-        when(note.getContent()).thenReturn("My private note");
+        when(note.getUser()).thenReturn(author);
+        when(note.getContent()).thenReturn("My shared note");
         when(note.getCreatedAt()).thenReturn(createdAt);
         when(note.getUpdatedAt()).thenReturn(updatedAt);
-
         when(launch.getId()).thenReturn(3L);
         when(launch.getName()).thenReturn("Test launch");
         when(launch.getLaunchTime()).thenReturn(launchTime);
         when(launch.getOrganizationName()).thenReturn("Test organization");
         when(launch.getImageUrl()).thenReturn("https://example.com/launch.jpg");
+        when(author.getId()).thenReturn(1L);
+        when(author.getUsername()).thenReturn("launch_test");
+        when(author.getAvatarKey()).thenReturn(AvatarKey.ASTRONAUT);
+        when(author.getAvatarColor()).thenReturn("#FFFFFF");
 
         LaunchNoteOverviewResponse expected =
                 new LaunchNoteOverviewResponse(5L, 3L, "Test launch", launchTime, "Test organization",
-                        "https://example.com/launch.jpg", "My private note", createdAt, updatedAt);
+                        "https://example.com/launch.jpg", 1L, "launch_test", AvatarKey.ASTRONAUT,
+                        "#FFFFFF", "My shared note", createdAt, updatedAt);
 
         assertEquals(expected, new LaunchNoteMapper().mapOverview(note));
     }
