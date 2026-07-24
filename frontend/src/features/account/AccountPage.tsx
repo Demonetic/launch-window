@@ -5,14 +5,16 @@ import {
     ShieldCheck,
     UserRound,
 } from 'lucide-react'
-import { useAuth } from '../auth/useAuth'
-import { useCurrentUser } from './useCurrentUser'
-import { UserAvatar } from '../avatar/UserAvatar'
 import { AvatarPicker } from '../avatar/AvatarPicker'
+import { UserAvatar } from '../avatar/UserAvatar'
+import { useAuth } from '../auth/useAuth'
+import { AccountDeletionPanel } from './AccountDeletionPanel'
+import { useCurrentUser } from './useCurrentUser'
 import './account.css'
 
 export function AccountPage() {
     const { logout } = useAuth()
+
     const {
         data: user,
         error,
@@ -119,8 +121,9 @@ export function AccountPage() {
                     <div>
                         <h3>End this session</h3>
                         <p>
-                            You will be signed out on this device.
-                            Your saved calendar and notes will not be deleted.
+                            You will be signed out on this
+                            device. Your saved calendar and
+                            notes will not be deleted.
                         </p>
                     </div>
 
@@ -129,11 +132,16 @@ export function AccountPage() {
                         type="button"
                         onClick={logout}
                     >
-                        <LogOut aria-hidden="true" size={18} />
+                        <LogOut
+                            aria-hidden="true"
+                            size={18}
+                        />
                         Log out
                     </button>
                 </div>
             </section>
+
+            <AccountDeletionPanel />
         </main>
     )
 }

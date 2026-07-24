@@ -22,3 +22,14 @@ export function updateAvatar(
         body: JSON.stringify(request),
     })
 }
+
+export function deleteAccount(
+    token: string,
+    password: string,
+): Promise<void> {
+    return apiRequest<void>('/api/users/me', {
+        method: 'DELETE',
+        token,
+        body: JSON.stringify({ password }),
+    })
+}
