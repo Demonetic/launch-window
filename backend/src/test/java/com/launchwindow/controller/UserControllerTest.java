@@ -5,6 +5,7 @@ import com.launchwindow.dto.UserResponse;
 import com.launchwindow.model.AvatarKey;
 import com.launchwindow.model.Role;
 import com.launchwindow.service.user.UserAvatarService;
+import com.launchwindow.service.user.UserDeletionService;
 import com.launchwindow.service.user.UserQueryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,9 @@ class UserControllerTest {
 
     @MockitoBean
     private UserAvatarService avatarService;
+
+    @MockitoBean
+    private UserDeletionService deletionService;
 
     @MockitoBean
     private JwtDecoder jwtDecoder;
