@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react'
 import { NotebookPen } from 'lucide-react'
+import { useEffect, useRef } from 'react'
+import { useAuth } from '../auth/useAuth'
 import { NoteCard } from './NoteCard'
 import { useNoteActions } from './useNoteActions'
 import { useNotesOverview } from './useNotesOverview'
@@ -7,6 +8,7 @@ import './notes.css'
 
 export function NotesPage() {
     const loadMoreRef = useRef<HTMLDivElement>(null)
+    const { user } = useAuth()
 
     const {
         data,
@@ -67,16 +69,19 @@ export function NotesPage() {
                     <p className="page-eyebrow">
                         Mission journal
                     </p>
-                    <h1>Your notes</h1>
+                    <h1>Mission notes</h1>
                     <p>
-                        Thoughts and reminders connected to
-                        the launches you follow.
+                        Your notes and notes shared by people
+                        connected to your calendar.
                     </p>
                 </div>
             </header>
 
             {actionError && (
-                <div className="notes-action-error" role="alert">
+                <div
+                    className="notes-action-error"
+                    role="alert"
+                >
                     {actionError instanceof Error
                         ? actionError.message
                         : 'The note could not be updated.'}
@@ -86,7 +91,7 @@ export function NotesPage() {
             {isPending && (
                 <div className="notes-state" role="status">
                     <span className="launch-loader" />
-                    <p>Loading your notes...</p>
+                    <p>Loading notes...</p>
                 </div>
             )}
 
@@ -129,6 +134,7 @@ export function NotesPage() {
                         <NoteCard
                             key={note.id}
                             note={note}
+                            currentUserId={user?.id}
                             isDeleting={
                                 deletingNoteId === note.id
                             }

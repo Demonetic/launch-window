@@ -16,5 +16,9 @@ export function useNotesOverview() {
             lastPage.hasNext
                 ? lastPage.nextCursor ?? undefined
                 : undefined,
+        staleTime: 5_000,
+        refetchInterval: 10_000,
+        refetchOnMount: 'always',
+        refetchOnWindowFocus: 'always',
     })
 }

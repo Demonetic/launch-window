@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router'
+import { UserAvatar } from '../avatar/UserAvatar'
 import { formatDateTime } from '../launches/launchPresentation'
 import { NoteDeleteConfirmation } from './NoteDeleteConfirmation'
 import { NoteEditor } from './NoteEditor'
@@ -13,6 +14,7 @@ import type { NoteOverview } from './types'
 
 interface NoteCardProps {
     note: NoteOverview
+    currentUserId: number | undefined
     isDeleting: boolean
     isUpdating: boolean
     onDelete: (noteId: number) => Promise<unknown>
@@ -24,16 +26,18 @@ interface NoteCardProps {
 
 export function NoteCard({
                              note,
+                             currentUserId,
                              isDeleting,
                              isUpdating,
                              onDelete,
                              onUpdate,
                          }: NoteCardProps) {
-    const [isEditing, setIsEditing] =
-        useState(false)
+    const [isEditing, setIsEditing] = useState(false)
     const [isConfirmingDelete, setIsConfirmingDelete] =
         useState(false)
     const [imageFailed, setImageFailed] = useState(false)
+
+    const isOwnNote = note.authorId === currentUserId
 
     async function handleUpdate(content: string) {
         await onUpdate(note.id, content)
@@ -41,7 +45,13 @@ export function NoteCard({
     }
 
     return (
-        <article className="note-card">
+        <article
+            className={
+                isOwnNote
+                    ? 'note-card'
+                    : 'note-card note-card-shared'
+            }
+        >
             <header className="note-card-header">
                 <Link
                     to={`/launches/${note.launchId}`}
@@ -56,7 +66,9 @@ export function NoteCard({
                                 src={note.imageUrl}
                                 alt=""
                                 referrerPolicy="no-referrer"
-                                onError={() => setImageFailed(true)}
+                                onError={() =>
+                                    setImageFailed(true)
+                                }
                             />
                         ) : (
                             <Rocket
@@ -75,42 +87,61 @@ export function NoteCard({
                     </span>
                 </Link>
 
-                <div className="note-actions">
-                    {!isEditing && (
-                        <button
-                            type="button"
-                            aria-label="Edit note"
-                            onClick={() => {
-                                setIsConfirmingDelete(false)
-                                setIsEditing(true)
-                            }}
-                        >
-                            <Pencil
-                                aria-hidden="true"
-                                size={16}
-                            />
-                        </button>
-                    )}
-
-                    {!isEditing &&
-                        !isConfirmingDelete && (
+                {isOwnNote && (
+                    <div className="note-actions">
+                        {!isEditing && (
                             <button
                                 type="button"
-                                aria-label="Delete note"
-                                onClick={() =>
-                                    setIsConfirmingDelete(true)
-                                }
+                                aria-label="Edit note"
+                                onClick={() => {
+                                    setIsConfirmingDelete(false)
+                                    setIsEditing(true)
+                                }}
                             >
-                                <Trash2
+                                <Pencil
                                     aria-hidden="true"
                                     size={16}
                                 />
                             </button>
                         )}
-                </div>
+
+                        {!isEditing &&
+                            !isConfirmingDelete && (
+                                <button
+                                    type="button"
+                                    aria-label="Delete note"
+                                    onClick={() =>
+                                        setIsConfirmingDelete(true)
+                                    }
+                                >
+                                    <Trash2
+                                        aria-hidden="true"
+                                        size={16}
+                                    />
+                                </button>
+                            )}
+                    </div>
+                )}
             </header>
 
-            {isEditing ? (
+            <div className="note-author">
+                <UserAvatar
+                    avatarKey={note.authorAvatarKey}
+                    avatarColor={note.authorAvatarColor}
+                    size="small"
+                />
+
+                <span className="note-author-details">
+                    <strong>{note.authorUsername}</strong>
+                    <small>
+                        {isOwnNote
+                            ? 'Your note'
+                            : 'Shared note · Read only'}
+                    </small>
+                </span>
+            </div>
+
+            {isEditing && isOwnNote ? (
                 <NoteEditor
                     initialContent={note.content}
                     isSaving={isUpdating}
@@ -123,7 +154,7 @@ export function NoteCard({
                 </p>
             )}
 
-            {isConfirmingDelete && (
+            {isConfirmingDelete && isOwnNote && (
                 <NoteDeleteConfirmation
                     isDeleting={isDeleting}
                     onCancel={() =>

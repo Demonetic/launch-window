@@ -19,6 +19,10 @@ export interface NoteOverview {
     launchTime: string
     organizationName: string | null
     imageUrl: string | null
+    authorId: number
+    authorUsername: string
+    authorAvatarKey: AvatarKey
+    authorAvatarColor: string
     content: string
     createdAt: string
     updatedAt: string
