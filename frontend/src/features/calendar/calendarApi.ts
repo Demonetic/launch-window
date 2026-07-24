@@ -1,8 +1,10 @@
 import { apiRequest } from '../../lib/api'
 import type {
     CalendarEntry,
+    CalendarInvitation,
     CalendarPage,
     CalendarPageParameter,
+    CreateCalendarInvitationRequest,
     SavedLaunchIdsResponse,
 } from './types'
 
@@ -72,6 +74,56 @@ export function removeLaunch(
         `/api/calendar/${launchId}`,
         {
             method: 'DELETE',
+            token,
+        },
+    )
+}
+
+export function inviteToCalendar(
+    token: string,
+    launchId: number,
+    request: CreateCalendarInvitationRequest,
+): Promise<CalendarInvitation> {
+    return apiRequest<CalendarInvitation>(
+        `/api/calendar/${launchId}/invitations`,
+        {
+            method: 'POST',
+            token,
+            body: JSON.stringify(request),
+        },
+    )
+}
+
+export function getPendingCalendarInvitations(
+    token: string,
+): Promise<CalendarInvitation[]> {
+    return apiRequest<CalendarInvitation[]>(
+        '/api/calendar/invitations/pending',
+        { token },
+    )
+}
+
+export function acceptCalendarInvitation(
+    token: string,
+    invitationId: number,
+): Promise<CalendarInvitation> {
+    return apiRequest<CalendarInvitation>(
+        `/api/calendar/invitations/${invitationId}/accept`,
+        {
+            method: 'PATCH',
+            token,
+        },
+    )
+}
+
+export function declineCalendarInvitation(
+    token: string,
+    invitationId: number,
+): Promise<CalendarInvitation> {
+    return apiRequest<CalendarInvitation>(
+        `/api/calendar/invitations/${invitationId}/decline`,
+        {
+            method: 'PATCH',
             token,
         },
     )
