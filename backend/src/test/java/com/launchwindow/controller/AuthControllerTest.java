@@ -8,6 +8,7 @@ import com.launchwindow.exception.UserAlreadyExistsException;
 import com.launchwindow.model.AvatarKey;
 import com.launchwindow.model.Role;
 import com.launchwindow.service.auth.LoginService;
+import com.launchwindow.service.auth.PasswordResetService;
 import com.launchwindow.service.auth.RegistrationService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,8 @@ class AuthControllerTest {
     private RegistrationService registrationService;
     @MockitoBean
     private LoginService loginService;
+    @MockitoBean
+    private PasswordResetService passwordResetService;
     @MockitoBean
     private JwtDecoder jwtDecoder;
 

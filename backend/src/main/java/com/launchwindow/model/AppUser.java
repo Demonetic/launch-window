@@ -52,4 +52,8 @@ public class AppUser {
         this.avatarKey = avatarKey;
         this.avatarColor = avatarColor;
     }
+
+    public void updatePasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
 }

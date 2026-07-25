@@ -58,6 +58,12 @@ public class GlobalExceptionHandler {
         return createResponse(HttpStatus.BAD_REQUEST, ApiErrorCode.INVALID_CALENDAR_INVITATION, exception.getMessage(), request, Map.of());
     }
 
+    @ExceptionHandler(InvalidPasswordResetTokenException.class)
+    public ResponseEntity<ApiErrorResponse>
+    handleInvalidPasswordResetToken(InvalidPasswordResetTokenException exception, HttpServletRequest request) {
+        return createResponse(HttpStatus.BAD_REQUEST, ApiErrorCode.INVALID_PASSWORD_RESET_TOKEN, exception.getMessage(), request, Map.of());
+    }
+
     private ResponseEntity<ApiErrorResponse> createResponse(HttpStatus status, ApiErrorCode code, String message,
                                                             HttpServletRequest request, Map<String, String> fieldErrors) {
         ApiErrorResponse error = new ApiErrorResponse(

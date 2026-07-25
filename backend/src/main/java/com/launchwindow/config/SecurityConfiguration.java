@@ -39,7 +39,8 @@ public class SecurityConfiguration {
                         .authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/launches/**")
                         .permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login")
+                        .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login",
+                                "/api/auth/password/forgot", "/api/auth/password/reset")
                         .permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
                         .permitAll()

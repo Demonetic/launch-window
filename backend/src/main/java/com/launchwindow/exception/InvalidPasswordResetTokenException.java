@@ -1,0 +1,7 @@
+package com.launchwindow.exception;
+
+public class InvalidPasswordResetTokenException extends RuntimeException {
+    public InvalidPasswordResetTokenException() {
+        super("Password reset link is invalid or has expired");
+    }
+}

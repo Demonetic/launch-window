@@ -1,85 +1,179 @@
 @baseUrl = http://localhost:8080
-@launchId = 1
-@noteId = 1
+@mailpitUrl = http://localhost:8025
+@initialPassword = TestPassword123!
+@newPassword = ResetPassword456!
 
-### Register
+###############################################################################
+# AUTHENTICATION
+###############################################################################
+
+### Register unique test account
+< {%
+    const suffix = Date.now().toString();
+
+    client.global.set("test_username", "http_client_" + suffix);
+    client.global.set("test_email", "http-client-" + suffix + "@example.com");
+%}
+
 POST {{baseUrl}}/api/auth/register
 Content-Type: application/json
 
 {
-  "username": "http_client_user",
-  "email": "http-client@example.com",
-  "password": "TestPassword123!"
+  "username": "{{test_username}}",
+  "email": "{{test_email}}",
+  "password": "{{initialPassword}}"
 }
 
-### Login with username
+> {%
+    client.test("Account was registered", function () {
+        client.assert(response.status === 201, "Expected registration to return 201");
+    });
+
+    if (response.status === 201) {
+        client.global.set("test_user_id", response.body.id);
+    }
+%}
+
+### Login with generated username
 POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
 
 {
-  "identifier": "http_client_user",
-  "password": "TestPassword123!"
+  "identifier": "{{test_username}}",
+  "password": "{{initialPassword}}"
 }
 
-> {%client.global.set("auth_token", response.body.accessToken);%}
+> {%
+    client.test("Login succeeded", function () {
+        client.assert(response.status === 200, "Expected login to return 200");
+    });
 
-### Login with email
+    if (response.status === 200) {
+        client.global.set("auth_token", response.body.accessToken);
+    }
+%}
+
+### Login with generated email
 POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
 
 {
-  "identifier": "http-client@example.com",
-  "password": "TestPassword123!"
+  "identifier": "{{test_email}}",
+  "password": "{{initialPassword}}"
 }
 
-> {%client.global.set("auth_token", response.body.accessToken);%}
+> {%
+    if (response.status === 200) {
+        client.global.set("auth_token", response.body.accessToken);
+    }
+%}
 
-### Current user
+### Current authenticated user
 GET {{baseUrl}}/api/users/me
 Authorization: Bearer {{auth_token}}
 
-### Upcoming launches
-GET {{baseUrl}}/api/launches?limit=20
+###############################################################################
+# PROFILE AND AVATAR
+###############################################################################
 
-### Check which launches are saved
-GET {{baseUrl}}/api/calendar/saved-launch-ids?launchIds=1,2,3
+### Update avatar
+PATCH {{baseUrl}}/api/users/me/avatar
 Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "avatarKey": "ALIEN",
+  "avatarColor": "#7DE2A8"
+}
+
+### Confirm updated profile
+GET {{baseUrl}}/api/users/me
+Authorization: Bearer {{auth_token}}
+
+###############################################################################
+# PUBLIC LAUNCH DATA
+###############################################################################
+
+### Upcoming launches and automatically select the first launch
+GET {{baseUrl}}/api/launches?limit=20&sort=SOONEST
+
+> {%
+    const items = response.body.items ?? [];
+
+    client.test("Upcoming launches were returned", function () {
+        client.assert(response.status === 200, "Expected launches to return 200");
+        client.assert(items.length > 0, "At least one launch is required for later requests");
+    });
+
+    if (items.length > 0) {
+        client.global.set("launch_id", items[0].id);
+    }
+%}
+
+### Browse launches with filters
+GET {{baseUrl}}/api/launches?limit=20&sort=BEST_VIEWING&days=30&statuses=GO,TO_BE_CONFIRMED&forecastAvailable=true&minimumViewingScore=40
+
+### Search launches
+GET {{baseUrl}}/api/launches?limit=20&query=Falcon
+
+### Available launch countries
+GET {{baseUrl}}/api/launches/countries
 
 ### Best viewing conditions
 GET {{baseUrl}}/api/launches/best-viewing?days=7&limit=3
 
-### Launch details
-GET {{baseUrl}}/api/launches/{{launchId}}
+### Selected launch details
+GET {{baseUrl}}/api/launches/{{launch_id}}
 
-### Launch weather
-GET {{baseUrl}}/api/launches/{{launchId}}/weather
+### Selected launch weather
+GET {{baseUrl}}/api/launches/{{launch_id}}/weather
+
+###############################################################################
+# CALENDAR
+###############################################################################
 
 ### Initial calendar page
 GET {{baseUrl}}/api/calendar?limit=20
 Authorization: Bearer {{auth_token}}
 
-### Save launch to calendar
-PUT {{baseUrl}}/api/calendar/{{launchId}}
+### Save selected launch to calendar
+PUT {{baseUrl}}/api/calendar/{{launch_id}}
 Authorization: Bearer {{auth_token}}
 
-### Load future calendar entries
-GET {{baseUrl}}/api/calendar?afterTime=2026-08-01T12:00:00Z&afterId=1&limit=20
+### Check which launch IDs are saved
+GET {{baseUrl}}/api/calendar/saved-launch-ids?launchIds={{launch_id}}
 Authorization: Bearer {{auth_token}}
 
-### Load previous calendar entries
-GET {{baseUrl}}/api/calendar?beforeTime=2026-08-01T12:00:00Z&beforeId=1&limit=20
+### Confirm saved launch in calendar
+GET {{baseUrl}}/api/calendar?limit=20
 Authorization: Bearer {{auth_token}}
 
-### Remove launch from calendar
-DELETE {{baseUrl}}/api/calendar/{{launchId}}
+### Pending calendar invitations
+GET {{baseUrl}}/api/calendar/invitations/pending
 Authorization: Bearer {{auth_token}}
 
-### Get notes for launch
-GET {{baseUrl}}/api/launches/{{launchId}}/notes
+### Remove selected launch from calendar
+DELETE {{baseUrl}}/api/calendar/{{launch_id}}
 Authorization: Bearer {{auth_token}}
 
-### Create note
-POST {{baseUrl}}/api/launches/{{launchId}}/notes
+### Save it again so account deletion later tests database cascade
+PUT {{baseUrl}}/api/calendar/{{launch_id}}
+Authorization: Bearer {{auth_token}}
+
+###############################################################################
+# NOTES
+###############################################################################
+
+### Notes overview
+GET {{baseUrl}}/api/notes?limit=20
+Authorization: Bearer {{auth_token}}
+
+### Notes connected to selected launch
+GET {{baseUrl}}/api/launches/{{launch_id}}/notes
+Authorization: Bearer {{auth_token}}
+
+### Create launch note and save its ID automatically
+POST {{baseUrl}}/api/launches/{{launch_id}}/notes
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 
@@ -88,8 +182,12 @@ Content-Type: application/json
 }
 
 > {%
+    client.test("Note was created", function () {
+        client.assert(response.status === 201,"Expected note creation to return 201");
+    });
+
     if (response.status === 201) {
-        client.global.set("note_id", response.body.id);
+        client.global.set("note_id",response.body.id);
     }
 %}
 
@@ -102,11 +200,181 @@ Content-Type: application/json
   "content": "Updated note from IntelliJ HTTP Client."
 }
 
+### Confirm updated note
+GET {{baseUrl}}/api/launches/{{launch_id}}/notes
+Authorization: Bearer {{auth_token}}
+
 ### Delete created note
 DELETE {{baseUrl}}/api/notes/{{note_id}}
 Authorization: Bearer {{auth_token}}
 
-### Validation error
+### Create another note that account deletion should remove
+POST {{baseUrl}}/api/launches/{{launch_id}}/notes
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "content": "This note should disappear when the account is deleted."
+}
+
+###############################################################################
+# PASSWORD RESET THROUGH MAILPIT
+###############################################################################
+
+### Empty Mailpit before password reset test
+DELETE {{mailpitUrl}}/api/v1/messages
+
+### Request password reset for generated account
+POST {{baseUrl}}/api/auth/password/forgot
+Content-Type: application/json
+
+{
+  "email": "{{test_email}}"
+}
+
+> {%
+    client.test("Password reset request was accepted", function () {
+        client.assert(response.status === 204,"Expected password reset request to return 204");
+    });
+%}
+
+### Request again during cooldown - should still return 204 but send no second email
+POST {{baseUrl}}/api/auth/password/forgot
+Content-Type: application/json
+
+{
+  "email": "{{test_email}}"
+}
+
+### List Mailpit messages and capture newest message ID
+GET {{mailpitUrl}}/api/v1/messages
+
+> {%
+    const messages =response.body.messages ?? response.body.Messages ?? [];
+
+    client.test("Exactly one reset email was received", function () {
+        client.assert(messages.length === 1,"Expected one email because the second request is inside cooldown");
+    });
+
+    if (messages.length > 0) {
+        const messageId = messages[0].ID ?? messages[0].id;
+
+        client.global.set("mail_message_id",messageId);
+    }
+%}
+
+### Read reset email and extract token automatically
+GET {{mailpitUrl}}/api/v1/message/{{mail_message_id}}
+
+> {%
+    const text = response.body.Text ?? response.body.text ?? JSON.stringify(response.body);
+
+    const tokenMatch = text.match(/token=([A-Za-z0-9_-]+)/);
+
+    client.test("Reset token exists in email", function () {
+        client.assert(tokenMatch !== null, "Could not find reset token in Mailpit message");
+    });
+
+    if (tokenMatch !== null) {
+        client.global.set("reset_token", tokenMatch[1]);
+    }
+%}
+
+### Reset password using token extracted from Mailpit
+POST {{baseUrl}}/api/auth/password/reset
+Content-Type: application/json
+
+{
+  "token": "{{reset_token}}",
+  "newPassword": "{{newPassword}}"
+}
+
+> {%
+    client.test("Password was reset", function () {
+        client.assert(response.status === 204, "Expected password reset to return 204");
+    });
+%}
+
+### Old password should no longer work
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "identifier": "{{test_username}}",
+  "password": "{{initialPassword}}"
+}
+
+> {%
+    client.test("Old password was rejected", function () {
+        client.assert(response.status === 401, "Expected old password to return 401");
+    });
+%}
+
+### Login using new password and replace auth token
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "identifier": "{{test_username}}",
+  "password": "{{newPassword}}"
+}
+
+> {%
+    client.test("New password works", function () {
+        client.assert(response.status === 200, "Expected new password login to return 200");
+    });
+
+    if (response.status === 200) {
+        client.global.set("auth_token", response.body.accessToken);
+    }
+%}
+
+### Reusing reset token should fail
+POST {{baseUrl}}/api/auth/password/reset
+Content-Type: application/json
+
+{
+  "token": "{{reset_token}}",
+  "newPassword": "AnotherPassword789!"
+}
+
+> {%
+    client.test("Used reset token was rejected", function () {
+        client.assert(response.status === 400, "Expected reused token to return 400");
+        client.assert(response.body.code === "INVALID_PASSWORD_RESET_TOKEN", "Expected INVALID_PASSWORD_RESET_TOKEN");
+    });
+%}
+
+### Unknown email returns same response without sending email
+POST {{baseUrl}}/api/auth/password/forgot
+Content-Type: application/json
+
+{
+  "email": "does-not-exist@example.com"
+}
+
+> {%
+    client.test("Unknown email does not reveal account existence", function () {
+        client.assert(response.status === 204, "Expected unknown email to return 204");
+    });
+%}
+
+### Confirm unknown email did not create another message
+GET {{mailpitUrl}}/api/v1/messages
+
+> {%
+    const messages = response.body.messages ?? response.body.Messages ?? [];
+
+    client.test("Unknown email did not send mail", function () {
+        client.assert(messages.length === 1, "Expected Mailpit to still contain only the original email");
+    });
+%}
+
+###############################################################################
+# ERROR RESPONSES
+###############################################################################
+
+### Registration validation error
 POST {{baseUrl}}/api/auth/register
 Content-Type: application/json
 
@@ -128,5 +396,60 @@ Content-Type: application/json
 ### Protected endpoint without token
 GET {{baseUrl}}/api/calendar
 
-### Invalid pagination
+### Invalid launch pagination
 GET {{baseUrl}}/api/launches?afterTime=2026-08-01T12:00:00Z
+
+### Invalid password reset token
+POST {{baseUrl}}/api/auth/password/reset
+Content-Type: application/json
+
+{
+  "token": "invalid-token",
+  "newPassword": "ValidPassword123!"
+}
+
+###############################################################################
+# ACCOUNT DELETION
+#
+# RUN THIS LAST.
+# It permanently deletes the generated test account and its remaining data.
+###############################################################################
+
+### Permanently delete generated account
+DELETE {{baseUrl}}/api/users/me
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "password": "{{newPassword}}"
+}
+
+> {%
+    client.test("Account was deleted", function () {
+        client.assert(response.status === 204, "Expected account deletion to return 204");
+    });
+
+    if (response.status === 204) {
+        client.global.clear("auth_token");
+        client.global.clear("test_user_id");
+        client.global.clear("note_id");
+        client.global.clear("launch_id");
+        client.global.clear("reset_token");
+        client.global.clear("mail_message_id");
+    }
+%}
+
+### Deleted account can no longer log in
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "identifier": "{{test_username}}",
+  "password": "{{newPassword}}"
+}
+
+> {%
+    client.test("Deleted account login was rejected", function () {
+        client.assert(response.status === 401, "Expected deleted account login to return 401");
+    });
+%}
