@@ -23,3 +23,25 @@ export function register(
         body: JSON.stringify(request),
     })
 }
+
+export function requestPasswordReset(
+    email: string,
+): Promise<void> {
+    return apiRequest<void>('/api/auth/password/forgot', {
+        method: 'POST',
+        body: JSON.stringify({ email }),
+    })
+}
+
+export function resetPassword(
+    token: string,
+    newPassword: string,
+): Promise<void> {
+    return apiRequest<void>('/api/auth/password/reset', {
+        method: 'POST',
+        body: JSON.stringify({
+            token,
+            newPassword,
+        }),
+    })
+}

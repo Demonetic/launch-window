@@ -1,14 +1,16 @@
 import { createBrowserRouter } from 'react-router'
 import App from '../App'
+import { AccountPage } from '../features/account/AccountPage'
+import { CalendarPage } from '../features/calendar/CalendarPage'
+import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage'
 import { LoginPage } from '../features/auth/LoginPage'
 import { ProtectedRoute } from '../features/auth/ProtectedRoute'
 import { RegisterPage } from '../features/auth/RegisterPage'
-import { PlaceholderPage } from '../pages/PlaceholderPage'
-import { UpcomingLaunchesPage } from '../features/launches/UpcomingLaunchesPage'
+import { ResetPasswordPage } from '../features/auth/ResetPasswordPage'
 import { LaunchDetailPage } from '../features/launches/LaunchDetailPage'
-import { CalendarPage } from '../features/calendar/CalendarPage'
-import { AccountPage } from '../features/account/AccountPage'
+import { UpcomingLaunchesPage } from '../features/launches/UpcomingLaunchesPage'
 import { NotesPage } from '../features/notes/NotesPage'
+import { PlaceholderPage } from '../pages/PlaceholderPage'
 
 export const router = createBrowserRouter([
     {
@@ -41,7 +43,9 @@ export const router = createBrowserRouter([
             },
             {
                 path: '*',
-                element: <PlaceholderPage title="Page not found" />,
+                element: (
+                    <PlaceholderPage title="Page not found" />
+                ),
             },
         ],
     },
@@ -52,5 +56,13 @@ export const router = createBrowserRouter([
     {
         path: 'register',
         element: <RegisterPage />,
+    },
+    {
+        path: 'forgot-password',
+        element: <ForgotPasswordPage />,
+    },
+    {
+        path: 'reset-password',
+        element: <ResetPasswordPage />,
     },
 ])

@@ -16,6 +16,7 @@ import { useAuth } from './useAuth'
 interface LoginLocationState {
     from?: unknown
     registered?: boolean
+    passwordReset?: boolean
 }
 
 export function LoginPage() {
@@ -87,6 +88,12 @@ export function LoginPage() {
                 </p>
             )}
 
+            {state?.passwordReset && (
+                <p className="auth-success" role="status">
+                    Password updated. Sign in with your new password.
+                </p>
+            )}
+
             {error && (
                 <p className="auth-error" role="alert">
                     {error}
@@ -110,6 +117,12 @@ export function LoginPage() {
                     type="password"
                     autoComplete="current-password"
                 />
+
+                <div className="auth-form-support">
+                    <Link to="/forgot-password">
+                        Forgot password?
+                    </Link>
+                </div>
 
                 <button
                     className="auth-submit"
