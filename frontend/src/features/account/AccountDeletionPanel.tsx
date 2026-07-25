@@ -9,6 +9,7 @@ import {
     useState,
 } from 'react'
 import { useDeleteAccount } from './useDeleteAccount'
+import { PasswordInput } from '../auth/PasswordInput'
 import './accountDeletion.css'
 
 export function AccountDeletionPanel() {
@@ -161,17 +162,14 @@ export function AccountDeletionPanel() {
                                 htmlFor={passwordId}
                             >
                                 <span>Current password</span>
-                                <input
+                                <PasswordInput
                                     id={passwordId}
-                                    type="password"
                                     value={password}
                                     autoComplete="current-password"
                                     placeholder="Enter your password"
                                     disabled={isPending}
                                     onChange={(event) => {
-                                        setPassword(
-                                            event.target.value,
-                                        )
+                                        setPassword(event.target.value)
                                         reset()
                                     }}
                                 />

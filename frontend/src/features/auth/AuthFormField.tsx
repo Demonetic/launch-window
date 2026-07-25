@@ -1,3 +1,5 @@
+import { PasswordInput } from './PasswordInput'
+
 interface AuthFormFieldProps {
     label: string
     name: string
@@ -19,28 +21,38 @@ export function AuthFormField({
                               }: AuthFormFieldProps) {
     const errorId = `${name}-error`
 
+    const inputProperties = {
+        name,
+        autoComplete,
+        minLength,
+        maxLength,
+        'aria-invalid': Boolean(error),
+        'aria-describedby': error
+            ? errorId
+            : undefined,
+        required: true,
+    }
+
     return (
         <label className="auth-field">
             <span>{label}</span>
 
-            <input
-                name={name}
-                type={type}
-                autoComplete={autoComplete}
-                minLength={minLength}
-                maxLength={maxLength}
-                aria-invalid={Boolean(error)}
-                aria-describedby={error ? errorId : undefined}
-                required
-            />
+            {type === 'password' ? (
+                <PasswordInput {...inputProperties} />
+            ) : (
+                <input
+                    {...inputProperties}
+                    type={type}
+                />
+            )}
 
             {error && (
                 <span
                     className="auth-field-error"
                     id={errorId}
                 >
-          {error}
-        </span>
+                    {error}
+                </span>
             )}
         </label>
     )
