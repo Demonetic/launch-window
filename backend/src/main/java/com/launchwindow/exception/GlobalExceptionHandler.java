@@ -53,15 +53,18 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InvalidCalendarInvitationException.class)
-    public ResponseEntity<ApiErrorResponse>
-    handleInvalidCalendarInvitation(InvalidCalendarInvitationException exception, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleInvalidCalendarInvitation(InvalidCalendarInvitationException exception, HttpServletRequest request) {
         return createResponse(HttpStatus.BAD_REQUEST, ApiErrorCode.INVALID_CALENDAR_INVITATION, exception.getMessage(), request, Map.of());
     }
 
     @ExceptionHandler(InvalidPasswordResetTokenException.class)
-    public ResponseEntity<ApiErrorResponse>
-    handleInvalidPasswordResetToken(InvalidPasswordResetTokenException exception, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleInvalidPasswordResetToken(InvalidPasswordResetTokenException exception, HttpServletRequest request) {
         return createResponse(HttpStatus.BAD_REQUEST, ApiErrorCode.INVALID_PASSWORD_RESET_TOKEN, exception.getMessage(), request, Map.of());
+    }
+
+    @ExceptionHandler(InvalidFriendshipException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidFriendship(InvalidFriendshipException exception, HttpServletRequest request) {
+        return createResponse(HttpStatus.BAD_REQUEST, ApiErrorCode.INVALID_FRIENDSHIP, exception.getMessage(), request, Map.of());
     }
 
     private ResponseEntity<ApiErrorResponse> createResponse(HttpStatus status, ApiErrorCode code, String message,

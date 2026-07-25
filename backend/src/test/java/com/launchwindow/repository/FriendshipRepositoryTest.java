@@ -110,6 +110,36 @@ class FriendshipRepositoryTest {
         );
     }
 
+    @Test
+    void findForUserReturnsFriendshipOnlyForMember() {
+        AppUser anna = saveUser("anna", "anna@example.com");
+        AppUser alex = saveUser("alex", "alex@example.com");
+        AppUser sam = saveUser("sam", "sam@example.com");
+
+        Friendship friendship = friendshipRepository.saveAndFlush(new Friendship(anna, alex));
+
+        assertTrue(friendshipRepository.findForUser(friendship.getId(), anna.getId()).isPresent());
+        assertTrue(friendshipRepository.findForUser(friendship.getId(), sam.getId()).isEmpty());
+    }
+
+    @Test
+    void findSentRequestsReturnsOnlyRequestsCreatedByUser() {
+        AppUser anna = saveUser("anna", "anna@example.com");
+        AppUser alex = saveUser("alex", "alex@example.com");
+        AppUser sam = saveUser("sam", "sam@example.com");
+
+        Friendship sent = friendshipRepository.save(new Friendship(anna, alex));
+
+        friendshipRepository.save(new Friendship(sam, anna));
+
+        friendshipRepository.flush();
+
+        List<Friendship> result = friendshipRepository.findSentRequests(anna.getId(), FriendshipStatus.PENDING);
+
+        assertEquals(1, result.size());
+        assertEquals(sent.getId(), result.getFirst().getId());
+    }
+
     private AppUser saveUser(String username, String email) {
         return userRepository.save(
                 new AppUser(

@@ -28,6 +28,20 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Long> {
             JOIN FETCH friendship.firstUser
             JOIN FETCH friendship.secondUser
             JOIN FETCH friendship.requester
+            WHERE friendship.id = :friendshipId
+              AND (
+                    friendship.firstUser.id = :userId
+                    OR friendship.secondUser.id = :userId
+                  )
+            """)
+    Optional<Friendship> findForUser(@Param("friendshipId") Long friendshipId, @Param("userId") Long userId);
+
+    @Query("""
+            SELECT friendship
+            FROM Friendship friendship
+            JOIN FETCH friendship.firstUser
+            JOIN FETCH friendship.secondUser
+            JOIN FETCH friendship.requester
             WHERE (
                     friendship.firstUser.id = :userId
                     OR friendship.secondUser.id = :userId
@@ -54,6 +68,19 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Long> {
                      friendship.id DESC
             """)
     List<Friendship> findReceivedRequests(@Param("userId") Long userId, @Param("status") FriendshipStatus status);
+
+    @Query("""
+            SELECT friendship
+            FROM Friendship friendship
+            JOIN FETCH friendship.firstUser
+            JOIN FETCH friendship.secondUser
+            JOIN FETCH friendship.requester
+            WHERE friendship.requester.id = :userId
+              AND friendship.status = :status
+            ORDER BY friendship.createdAt DESC,
+                     friendship.id DESC
+            """)
+    List<Friendship> findSentRequests(@Param("userId") Long userId, @Param("status") FriendshipStatus status);
 
     @Query("""
             SELECT CASE
