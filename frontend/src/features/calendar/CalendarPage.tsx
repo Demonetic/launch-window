@@ -5,6 +5,7 @@ import {
     useState,
 } from 'react'
 import {
+    ArrowDown,
     ArrowUp,
     CalendarDays,
 } from 'lucide-react'
@@ -14,13 +15,16 @@ import { useCalendar } from './useCalendar'
 import { useCalendarScroll } from './useCalendarScroll'
 import './calendar.css'
 
+const CALENDAR_SCROLL_POSITION_KEY =
+    'calendar-scroll-position'
+
 function formatDate(value: string) {
     return new Intl.DateTimeFormat('en', {
         dateStyle: 'full',
     }).format(new Date(value))
 }
 
-function dateKey(value: string) {
+function dateKey(value: string | number | Date) {
     const date = new Date(value)
 
     return [
@@ -30,8 +34,11 @@ function dateKey(value: string) {
     ].join('-')
 }
 
-const CALENDAR_SCROLL_POSITION_KEY =
-    'calendar-scroll-position'
+function isToday(value: string, now: number) {
+    return dateKey(value) === dateKey(now)
+}
+
+type UpcomingDirection = 'up' | 'down'
 
 export function CalendarPage() {
     const {
@@ -48,6 +55,8 @@ export function CalendarPage() {
     } = useCalendar()
 
     const [now] = useState(() => Date.now())
+    const [upcomingDirection, setUpcomingDirection] =
+        useState<UpcomingDirection>('up')
 
     const upcomingMarkerRef =
         useRef<HTMLDivElement | null>(null)
@@ -57,12 +66,15 @@ export function CalendarPage() {
     const entries =
         data?.pages.flatMap((page) => page.items) ?? []
 
-    const hasUpcomingLaunch = entries.some(
+    const firstUpcomingEntry = entries.find(
         (entry) =>
             new Date(
                 entry.launch.launchTime,
             ).getTime() >= now,
     )
+
+    const hasUpcomingLaunch =
+        firstUpcomingEntry !== undefined
 
     const {
         nextSentinelRef,
@@ -98,11 +110,7 @@ export function CalendarPage() {
                 CALENDAR_SCROLL_POSITION_KEY,
             )
 
-        if (savedScrollPosition) {
-            sessionStorage.removeItem(
-                CALENDAR_SCROLL_POSITION_KEY,
-            )
-
+        if (savedScrollPosition !== null) {
             const parsedPosition = Number(
                 savedScrollPosition,
             )
@@ -115,6 +123,10 @@ export function CalendarPage() {
                             behavior: 'auto',
                         })
 
+                        sessionStorage.removeItem(
+                            CALENDAR_SCROLL_POSITION_KEY,
+                        )
+
                         hasPositionedCalendar.current =
                             true
                     })
@@ -122,6 +134,10 @@ export function CalendarPage() {
                 return () =>
                     cancelAnimationFrame(frame)
             }
+
+            sessionStorage.removeItem(
+                CALENDAR_SCROLL_POSITION_KEY,
+            )
         }
 
         const containsUpcomingLaunch =
@@ -149,6 +165,69 @@ export function CalendarPage() {
         return () => cancelAnimationFrame(frame)
     }, [data, isPending, now])
 
+    useEffect(() => {
+        if (!hasUpcomingLaunch) {
+            return
+        }
+
+        let animationFrame: number | null = null
+
+        function updateUpcomingDirection() {
+            if (animationFrame !== null) {
+                cancelAnimationFrame(animationFrame)
+            }
+
+            animationFrame =
+                requestAnimationFrame(() => {
+                    const marker =
+                        upcomingMarkerRef.current
+
+                    if (!marker) {
+                        return
+                    }
+
+                    const markerPosition =
+                        marker.getBoundingClientRect()
+
+                    if (
+                        markerPosition.top >
+                        window.innerHeight
+                    ) {
+                        setUpcomingDirection('down')
+                        return
+                    }
+
+                    setUpcomingDirection('up')
+                })
+        }
+
+        updateUpcomingDirection()
+
+        window.addEventListener(
+            'scroll',
+            updateUpcomingDirection,
+            { passive: true },
+        )
+        window.addEventListener(
+            'resize',
+            updateUpcomingDirection,
+        )
+
+        return () => {
+            window.removeEventListener(
+                'scroll',
+                updateUpcomingDirection,
+            )
+            window.removeEventListener(
+                'resize',
+                updateUpcomingDirection,
+            )
+
+            if (animationFrame !== null) {
+                cancelAnimationFrame(animationFrame)
+            }
+        }
+    }, [entries.length, hasUpcomingLaunch])
 
     function scrollToUpcoming() {
         upcomingMarkerRef.current?.scrollIntoView({
@@ -280,8 +359,33 @@ export function CalendarPage() {
                                         .launchTime,
                                 ).getTime() < now)
 
+                        const upcomingStartsToday =
+                            startsUpcoming &&
+                            isToday(
+                                entry.launch.launchTime,
+                                now,
+                            )
+
                         return (
                             <Fragment key={entry.id}>
+                                {startsNewDate && (
+                                    <h2 className="calendar-date">
+                                        {isToday(
+                                            entry.launch
+                                                .launchTime,
+                                            now,
+                                        )
+                                            ? `Today · ${formatDate(
+                                                entry.launch
+                                                    .launchTime,
+                                            )}`
+                                            : formatDate(
+                                                entry.launch
+                                                    .launchTime,
+                                            )}
+                                    </h2>
+                                )}
+
                                 {startsUpcoming && (
                                     <div
                                         className="calendar-now-marker"
@@ -290,18 +394,11 @@ export function CalendarPage() {
                                         }
                                     >
                                         <span>
-                                            Upcoming
+                                            {upcomingStartsToday
+                                                ? 'Today · Upcoming'
+                                                : 'Upcoming'}
                                         </span>
                                     </div>
-                                )}
-
-                                {startsNewDate && (
-                                    <h2 className="calendar-date">
-                                        {formatDate(
-                                            entry.launch
-                                                .launchTime,
-                                        )}
-                                    </h2>
                                 )}
 
                                 <CalendarEntryCard
@@ -344,19 +441,30 @@ export function CalendarPage() {
                     type="button"
                     className="calendar-upcoming-button"
                     onClick={scrollToUpcoming}
-                    aria-label="Scroll to upcoming launches"
+                    aria-label={
+                        upcomingDirection === 'down'
+                            ? 'Scroll down to upcoming launches'
+                            : 'Scroll up to upcoming launches'
+                    }
                 >
-        <span className="calendar-upcoming-button-icon">
-            <ArrowUp
-                aria-hidden="true"
-                size={17}
-            />
-        </span>
+                    <span className="calendar-upcoming-button-icon">
+                        {upcomingDirection === 'down' ? (
+                            <ArrowDown
+                                aria-hidden="true"
+                                size={17}
+                            />
+                        ) : (
+                            <ArrowUp
+                                aria-hidden="true"
+                                size={17}
+                            />
+                        )}
+                    </span>
 
                     <span className="calendar-upcoming-button-copy">
-            <small>Calendar</small>
-            <strong>Upcoming</strong>
-        </span>
+                        <small>Calendar</small>
+                        <strong>Upcoming</strong>
+                    </span>
                 </button>
             )}
         </main>
