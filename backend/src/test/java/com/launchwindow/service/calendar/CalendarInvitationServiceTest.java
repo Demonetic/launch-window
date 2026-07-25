@@ -8,6 +8,7 @@ import com.launchwindow.model.*;
 import com.launchwindow.repository.AppUserRepository;
 import com.launchwindow.repository.CalendarEntryRepository;
 import com.launchwindow.repository.CalendarInvitationRepository;
+import com.launchwindow.repository.FriendshipRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -57,6 +58,7 @@ class CalendarInvitationServiceTest {
         ArgumentCaptor<CalendarInvitation> captor = ArgumentCaptor.forClass(CalendarInvitation.class);
 
         verify(invitationRepository).save(captor.capture());
+        verify(invitationRepository).existsByCalendarEntry_IdAndInvitee_Id(20L, 2L);
 
         CalendarInvitation created = captor.getValue();
 
@@ -244,16 +246,51 @@ class CalendarInvitationServiceTest {
         assertEquals("Calendar invitation has already been answered", exception.getMessage());
     }
 
-    private CalendarInvitationService createService(AppUserRepository userRepository, CalendarEntryRepository calendarRepository, CalendarInvitationRepository invitationRepository) {
-        return new CalendarInvitationService(
-                userRepository,
-                calendarRepository,
-                invitationRepository,
-                Clock.fixed(
-                        CURRENT_TIME,
-                        ZoneOffset.UTC
-                )
-        );
+    @Test
+    void inviteRejectsUserWhoIsNotFriend() {
+        AppUserRepository userRepository = mock(AppUserRepository.class);
+        CalendarEntryRepository calendarRepository = mock(CalendarEntryRepository.class);
+        CalendarInvitationRepository invitationRepository = mock(CalendarInvitationRepository.class);
+        FriendshipRepository friendshipRepository = mock(FriendshipRepository.class);
+
+        CalendarInvitationService service = createService(userRepository, calendarRepository, invitationRepository, friendshipRepository);
+
+        AppUser inviter = mock(AppUser.class);
+        AppUser invitee = mock(AppUser.class);
+        CalendarEntry calendarEntry = mock(CalendarEntry.class);
+
+        when(inviter.getId()).thenReturn(1L);
+        when(invitee.getId()).thenReturn(2L);
+        when(calendarEntry.getId()).thenReturn(20L);
+        when(userRepository.findByUsername("anna")).thenReturn(Optional.of(inviter));
+        when(calendarRepository.findByUser_IdAndLaunch_Id(1L, 10L)).thenReturn(Optional.of(calendarEntry));
+        when(userRepository.findByUsernameIgnoreCaseOrEmailIgnoreCase("alex", "alex")).thenReturn(Optional.of(invitee));
+
+        when(friendshipRepository.existsBetweenUsersWithStatus(1L, 2L, FriendshipStatus.ACCEPTED)).thenReturn(false);
+
+        InvalidCalendarInvitationException exception =
+                assertThrows(InvalidCalendarInvitationException.class,
+                        () -> service.invite("anna", 10L, new CreateCalendarInvitationRequest("alex")));
+
+        assertEquals("You can only invite friends to your calendar", exception.getMessage());
+
+        verify(invitationRepository, never()).save(any());
+        verify(invitationRepository, never()).existsByCalendarEntry_IdAndInvitee_Id(anyLong(), anyLong());
+    }
+
+    private CalendarInvitationService createService(AppUserRepository userRepository, CalendarEntryRepository calendarRepository,
+                                                    CalendarInvitationRepository invitationRepository) {
+        FriendshipRepository friendshipRepository = mock(FriendshipRepository.class);
+
+        when(friendshipRepository.existsBetweenUsersWithStatus(anyLong(), anyLong(), eq(FriendshipStatus.ACCEPTED))).thenReturn(true);
+
+        return createService(userRepository, calendarRepository, invitationRepository, friendshipRepository);
+    }
+
+    private CalendarInvitationService createService(AppUserRepository userRepository, CalendarEntryRepository calendarRepository,
+                                                    CalendarInvitationRepository invitationRepository, FriendshipRepository friendshipRepository) {
+        return new CalendarInvitationService(userRepository, calendarRepository, invitationRepository, friendshipRepository,
+                Clock.fixed(CURRENT_TIME, ZoneOffset.UTC));
     }
 
     private void stubInvitationResponse(CalendarInvitation invitation, CalendarInvitationStatus status) {

@@ -8,6 +8,7 @@ import com.launchwindow.model.*;
 import com.launchwindow.repository.AppUserRepository;
 import com.launchwindow.repository.CalendarEntryRepository;
 import com.launchwindow.repository.CalendarInvitationRepository;
+import com.launchwindow.repository.FriendshipRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,13 +21,16 @@ public class CalendarInvitationService {
     private final AppUserRepository userRepository;
     private final CalendarEntryRepository calendarRepository;
     private final CalendarInvitationRepository invitationRepository;
+    private final FriendshipRepository friendshipRepository;
     private final Clock clock;
 
     public CalendarInvitationService(AppUserRepository userRepository, CalendarEntryRepository calendarRepository,
-                                     CalendarInvitationRepository invitationRepository, Clock clock) {
+                                     CalendarInvitationRepository invitationRepository, FriendshipRepository friendshipRepository,
+                                     Clock clock) {
         this.userRepository = userRepository;
         this.calendarRepository = calendarRepository;
         this.invitationRepository = invitationRepository;
+        this.friendshipRepository = friendshipRepository;
         this.clock = clock;
     }
 
@@ -106,9 +110,19 @@ public class CalendarInvitationService {
         return invitation;
     }
 
-    private void validateInvitation(AppUser inviter, AppUser invitee, CalendarEntry calendarEntry) {
+    private void validateInvitation(AppUser inviter, AppUser invitee,
+            CalendarEntry calendarEntry) {
         if (Objects.equals(inviter.getId(), invitee.getId())) {
             throw new InvalidCalendarInvitationException("You cannot invite yourself");
+        }
+
+        long firstUserId = Math.min(inviter.getId(), invitee.getId());
+        long secondUserId = Math.max(inviter.getId(), invitee.getId());
+
+        boolean areFriends = friendshipRepository.existsBetweenUsersWithStatus(firstUserId, secondUserId, FriendshipStatus.ACCEPTED);
+
+        if (!areFriends) {
+            throw new InvalidCalendarInvitationException("You can only invite friends to your calendar");
         }
 
         if (invitationRepository.existsByCalendarEntry_IdAndInvitee_Id(calendarEntry.getId(), invitee.getId())) {
