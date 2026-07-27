@@ -4,6 +4,7 @@ import com.launchwindow.dto.LaunchNoteCursor;
 import com.launchwindow.dto.LaunchNoteOverviewResponse;
 import com.launchwindow.dto.LaunchNotePageResponse;
 import com.launchwindow.dto.LaunchNoteResponse;
+import com.launchwindow.dto.NoteScope;
 import com.launchwindow.exception.InvalidPaginationException;
 import com.launchwindow.model.CalendarInvitationStatus;
 import com.launchwindow.model.LaunchNote;
@@ -32,8 +33,7 @@ public class LaunchNoteQueryService {
 
     @Transactional(readOnly = true)
     public List<LaunchNoteResponse> getNotes(String username, Long launchId) {
-        return userRepository.findByUsername(username)
-                .map(user -> noteRepository
+        return userRepository.findByUsername(username).map(user -> noteRepository
                         .findAccessibleByLaunchId(user.getId(), launchId, CalendarInvitationStatus.ACCEPTED)
                         .stream()
                         .map(mapper::map)
@@ -42,36 +42,33 @@ public class LaunchNoteQueryService {
     }
 
     @Transactional(readOnly = true)
-    public LaunchNotePageResponse getNotesPage(String username, Instant beforeUpdatedAt, Long beforeId, int limit) {
+    public LaunchNotePageResponse getNotesPage(String username, Instant beforeUpdatedAt, Long beforeId, int limit, NoteScope scope) {
         validatePagination(beforeUpdatedAt, beforeId, limit);
 
+        boolean includeOwn = scope != NoteScope.FRIENDS;
+        boolean includeShared = scope != NoteScope.MINE;
+
         return userRepository.findByUsername(username)
-                .map(user -> createPage(
-                        beforeUpdatedAt == null
-                                ? noteRepository
-                                .findOverviewInitial(user.getId(), CalendarInvitationStatus.ACCEPTED, PageRequest.of(0, limit + 1))
-                                : noteRepository
-                                .findOverviewPage(user.getId(), CalendarInvitationStatus.ACCEPTED, beforeUpdatedAt, beforeId,
-                                        PageRequest.of(0, limit + 1)),
-                        limit
-                ))
+                .map(user -> createPage(beforeUpdatedAt == null
+                                ? noteRepository.findOverviewInitial(user.getId(), CalendarInvitationStatus.ACCEPTED,
+                                includeOwn, includeShared, PageRequest.of(0, limit + 1))
+                                : noteRepository.findOverviewPage(user.getId(), CalendarInvitationStatus.ACCEPTED, includeOwn,
+                                includeShared, beforeUpdatedAt, beforeId, PageRequest.of(0, limit + 1)),
+                        limit))
                 .orElseGet(this::emptyPage);
     }
 
     private LaunchNotePageResponse createPage(List<LaunchNote> fetchedNotes, int limit) {
         boolean hasNext = fetchedNotes.size() > limit;
 
-        List<LaunchNote> notes = fetchedNotes.stream()
-                        .limit(limit)
-                        .toList();
+        List<LaunchNote> notes = fetchedNotes
+                .stream()
+                .limit(limit)
+                .toList();
 
-        List<LaunchNoteOverviewResponse> items =
-                notes.stream()
-                        .map(mapper::mapOverview)
-                        .toList();
+        List<LaunchNoteOverviewResponse> items = notes.stream().map(mapper::mapOverview).toList();
 
-        LaunchNoteCursor nextCursor =
-                notes.isEmpty()
+        LaunchNoteCursor nextCursor = notes.isEmpty()
                         ? null
                         : cursorFrom(notes.getLast());
 

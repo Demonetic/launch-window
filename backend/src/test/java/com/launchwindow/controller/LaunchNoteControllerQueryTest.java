@@ -3,6 +3,7 @@ package com.launchwindow.controller;
 import com.launchwindow.config.SecurityConfiguration;
 import com.launchwindow.dto.LaunchNoteCursor;
 import com.launchwindow.dto.LaunchNotePageResponse;
+import com.launchwindow.dto.NoteScope;
 import com.launchwindow.service.note.LaunchNoteCommandService;
 import com.launchwindow.service.note.LaunchNoteQueryService;
 import org.junit.jupiter.api.Test;
@@ -28,13 +29,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class LaunchNoteControllerQueryTest {
     @Autowired
     private MockMvc mockMvc;
-
     @MockitoBean
     private LaunchNoteQueryService queryService;
-
     @MockitoBean
     private LaunchNoteCommandService commandService;
-
     @MockitoBean
     private JwtDecoder jwtDecoder;
 
@@ -42,9 +40,7 @@ class LaunchNoteControllerQueryTest {
     void authenticatedUserCanGetOwnLaunchNotes() throws Exception {
         when(queryService.getNotes("launch_test", 4L)).thenReturn(List.of());
 
-        mockMvc.perform(get("/api/launches/4/notes")
-                        .with(jwt().jwt(token -> token
-                                .subject("launch_test"))))
+        mockMvc.perform(get("/api/launches/4/notes").with(jwt().jwt(token -> token.subject("launch_test"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$").isEmpty());
@@ -56,18 +52,16 @@ class LaunchNoteControllerQueryTest {
     void authenticatedUserCanGetInitialNotesPage() throws Exception {
         LaunchNotePageResponse response = new LaunchNotePageResponse(List.of(), null, false);
 
-        when(queryService.getNotesPage("launch_test", null, null, 20)).thenReturn(response);
+        when(queryService.getNotesPage("launch_test", null, null, 20, NoteScope.ALL)).thenReturn(response);
 
-        mockMvc.perform(get("/api/notes")
-                        .with(jwt().jwt(token -> token
-                                .subject("launch_test"))))
+        mockMvc.perform(get("/api/notes").with(jwt().jwt(token -> token.subject("launch_test"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.items").isArray())
                 .andExpect(jsonPath("$.items").isEmpty())
                 .andExpect(jsonPath("$.nextCursor").isEmpty())
                 .andExpect(jsonPath("$.hasNext").value(false));
 
-        verify(queryService).getNotesPage("launch_test", null, null, 20);
+        verify(queryService).getNotesPage("launch_test", null, null, 20, NoteScope.ALL);
     }
 
     @Test
@@ -77,26 +71,32 @@ class LaunchNoteControllerQueryTest {
         LaunchNotePageResponse response =
                 new LaunchNotePageResponse(List.of(), new LaunchNoteCursor(cursorTime, 14L), true);
 
-        when(queryService.getNotesPage("launch_test", cursorTime, 14L, 10)).thenReturn(response);
+        when(queryService.getNotesPage("launch_test", cursorTime, 14L, 10, NoteScope.ALL)).thenReturn(response);
 
-        mockMvc.perform(get("/api/notes")
-                        .with(jwt().jwt(token -> token
-                                .subject("launch_test")))
-                        .param("limit", "10")
-                        .param("beforeUpdatedAt", cursorTime.toString())
-                        .param("beforeId", "14"))
+        mockMvc.perform(get("/api/notes").with(jwt().jwt(token -> token.subject("launch_test")))
+                                .param("limit", "10")
+                                .param("beforeUpdatedAt", cursorTime.toString())
+                                .param("beforeId", "14"))
                 .andExpect(status().isOk())
-                .andExpect(
-                        jsonPath("$.nextCursor.beforeUpdatedAt")
-                                .value(cursorTime.toString())
-                )
-                .andExpect(
-                        jsonPath("$.nextCursor.beforeId")
-                                .value(14)
-                )
+                .andExpect(jsonPath("$.nextCursor.beforeUpdatedAt").value(cursorTime.toString()))
+                .andExpect(jsonPath("$.nextCursor.beforeId").value(14))
                 .andExpect(jsonPath("$.hasNext").value(true));
 
-        verify(queryService).getNotesPage("launch_test", cursorTime, 14L, 10);
+        verify(queryService).getNotesPage("launch_test", cursorTime, 14L, 10, NoteScope.ALL);
+    }
+
+    @Test
+    void authenticatedUserCanFilterFriendsNotes() throws Exception {
+        LaunchNotePageResponse response = new LaunchNotePageResponse(List.of(), null, false);
+
+        when(queryService.getNotesPage("launch_test", null, null, 20, NoteScope.FRIENDS)).thenReturn(response);
+
+        mockMvc.perform(get("/api/notes").with(jwt().jwt(token -> token.subject("launch_test"))).param("scope", "FRIENDS"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items").isArray())
+                .andExpect(jsonPath("$.items").isEmpty());
+
+        verify(queryService).getNotesPage("launch_test", null, null, 20, NoteScope.FRIENDS);
     }
 
     @Test

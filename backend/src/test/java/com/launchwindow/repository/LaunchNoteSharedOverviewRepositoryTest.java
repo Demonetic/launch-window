@@ -1,14 +1,6 @@
 package com.launchwindow.repository;
 
-import com.launchwindow.model.AppUser;
-import com.launchwindow.model.CalendarEntry;
-import com.launchwindow.model.CalendarInvitation;
-import com.launchwindow.model.CalendarInvitationStatus;
-import com.launchwindow.model.Launch;
-import com.launchwindow.model.LaunchDetails;
-import com.launchwindow.model.LaunchNote;
-import com.launchwindow.model.LaunchStatus;
-import com.launchwindow.model.Role;
+import com.launchwindow.model.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
@@ -25,28 +17,26 @@ class LaunchNoteSharedOverviewRepositoryTest {
 
     @Autowired
     private AppUserRepository userRepository;
-
     @Autowired
     private LaunchRepository launchRepository;
-
     @Autowired
     private CalendarEntryRepository calendarRepository;
-
     @Autowired
     private CalendarInvitationRepository invitationRepository;
-
     @Autowired
     private LaunchNoteRepository noteRepository;
 
     @Test
-    void overviewContainsOwnAndSharedNotesButNotOutsiderNotes() {
+    void overviewFiltersOwnAndFriendsNotes() {
         AppUser owner = saveUser("anna", "anna@example.com");
         AppUser participant = saveUser("alex", "alex@example.com");
         AppUser outsider = saveUser("outsider", "outsider@example.com");
 
         Launch sharedLaunch = saveLaunch("shared-launch");
         Launch privateLaunch = saveLaunch("private-launch");
+
         CalendarEntry sharedEntry = calendarRepository.save(new CalendarEntry(owner, sharedLaunch));
+
         CalendarInvitation invitation = new CalendarInvitation(sharedEntry, owner, participant);
 
         invitation.accept(CURRENT_TIME);
@@ -62,13 +52,31 @@ class LaunchNoteSharedOverviewRepositoryTest {
 
         noteRepository.flush();
 
-        List<LaunchNote> result =
-                noteRepository.findOverviewInitial(participant.getId(), CalendarInvitationStatus.ACCEPTED, PageRequest.of(0, 20));
+        List<LaunchNote> allNotes =
+                noteRepository.findOverviewInitial(participant.getId(), CalendarInvitationStatus.ACCEPTED, true, true,
+                        PageRequest.of(0, 20));
 
-        assertThat(result)
+        List<LaunchNote> ownNotes =
+                noteRepository.findOverviewInitial(participant.getId(), CalendarInvitationStatus.ACCEPTED, true, false,
+                        PageRequest.of(0, 20));
+
+        List<LaunchNote> friendsNotes =
+                noteRepository.findOverviewInitial(participant.getId(), CalendarInvitationStatus.ACCEPTED, false, true,
+                        PageRequest.of(0, 20));
+
+        assertThat(allNotes)
                 .extracting(LaunchNote::getId)
                 .containsExactlyInAnyOrder(ownerSharedNote.getId(), participantSharedNote.getId(), participantPrivateNote.getId())
                 .doesNotContain(outsiderNote.getId());
+
+        assertThat(ownNotes)
+                .extracting(LaunchNote::getId)
+                .containsExactlyInAnyOrder(participantSharedNote.getId(), participantPrivateNote.getId());
+
+        assertThat(friendsNotes)
+                .extracting(LaunchNote::getId)
+                .containsExactly(ownerSharedNote.getId())
+                .doesNotContain(participantSharedNote.getId(), participantPrivateNote.getId(), outsiderNote.getId());
     }
 
     private AppUser saveUser(String username, String email) {

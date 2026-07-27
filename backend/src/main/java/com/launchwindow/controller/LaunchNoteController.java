@@ -3,6 +3,7 @@ package com.launchwindow.controller;
 import com.launchwindow.config.OpenApiConfiguration;
 import com.launchwindow.dto.LaunchNoteRequest;
 import com.launchwindow.dto.LaunchNoteResponse;
+import com.launchwindow.dto.NoteScope;
 import com.launchwindow.exception.ResourceNotFoundException;
 import com.launchwindow.service.note.LaunchNoteCommandService;
 import com.launchwindow.service.note.LaunchNoteQueryService;
@@ -33,9 +34,10 @@ public class LaunchNoteController {
 
     @GetMapping("/notes")
     public LaunchNotePageResponse getNotesPage(@AuthenticationPrincipal Jwt jwt, @RequestParam(defaultValue = "20") int limit,
-                                               @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-                                               Instant beforeUpdatedAt, @RequestParam(required = false) Long beforeId) {
-        return queryService.getNotesPage(jwt.getSubject(), beforeUpdatedAt, beforeId, limit);
+                                               @RequestParam(defaultValue = "ALL") NoteScope scope,
+                                               @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant beforeUpdatedAt,
+                                               @RequestParam(required = false) Long beforeId) {
+        return queryService.getNotesPage(jwt.getSubject(), beforeUpdatedAt, beforeId, limit, scope);
     }
 
     @GetMapping("/launches/{launchId}/notes")

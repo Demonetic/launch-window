@@ -14,7 +14,10 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest(properties = {"spring.flyway.enabled=false", "spring.jpa.hibernate.ddl-auto=create-drop"})
+@DataJpaTest(properties = {
+        "spring.flyway.enabled=false",
+        "spring.jpa.hibernate.ddl-auto=create-drop"
+})
 class LaunchNoteOverviewRepositoryTest {
     private static final Instant LAUNCH_TIME = Instant.parse("2026-08-01T10:00:00Z");
     private static final Instant CURRENT_TIME = Instant.parse("2026-07-22T12:00:00Z");
@@ -23,13 +26,10 @@ class LaunchNoteOverviewRepositoryTest {
 
     @Autowired
     private AppUserRepository userRepository;
-
     @Autowired
     private LaunchRepository launchRepository;
-
     @Autowired
     private LaunchNoteRepository noteRepository;
-
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -38,25 +38,21 @@ class LaunchNoteOverviewRepositoryTest {
         TestNotes notes = saveTestNotes();
 
         List<LaunchNote> result = noteRepository.findOverviewInitial(notes.user().getId(), CalendarInvitationStatus.ACCEPTED,
-                        PageRequest.of(0, 10));
+                true, true, PageRequest.of(0, 10));
 
-        assertThat(result).extracting(LaunchNote::getId)
-                .containsExactly(notes.second().getId(), notes.first().getId(), notes.older().getId());
+        assertThat(result).extracting(LaunchNote::getId).containsExactly(notes.second().getId(), notes.first().getId(), notes.older().getId());
 
-        assertThat(result).extracting(note -> note.getLaunch().getName())
-                .containsExactly("Second launch", "First launch", "Older launch");
+        assertThat(result).extracting(note -> note.getLaunch().getName()).containsExactly("Second launch", "First launch", "Older launch");
     }
 
     @Test
     void overviewCursorUsesUpdatedTimeAndIdTieBreaker() {
         TestNotes notes = saveTestNotes();
 
-        List<LaunchNote> result = noteRepository.findOverviewPage(notes.user().getId(), CalendarInvitationStatus.ACCEPTED,
-                        SHARED_UPDATED_AT, notes.second().getId(), PageRequest.of(0, 10));
+        List<LaunchNote> result = noteRepository.findOverviewPage(notes.user().getId(), CalendarInvitationStatus.ACCEPTED, true,
+                true, SHARED_UPDATED_AT, notes.second().getId(), PageRequest.of(0, 10));
 
-        assertThat(result)
-                .extracting(LaunchNote::getId)
-                .containsExactly(notes.first().getId(), notes.older().getId());
+        assertThat(result).extracting(LaunchNote::getId).containsExactly(notes.first().getId(), notes.older().getId());
     }
 
     private TestNotes saveTestNotes() {
@@ -76,6 +72,7 @@ class LaunchNoteOverviewRepositoryTest {
         LaunchNote first = noteRepository.save(new LaunchNote(user, firstLaunch, "First note"));
         LaunchNote second = noteRepository.save(new LaunchNote(user, secondLaunch, "Second note"));
         LaunchNote older = noteRepository.save(new LaunchNote(user, olderLaunch, "Older note"));
+
         LaunchNote other = noteRepository.save(new LaunchNote(otherUser, otherLaunch, "Other user's note"));
 
         noteRepository.flush();

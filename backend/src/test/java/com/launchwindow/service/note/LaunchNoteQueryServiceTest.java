@@ -3,6 +3,7 @@ package com.launchwindow.service.note;
 import com.launchwindow.dto.LaunchNoteOverviewResponse;
 import com.launchwindow.dto.LaunchNotePageResponse;
 import com.launchwindow.dto.LaunchNoteResponse;
+import com.launchwindow.dto.NoteScope;
 import com.launchwindow.exception.InvalidPaginationException;
 import com.launchwindow.model.AppUser;
 import com.launchwindow.model.CalendarInvitationStatus;
@@ -63,14 +64,17 @@ class LaunchNoteQueryServiceTest {
 
         when(user.getId()).thenReturn(1L);
         when(userRepository.findByUsername("launch_test")).thenReturn(Optional.of(user));
-        when(noteRepository.findOverviewInitial(1L, CalendarInvitationStatus.ACCEPTED, PageRequest.of(0, 3)))
-                .thenReturn(List.of(firstNote, secondNote, extraNote));
+
+        when(noteRepository.findOverviewInitial(1L, CalendarInvitationStatus.ACCEPTED, true, true,
+                PageRequest.of(0, 3))).thenReturn(List.of(firstNote, secondNote, extraNote));
+
         when(mapper.mapOverview(firstNote)).thenReturn(firstResponse);
         when(mapper.mapOverview(secondNote)).thenReturn(secondResponse);
         when(secondNote.getUpdatedAt()).thenReturn(secondUpdatedAt);
         when(secondNote.getId()).thenReturn(12L);
 
-        LaunchNotePageResponse result = service.getNotesPage("launch_test", null, null, 2);
+        LaunchNotePageResponse result =
+                service.getNotesPage("launch_test", null, null, 2, NoteScope.ALL);
 
         assertEquals(List.of(firstResponse, secondResponse), result.items());
         assertTrue(result.hasNext());
@@ -93,23 +97,25 @@ class LaunchNoteQueryServiceTest {
         when(user.getId()).thenReturn(1L);
         when(userRepository.findByUsername("launch_test")).thenReturn(Optional.of(user));
 
-        when(noteRepository.findOverviewPage(1L, CalendarInvitationStatus.ACCEPTED, beforeUpdatedAt, 20L,
-                PageRequest.of(0, 3))).thenReturn(List.of(note));
+        when(noteRepository.findOverviewPage(1L, CalendarInvitationStatus.ACCEPTED, true, true,
+                beforeUpdatedAt, 20L, PageRequest.of(0, 3))).thenReturn(List.of(note));
 
         when(mapper.mapOverview(note)).thenReturn(response);
         when(note.getUpdatedAt()).thenReturn(noteUpdatedAt);
         when(note.getId()).thenReturn(14L);
 
-        LaunchNotePageResponse result = service.getNotesPage("launch_test", beforeUpdatedAt, 20L, 2);
+        LaunchNotePageResponse result =
+                service.getNotesPage("launch_test", beforeUpdatedAt, 20L, 2, NoteScope.ALL);
 
         assertEquals(List.of(response), result.items());
         assertFalse(result.hasNext());
         assertEquals(noteUpdatedAt, result.nextCursor().beforeUpdatedAt());
         assertEquals(14L, result.nextCursor().beforeId());
 
-        verify(noteRepository).findOverviewPage(1L, CalendarInvitationStatus.ACCEPTED, beforeUpdatedAt, 20L,
-                PageRequest.of(0, 3));
-        verify(noteRepository, never()).findOverviewInitial(anyLong(), any(), any());
+        verify(noteRepository).findOverviewPage(1L, CalendarInvitationStatus.ACCEPTED, true, true,
+                beforeUpdatedAt, 20L, PageRequest.of(0, 3));
+
+        verify(noteRepository, never()).findOverviewInitial(anyLong(), any(), anyBoolean(), anyBoolean(), any());
     }
 
     @Test
@@ -118,9 +124,12 @@ class LaunchNoteQueryServiceTest {
 
         when(user.getId()).thenReturn(1L);
         when(userRepository.findByUsername("launch_test")).thenReturn(Optional.of(user));
-        when(noteRepository.findOverviewInitial(1L, CalendarInvitationStatus.ACCEPTED, PageRequest.of(0, 21))).thenReturn(List.of());
 
-        LaunchNotePageResponse result = service.getNotesPage("launch_test", null, null, 20);
+        when(noteRepository.findOverviewInitial(1L, CalendarInvitationStatus.ACCEPTED, true, true,
+                PageRequest.of(0, 21))).thenReturn(List.of());
+
+        LaunchNotePageResponse result =
+                service.getNotesPage("launch_test", null, null, 20, NoteScope.ALL);
 
         assertTrue(result.items().isEmpty());
         assertNull(result.nextCursor());
@@ -133,7 +142,8 @@ class LaunchNoteQueryServiceTest {
     void missingUserReturnsEmptyNotesPage() {
         when(userRepository.findByUsername("missing")).thenReturn(Optional.empty());
 
-        LaunchNotePageResponse result = service.getNotesPage("missing", null, null, 20);
+        LaunchNotePageResponse result =
+                service.getNotesPage("missing", null, null, 20, NoteScope.ALL);
 
         assertTrue(result.items().isEmpty());
         assertNull(result.nextCursor());
@@ -143,17 +153,48 @@ class LaunchNoteQueryServiceTest {
     }
 
     @Test
+    void mineScopeRequestsOnlyOwnNotes() {
+        AppUser user = mock(AppUser.class);
+
+        when(user.getId()).thenReturn(1L);
+        when(userRepository.findByUsername("launch_test")).thenReturn(Optional.of(user));
+
+        when(noteRepository.findOverviewInitial(1L, CalendarInvitationStatus.ACCEPTED, true, false,
+                PageRequest.of(0, 21))).thenReturn(List.of());
+
+        service.getNotesPage("launch_test", null, null, 20, NoteScope.MINE);
+
+        verify(noteRepository).findOverviewInitial(1L, CalendarInvitationStatus.ACCEPTED, true, false,
+                PageRequest.of(0, 21));
+    }
+
+    @Test
+    void friendsScopeRequestsOnlySharedNotes() {
+        AppUser user = mock(AppUser.class);
+
+        when(user.getId()).thenReturn(1L);
+        when(userRepository.findByUsername("launch_test")).thenReturn(Optional.of(user));
+        when(noteRepository.findOverviewInitial(1L, CalendarInvitationStatus.ACCEPTED, false, true,
+                PageRequest.of(0, 21))).thenReturn(List.of());
+
+        service.getNotesPage("launch_test", null, null, 20, NoteScope.FRIENDS);
+
+        verify(noteRepository).findOverviewInitial(1L, CalendarInvitationStatus.ACCEPTED, false, true,
+                PageRequest.of(0, 21));
+    }
+
+    @Test
     void partialCursorIsRejected() {
         Instant cursorTime = Instant.parse("2026-07-22T10:00:00Z");
 
         assertThrows(
                 InvalidPaginationException.class,
-                () -> service.getNotesPage("launch_test", cursorTime, null, 20)
+                () -> service.getNotesPage("launch_test", cursorTime, null, 20, NoteScope.ALL)
         );
 
         assertThrows(
                 InvalidPaginationException.class,
-                () -> service.getNotesPage("launch_test", null, 10L, 20)
+                () -> service.getNotesPage("launch_test", null, 10L, 20, NoteScope.ALL)
         );
 
         verifyNoInteractions(userRepository, noteRepository, mapper);
@@ -163,16 +204,15 @@ class LaunchNoteQueryServiceTest {
     void invalidPageLimitIsRejected() {
         assertThrows(
                 InvalidPaginationException.class,
-                () -> service.getNotesPage("launch_test", null, null, 0)
+                () -> service.getNotesPage("launch_test", null, null, 0, NoteScope.ALL)
         );
 
         assertThrows(
                 InvalidPaginationException.class,
-                () -> service.getNotesPage("launch_test", null, null, 101)
+                () -> service.getNotesPage("launch_test", null, null, 101, NoteScope.ALL)
         );
 
-        verifyNoInteractions(userRepository, noteRepository, mapper
-        );
+        verifyNoInteractions(userRepository, noteRepository, mapper);
     }
 
     @Test
