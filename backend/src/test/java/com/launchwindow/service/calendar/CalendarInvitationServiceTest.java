@@ -9,6 +9,7 @@ import com.launchwindow.repository.AppUserRepository;
 import com.launchwindow.repository.CalendarEntryRepository;
 import com.launchwindow.repository.CalendarInvitationRepository;
 import com.launchwindow.repository.FriendshipRepository;
+import com.launchwindow.repository.UserNotificationRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -20,18 +21,22 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class CalendarInvitationServiceTest {
-    private static final Instant CURRENT_TIME = Instant.parse("2026-07-23T20:00:00Z");
+    private static final Instant CURRENT_TIME =
+            Instant.parse("2026-07-23T20:00:00Z");
 
     @Test
     void invite_createsPendingInvitation() {
         AppUserRepository userRepository = mock(AppUserRepository.class);
         CalendarEntryRepository calendarRepository = mock(CalendarEntryRepository.class);
         CalendarInvitationRepository invitationRepository = mock(CalendarInvitationRepository.class);
+        UserNotificationRepository notificationRepository = mock(UserNotificationRepository.class);
 
-        CalendarInvitationService service = createService(userRepository, calendarRepository, invitationRepository);
+        CalendarInvitationService service = createService(userRepository, calendarRepository, invitationRepository, notificationRepository);
 
         AppUser inviter = mock(AppUser.class);
         AppUser invitee = mock(AppUser.class);
@@ -54,17 +59,28 @@ class CalendarInvitationServiceTest {
         assertEquals(10L, result.launchId());
         assertEquals(CalendarInvitationStatus.PENDING, result.status());
 
-        ArgumentCaptor<CalendarInvitation> captor = ArgumentCaptor.forClass(CalendarInvitation.class);
+        ArgumentCaptor<CalendarInvitation> invitationCaptor = ArgumentCaptor.forClass(CalendarInvitation.class);
 
-        verify(invitationRepository).save(captor.capture());
+        verify(invitationRepository).save(invitationCaptor.capture());
         verify(invitationRepository).findByCalendarEntry_IdAndInvitee_Id(20L, 2L);
 
-        CalendarInvitation created = captor.getValue();
+        CalendarInvitation created = invitationCaptor.getValue();
 
         assertEquals(calendarEntry, created.getCalendarEntry());
         assertEquals(inviter, created.getInviter());
         assertEquals(invitee, created.getInvitee());
         assertEquals(CalendarInvitationStatus.PENDING, created.getStatus());
+
+        ArgumentCaptor<UserNotification> notificationCaptor = ArgumentCaptor.forClass(UserNotification.class);
+
+        verify(notificationRepository).save(notificationCaptor.capture());
+
+        UserNotification notification = notificationCaptor.getValue();
+
+        assertEquals(invitee, notification.getRecipient());
+        assertEquals(inviter, notification.getActor());
+        assertEquals(NotificationType.CALENDAR_INVITATION_RECEIVED, notification.getType());
+        assertEquals(savedInvitation, notification.getCalendarInvitation());
     }
 
     @Test
@@ -74,6 +90,7 @@ class CalendarInvitationServiceTest {
         CalendarInvitationRepository invitationRepository = mock(CalendarInvitationRepository.class);
 
         CalendarInvitationService service = createService(userRepository, calendarRepository, invitationRepository);
+
         AppUser user = mock(AppUser.class);
         CalendarEntry calendarEntry = mock(CalendarEntry.class);
 
@@ -83,9 +100,8 @@ class CalendarInvitationServiceTest {
         when(userRepository.findByUsernameIgnoreCaseOrEmailIgnoreCase("anna", "anna")).thenReturn(Optional.of(user));
 
         InvalidCalendarInvitationException exception = assertThrows(
-                        InvalidCalendarInvitationException.class,
-                        () -> service.invite("anna", 10L, new CreateCalendarInvitationRequest("anna"))
-                );
+                InvalidCalendarInvitationException.class,
+                () -> service.invite("anna", 10L, new CreateCalendarInvitationRequest("anna")));
 
         assertEquals("You cannot invite yourself", exception.getMessage());
 
@@ -99,11 +115,11 @@ class CalendarInvitationServiceTest {
         CalendarInvitationRepository invitationRepository = mock(CalendarInvitationRepository.class);
 
         CalendarInvitationService service = createService(userRepository, calendarRepository, invitationRepository);
+
         AppUser inviter = mock(AppUser.class);
         AppUser invitee = mock(AppUser.class);
         CalendarEntry calendarEntry = mock(CalendarEntry.class);
         CalendarInvitation existingInvitation = mock(CalendarInvitation.class);
-
 
         when(inviter.getId()).thenReturn(1L);
         when(invitee.getId()).thenReturn(2L);
@@ -115,9 +131,8 @@ class CalendarInvitationServiceTest {
         when(invitationRepository.findByCalendarEntry_IdAndInvitee_Id(20L, 2L)).thenReturn(Optional.of(existingInvitation));
 
         InvalidCalendarInvitationException exception = assertThrows(
-                        InvalidCalendarInvitationException.class,
-                        () -> service.invite("anna", 10L, new CreateCalendarInvitationRequest("alex"))
-                );
+                InvalidCalendarInvitationException.class,
+                () -> service.invite("anna", 10L, new CreateCalendarInvitationRequest("alex")));
 
         assertEquals("This user has already been invited", exception.getMessage());
 
@@ -135,7 +150,6 @@ class CalendarInvitationServiceTest {
         AppUser inviter = mock(AppUser.class);
         AppUser invitee = mock(AppUser.class);
         CalendarEntry calendarEntry = mock(CalendarEntry.class);
-
         CalendarInvitation declinedInvitation = mock(CalendarInvitation.class);
         CalendarInvitation savedInvitation = mock(CalendarInvitation.class);
 
@@ -147,7 +161,6 @@ class CalendarInvitationServiceTest {
         when(userRepository.findByUsernameIgnoreCaseOrEmailIgnoreCase("alex", "alex")).thenReturn(Optional.of(invitee));
         when(declinedInvitation.getStatus()).thenReturn(CalendarInvitationStatus.DECLINED);
         when(invitationRepository.findByCalendarEntry_IdAndInvitee_Id(20L, 2L)).thenReturn(Optional.of(declinedInvitation));
-
         when(invitationRepository.save(any(CalendarInvitation.class))).thenReturn(savedInvitation);
 
         stubInvitationResponse(savedInvitation, CalendarInvitationStatus.PENDING);
@@ -168,6 +181,7 @@ class CalendarInvitationServiceTest {
         CalendarInvitationRepository invitationRepository = mock(CalendarInvitationRepository.class);
 
         CalendarInvitationService service = createService(userRepository, calendarRepository, invitationRepository);
+
         CalendarInvitation invitation = mock(CalendarInvitation.class);
 
         stubInvitationResponse(invitation, CalendarInvitationStatus.PENDING);
@@ -187,14 +201,17 @@ class CalendarInvitationServiceTest {
         AppUserRepository userRepository = mock(AppUserRepository.class);
         CalendarEntryRepository calendarRepository = mock(CalendarEntryRepository.class);
         CalendarInvitationRepository invitationRepository = mock(CalendarInvitationRepository.class);
+        UserNotificationRepository notificationRepository = mock(UserNotificationRepository.class);
 
-        CalendarInvitationService service = createService(userRepository, calendarRepository, invitationRepository);
+        CalendarInvitationService service = createService(userRepository, calendarRepository, invitationRepository, notificationRepository);
+
         CalendarInvitation invitation = mock(CalendarInvitation.class);
         CalendarEntry ownerEntry = mock(CalendarEntry.class);
         CalendarEntry inviteeEntry = mock(CalendarEntry.class);
         AppUser invitee = mock(AppUser.class);
         AppUser inviter = mock(AppUser.class);
         Launch launch = mock(Launch.class);
+        UserNotification receivedNotification = mock(UserNotification.class);
 
         when(invitationRepository.findForInvitee(50L, "alex")).thenReturn(Optional.of(invitation));
         when(invitation.getStatus()).thenReturn(CalendarInvitationStatus.PENDING, CalendarInvitationStatus.ACCEPTED);
@@ -215,6 +232,8 @@ class CalendarInvitationServiceTest {
         when(invitation.getRespondedAt()).thenReturn(CURRENT_TIME);
         when(calendarRepository.findByUser_IdAndLaunch_Id(2L, 10L)).thenReturn(Optional.empty());
         when(calendarRepository.save(any(CalendarEntry.class))).thenReturn(inviteeEntry);
+        when(notificationRepository.findByRecipient_IdAndCalendarInvitation_IdAndType(2L, 50L, NotificationType.CALENDAR_INVITATION_RECEIVED))
+                .thenReturn(Optional.of(receivedNotification));
 
         CalendarInvitationResponse result = service.accept("alex", 50L);
 
@@ -222,13 +241,25 @@ class CalendarInvitationServiceTest {
         assertEquals(CURRENT_TIME, result.respondedAt());
 
         verify(invitation).accept(CURRENT_TIME);
+        verify(receivedNotification).markRead(CURRENT_TIME);
 
-        ArgumentCaptor<CalendarEntry> captor = ArgumentCaptor.forClass(CalendarEntry.class);
+        ArgumentCaptor<CalendarEntry> entryCaptor = ArgumentCaptor.forClass(CalendarEntry.class);
 
-        verify(calendarRepository).save(captor.capture());
+        verify(calendarRepository).save(entryCaptor.capture());
 
-        assertEquals(invitee, captor.getValue().getUser());
-        assertEquals(launch, captor.getValue().getLaunch());
+        assertEquals(invitee, entryCaptor.getValue().getUser());
+        assertEquals(launch, entryCaptor.getValue().getLaunch());
+
+        ArgumentCaptor<UserNotification> notificationCaptor = ArgumentCaptor.forClass(UserNotification.class);
+
+        verify(notificationRepository).save(notificationCaptor.capture());
+
+        UserNotification notification = notificationCaptor.getValue();
+
+        assertEquals(inviter, notification.getRecipient());
+        assertEquals(invitee, notification.getActor());
+        assertEquals(NotificationType.CALENDAR_INVITATION_ACCEPTED, notification.getType());
+        assertEquals(invitation, notification.getCalendarInvitation());
     }
 
     @Test
@@ -236,17 +267,31 @@ class CalendarInvitationServiceTest {
         AppUserRepository userRepository = mock(AppUserRepository.class);
         CalendarEntryRepository calendarRepository = mock(CalendarEntryRepository.class);
         CalendarInvitationRepository invitationRepository = mock(CalendarInvitationRepository.class);
+        UserNotificationRepository notificationRepository = mock(UserNotificationRepository.class);
 
-        CalendarInvitationService service = createService(userRepository, calendarRepository, invitationRepository);
+        CalendarInvitationService service = createService(userRepository, calendarRepository, invitationRepository, notificationRepository);
+
         CalendarInvitation invitation = mock(CalendarInvitation.class);
+        AppUser invitee = mock(AppUser.class);
+        AppUser inviter = mock(AppUser.class);
+        UserNotification receivedNotification = mock(UserNotification.class);
 
         when(invitationRepository.findForInvitee(50L, "alex")).thenReturn(Optional.of(invitation));
-
         when(invitation.getStatus()).thenReturn(CalendarInvitationStatus.PENDING, CalendarInvitationStatus.DECLINED);
 
         stubInvitationRelations(invitation);
 
+        when(invitation.getInvitee()).thenReturn(invitee);
+        when(invitation.getInviter()).thenReturn(inviter);
+        when(invitee.getId()).thenReturn(2L);
+        when(inviter.getId()).thenReturn(1L);
+        when(inviter.getUsername()).thenReturn("anna");
+        when(inviter.getAvatarKey()).thenReturn(AvatarKey.ASTRONAUT);
+        when(inviter.getAvatarColor()).thenReturn("#FFFFFF");
         when(invitation.getRespondedAt()).thenReturn(CURRENT_TIME);
+
+        when(notificationRepository.findByRecipient_IdAndCalendarInvitation_IdAndType(2L, 50L, NotificationType.CALENDAR_INVITATION_RECEIVED))
+                .thenReturn(Optional.of(receivedNotification));
 
         CalendarInvitationResponse result = service.decline("alex", 50L);
 
@@ -254,7 +299,19 @@ class CalendarInvitationServiceTest {
         assertEquals(CURRENT_TIME, result.respondedAt());
 
         verify(invitation).decline(CURRENT_TIME);
+        verify(receivedNotification).markRead(CURRENT_TIME);
         verifyNoInteractions(calendarRepository);
+
+        ArgumentCaptor<UserNotification> notificationCaptor = ArgumentCaptor.forClass(UserNotification.class);
+
+        verify(notificationRepository).save(notificationCaptor.capture());
+
+        UserNotification notification = notificationCaptor.getValue();
+
+        assertEquals(inviter, notification.getRecipient());
+        assertEquals(invitee, notification.getActor());
+        assertEquals(NotificationType.CALENDAR_INVITATION_DECLINED, notification.getType());
+        assertEquals(invitation, notification.getCalendarInvitation());
     }
 
     @Test
@@ -279,8 +336,8 @@ class CalendarInvitationServiceTest {
         when(invitationRepository.findForInvitee(50L, "alex")).thenReturn(Optional.of(invitation));
         when(invitation.getStatus()).thenReturn(CalendarInvitationStatus.ACCEPTED);
 
-        InvalidCalendarInvitationException exception =
-                assertThrows(InvalidCalendarInvitationException.class, () -> service.accept("alex", 50L));
+        InvalidCalendarInvitationException exception = assertThrows(
+                InvalidCalendarInvitationException.class, () -> service.accept("alex", 50L));
 
         assertEquals("Calendar invitation has already been answered", exception.getMessage());
     }
@@ -307,9 +364,9 @@ class CalendarInvitationServiceTest {
 
         when(friendshipRepository.existsBetweenUsersWithStatus(1L, 2L, FriendshipStatus.ACCEPTED)).thenReturn(false);
 
-        InvalidCalendarInvitationException exception =
-                assertThrows(InvalidCalendarInvitationException.class,
-                        () -> service.invite("anna", 10L, new CreateCalendarInvitationRequest("alex")));
+        InvalidCalendarInvitationException exception = assertThrows(
+                InvalidCalendarInvitationException.class,
+                () -> service.invite("anna", 10L, new CreateCalendarInvitationRequest("alex")));
 
         assertEquals("You can only invite friends to your calendar", exception.getMessage());
 
@@ -317,19 +374,26 @@ class CalendarInvitationServiceTest {
         verify(invitationRepository, never()).findByCalendarEntry_IdAndInvitee_Id(anyLong(), anyLong());
     }
 
-    private CalendarInvitationService createService(AppUserRepository userRepository, CalendarEntryRepository calendarRepository,
-                                                    CalendarInvitationRepository invitationRepository) {
+    private CalendarInvitationService createService(AppUserRepository userRepository, CalendarEntryRepository calendarRepository, CalendarInvitationRepository invitationRepository) {
+        return createService(userRepository, calendarRepository, invitationRepository, mock(UserNotificationRepository.class));
+    }
+
+    private CalendarInvitationService createService(AppUserRepository userRepository, CalendarEntryRepository calendarRepository, CalendarInvitationRepository invitationRepository, UserNotificationRepository notificationRepository) {
         FriendshipRepository friendshipRepository = mock(FriendshipRepository.class);
 
         when(friendshipRepository.existsBetweenUsersWithStatus(anyLong(), anyLong(), eq(FriendshipStatus.ACCEPTED))).thenReturn(true);
 
-        return createService(userRepository, calendarRepository, invitationRepository, friendshipRepository);
+        return createService(userRepository, calendarRepository, invitationRepository, friendshipRepository, notificationRepository);
     }
 
-    private CalendarInvitationService createService(AppUserRepository userRepository, CalendarEntryRepository calendarRepository,
-                                                    CalendarInvitationRepository invitationRepository, FriendshipRepository friendshipRepository) {
+    private CalendarInvitationService createService(AppUserRepository userRepository, CalendarEntryRepository calendarRepository, CalendarInvitationRepository invitationRepository, FriendshipRepository friendshipRepository) {
+        return createService(userRepository, calendarRepository, invitationRepository, friendshipRepository, mock(UserNotificationRepository.class));
+    }
+
+    private CalendarInvitationService createService(AppUserRepository userRepository, CalendarEntryRepository calendarRepository, CalendarInvitationRepository invitationRepository, FriendshipRepository friendshipRepository,
+                                                    UserNotificationRepository notificationRepository) {
         return new CalendarInvitationService(userRepository, calendarRepository, invitationRepository, friendshipRepository,
-                Clock.fixed(CURRENT_TIME, ZoneOffset.UTC));
+                notificationRepository, Clock.fixed(CURRENT_TIME, ZoneOffset.UTC));
     }
 
     private void stubInvitationResponse(CalendarInvitation invitation, CalendarInvitationStatus status) {

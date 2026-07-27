@@ -5,10 +5,7 @@ import com.launchwindow.dto.CreateCalendarInvitationRequest;
 import com.launchwindow.exception.InvalidCalendarInvitationException;
 import com.launchwindow.exception.ResourceNotFoundException;
 import com.launchwindow.model.*;
-import com.launchwindow.repository.AppUserRepository;
-import com.launchwindow.repository.CalendarEntryRepository;
-import com.launchwindow.repository.CalendarInvitationRepository;
-import com.launchwindow.repository.FriendshipRepository;
+import com.launchwindow.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,15 +19,17 @@ public class CalendarInvitationService {
     private final CalendarEntryRepository calendarRepository;
     private final CalendarInvitationRepository invitationRepository;
     private final FriendshipRepository friendshipRepository;
+    private final UserNotificationRepository notificationRepository;
     private final Clock clock;
 
     public CalendarInvitationService(AppUserRepository userRepository, CalendarEntryRepository calendarRepository,
                                      CalendarInvitationRepository invitationRepository, FriendshipRepository friendshipRepository,
-                                     Clock clock) {
+                                     UserNotificationRepository notificationRepository, Clock clock) {
         this.userRepository = userRepository;
         this.calendarRepository = calendarRepository;
         this.invitationRepository = invitationRepository;
         this.friendshipRepository = friendshipRepository;
+        this.notificationRepository = notificationRepository;
         this.clock = clock;
     }
 
@@ -50,15 +49,16 @@ public class CalendarInvitationService {
 
         validateInvitation(inviter, invitee, calendarEntry);
 
-        CalendarInvitation invitation = invitationRepository.save(
-                        new CalendarInvitation(calendarEntry, inviter, invitee));
+        CalendarInvitation invitation = invitationRepository.save(new CalendarInvitation(calendarEntry, inviter, invitee));
+
+        notificationRepository.save(
+                UserNotification.forCalendarInvitation(invitee, inviter, NotificationType.CALENDAR_INVITATION_RECEIVED, invitation));
 
         return map(invitation);
     }
 
     @Transactional(readOnly = true)
-    public List<CalendarInvitationResponse>
-    getPendingInvitations(String username) {
+    public List<CalendarInvitationResponse> getPendingInvitations(String username) {
         return invitationRepository.findAllForInvitee(username, CalendarInvitationStatus.PENDING)
                 .stream()
                 .map(this::map)
@@ -69,15 +69,21 @@ public class CalendarInvitationService {
     public CalendarInvitationResponse accept(String username, Long invitationId) {
         CalendarInvitation invitation = findPendingInvitation(username, invitationId);
 
-        invitation.accept(clock.instant());
+        var respondedAt = clock.instant();
+
+        invitation.accept(respondedAt);
 
         AppUser invitee = invitation.getInvitee();
-        Launch launch = invitation
-                .getCalendarEntry()
-                .getLaunch();
+        AppUser inviter = invitation.getInviter();
+        Launch launch = invitation.getCalendarEntry().getLaunch();
 
         calendarRepository.findByUser_IdAndLaunch_Id(invitee.getId(), launch.getId())
                 .orElseGet(() -> calendarRepository.save(new CalendarEntry(invitee, launch)));
+
+        markInvitationNotificationRead(invitee, invitation, respondedAt);
+
+        notificationRepository.save(
+                UserNotification.forCalendarInvitation(inviter, invitee, NotificationType.CALENDAR_INVITATION_ACCEPTED, invitation));
 
         return map(invitation);
     }
@@ -86,7 +92,17 @@ public class CalendarInvitationService {
     public CalendarInvitationResponse decline(String username, Long invitationId) {
         CalendarInvitation invitation = findPendingInvitation(username, invitationId);
 
-        invitation.decline(clock.instant());
+        var respondedAt = clock.instant();
+
+        invitation.decline(respondedAt);
+
+        AppUser invitee = invitation.getInvitee();
+        AppUser inviter = invitation.getInviter();
+
+        markInvitationNotificationRead(invitee, invitation, respondedAt);
+
+        notificationRepository.save(
+                UserNotification.forCalendarInvitation(inviter, invitee, NotificationType.CALENDAR_INVITATION_DECLINED, invitation));
 
         return map(invitation);
     }
@@ -159,5 +175,10 @@ public class CalendarInvitationService {
                 invitation.getCreatedAt(),
                 invitation.getRespondedAt()
         );
+    }
+
+    private void markInvitationNotificationRead(AppUser recipient, CalendarInvitation invitation, java.time.Instant readAt) {
+        notificationRepository.findByRecipient_IdAndCalendarInvitation_IdAndType(recipient.getId(), invitation.getId(),
+                        NotificationType.CALENDAR_INVITATION_RECEIVED).ifPresent(notification -> notification.markRead(readAt));
     }
 }

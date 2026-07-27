@@ -39,5 +39,7 @@ public interface UserNotificationRepository extends JpaRepository<UserNotificati
 
     Optional<UserNotification> findByRecipient_IdAndFriendship_IdAndType(Long recipientId, Long friendshipId, NotificationType type);
 
+    Optional<UserNotification> findByRecipient_IdAndCalendarInvitation_IdAndType(Long recipientId, Long calendarInvitationId, NotificationType type);
+
     long countByRecipient_IdAndReadAtIsNull(Long recipientId);
 }
