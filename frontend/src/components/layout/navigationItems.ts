@@ -3,6 +3,7 @@ import {
     House,
     NotebookPen,
     type LucideIcon,
+    UsersRound,
 } from 'lucide-react'
 
 export interface NavigationItem {
@@ -28,5 +29,10 @@ export const navigationItems: NavigationItem[] = [
         to: '/notes',
         label: 'Notes',
         icon: NotebookPen,
+    },
+    {
+        to: '/friends',
+        label: 'Friends',
+        icon: UsersRound,
     },
 ]

@@ -11,6 +11,7 @@ import { LaunchDetailPage } from '../features/launches/LaunchDetailPage'
 import { UpcomingLaunchesPage } from '../features/launches/UpcomingLaunchesPage'
 import { NotesPage } from '../features/notes/NotesPage'
 import { PlaceholderPage } from '../pages/PlaceholderPage'
+import { FriendsPage } from '../features/friends/FriendsPage'
 
 export const router = createBrowserRouter([
     {
@@ -34,6 +35,10 @@ export const router = createBrowserRouter([
                     {
                         path: 'notes',
                         element: <NotesPage />,
+                    },
+                    {
+                        path: 'friends',
+                        element: <FriendsPage />,
                     },
                     {
                         path: 'account',

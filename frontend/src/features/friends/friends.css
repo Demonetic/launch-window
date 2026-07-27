@@ -1,0 +1,324 @@
+.friends-page {
+    display: grid;
+    gap: 30px;
+}
+
+.friends-header h1 {
+    margin: 0;
+    font-size: clamp(34px, 5vw, 52px);
+    letter-spacing: -0.045em;
+}
+
+.friends-header p:last-child {
+    max-width: 620px;
+    margin: 14px 0 0;
+    color: #929bb3;
+    line-height: 1.65;
+}
+
+.friend-request-panel {
+    display: grid;
+    grid-template-columns: auto minmax(180px, 0.75fr) minmax(300px, 1.25fr);
+    align-items: center;
+    gap: 18px;
+    padding: 22px;
+    border: 1px solid rgb(154 166 255 / 17%);
+    border-radius: 22px;
+    background:
+            radial-gradient(
+                    circle at 100% 0%,
+                    rgb(139 153 255 / 13%),
+                    transparent 42%
+            ),
+            rgb(17 21 37 / 72%);
+}
+
+.friend-request-icon,
+.friendship-section > header > span {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    color: #171a2a;
+    background: #aeb7ff;
+}
+
+.friend-request-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+}
+
+.friend-request-copy h2,
+.friend-request-copy p {
+    margin: 0;
+}
+
+.friend-request-copy h2 {
+    font-size: 18px;
+}
+
+.friend-request-copy p {
+    margin-top: 5px;
+    color: #8f98b1;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.friend-request-panel form {
+    display: grid;
+    gap: 7px;
+}
+
+.friend-request-panel form label {
+    color: #aeb5c8;
+    font-size: 10px;
+    font-weight: 750;
+}
+
+.friend-request-panel form > div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 9px;
+}
+
+.friend-request-panel input {
+    min-width: 0;
+    min-height: 42px;
+    padding: 0 13px;
+    border: 1px solid rgb(255 255 255 / 10%);
+    border-radius: 12px;
+    outline: none;
+    color: #f1f3fb;
+    background: rgb(7 10 19 / 65%);
+    font: inherit;
+    font-size: 12px;
+}
+
+.friend-request-panel input:focus {
+    border-color: rgb(151 163 255 / 55%);
+    box-shadow: 0 0 0 3px rgb(139 153 255 / 10%);
+}
+
+.friend-request-panel button,
+.friendship-card-actions button {
+    display: inline-flex;
+    min-height: 40px;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 0 14px;
+    border-radius: 11px;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.friend-request-panel button {
+    border: 0;
+    color: #15182a;
+    background: #aeb7ff;
+}
+
+.friend-request-panel button:disabled,
+.friendship-card-actions button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.friend-request-success {
+    grid-column: 3;
+    margin: -8px 0 0;
+    color: #a9efd0;
+    font-size: 11px;
+}
+
+.friends-error {
+    padding: 12px 14px;
+    border: 1px solid rgb(255 135 153 / 24%);
+    border-radius: 12px;
+    color: #ffadb8;
+    background: rgb(111 26 45 / 24%);
+    font-size: 12px;
+}
+
+.friends-state {
+    display: flex;
+    min-height: 220px;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #8f98b1;
+}
+
+.friends-sections {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 20px;
+}
+
+.friendship-section {
+    overflow: hidden;
+    border: 1px solid rgb(255 255 255 / 8%);
+    border-radius: 20px;
+    background: rgb(17 21 37 / 66%);
+}
+
+.friendship-section:nth-child(2) {
+    grid-row: span 2;
+}
+
+.friendship-section > header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px;
+    border-bottom: 1px solid rgb(255 255 255 / 7%);
+}
+
+.friendship-section > header > span {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+}
+
+.friendship-section header h2,
+.friendship-section header p {
+    margin: 0;
+}
+
+.friendship-section header h2 {
+    font-size: 16px;
+}
+
+.friendship-section header p {
+    margin-top: 4px;
+    color: #858ea7;
+    font-size: 10px;
+}
+
+.friendship-list {
+    display: grid;
+}
+
+.friendship-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 18px;
+    border-bottom: 1px solid rgb(255 255 255 / 6%);
+}
+
+.friendship-card:last-child {
+    border-bottom: 0;
+}
+
+.friendship-card-copy {
+    display: grid;
+    min-width: 0;
+    gap: 4px;
+}
+
+.friendship-card-copy strong {
+    overflow: hidden;
+    font-size: 13px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.friendship-card-copy span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #858ea7;
+    font-size: 10px;
+}
+
+.friendship-card-actions {
+    display: flex;
+    gap: 7px;
+}
+
+.friendship-card-actions button {
+    min-height: 34px;
+    padding: 0 10px;
+}
+
+.friendship-primary-action {
+    border: 0;
+    color: #15182a;
+    background: #aeb7ff;
+}
+
+.friendship-secondary-action {
+    border: 1px solid rgb(255 255 255 / 9%);
+    color: #abb2c6;
+    background: rgb(255 255 255 / 4%);
+}
+
+.friendship-remove-action {
+    border: 1px solid rgb(255 117 132 / 18%);
+    color: #e899a4;
+    background: rgb(207 70 87 / 7%);
+}
+
+.friendship-empty {
+    margin: 0;
+    padding: 26px 18px;
+    color: #737c95;
+    font-size: 11px;
+    text-align: center;
+}
+
+@media (max-width: 900px) {
+    .friend-request-panel {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .friend-request-panel form,
+    .friend-request-success {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 700px) {
+    .friends-page {
+        gap: 24px;
+    }
+
+    .friends-sections {
+        grid-template-columns: 1fr;
+    }
+
+    .friendship-section:nth-child(2) {
+        grid-row: auto;
+    }
+
+    .friendship-card {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .friendship-card-actions {
+        grid-column: 1 / -1;
+    }
+
+    .friendship-card-actions button {
+        flex: 1;
+    }
+}
+
+@media (max-width: 480px) {
+    .friend-request-panel {
+        padding: 17px;
+    }
+
+    .friend-request-panel form > div {
+        grid-template-columns: 1fr;
+    }
+
+    .friend-request-panel button {
+        width: 100%;
+    }
+}
