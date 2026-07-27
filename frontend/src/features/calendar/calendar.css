@@ -848,7 +848,11 @@
         padding: 13px;
     }
 
-    .calendar-invite-area {
+    .calendar-entry-footer > .calendar-invite-area {
+        box-sizing: border-box;
+        width: 100%;
+        min-width: 0;
+        flex: 0 1 auto;
         padding: 12px;
     }
 

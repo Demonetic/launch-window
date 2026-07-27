@@ -146,6 +146,9 @@ export function CalendarEntryCard({
                     {!isPast && (
                         <CalendarInviteForm
                             launchId={launch.id}
+                            excludedUserIds={participants.map(
+                                (participant) => participant.userId,
+                            )}
                         />
                     )}
                 </footer>

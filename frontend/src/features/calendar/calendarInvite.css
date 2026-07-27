@@ -1,0 +1,193 @@
+.calendar-friend-state {
+    display: flex;
+    min-height: 70px;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    color: #858ea8;
+    font-size: 11px;
+}
+
+.calendar-friend-empty {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 11px;
+    padding: 13px;
+    border: 1px solid rgb(255 255 255 / 7%);
+    border-radius: 12px;
+    color: #8992aa;
+    background: rgb(255 255 255 / 3%);
+}
+
+.calendar-friend-empty > svg {
+    color: #818de1;
+}
+
+.calendar-friend-empty > div {
+    display: grid;
+    gap: 3px;
+}
+
+.calendar-friend-empty strong {
+    color: #dfe2ee;
+    font-size: 11px;
+}
+
+.calendar-friend-empty span {
+    font-size: 10px;
+    line-height: 1.45;
+}
+
+.calendar-friend-empty a {
+    color: #adb6ff;
+    font-size: 10px;
+    font-weight: 750;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.calendar-friend-empty a:hover {
+    color: #d5d9ff;
+    text-decoration: underline;
+}
+
+.calendar-friend-invite-form {
+    display: grid;
+    gap: 10px;
+}
+
+.calendar-friend-options {
+    display: grid;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.calendar-friend-option {
+    display: grid;
+    grid-template-columns:
+        auto minmax(0, 1fr) auto;
+    min-width: 0;
+    min-height: 54px;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border: 1px solid rgb(255 255 255 / 8%);
+    border-radius: 12px;
+    color: #dfe2ee;
+    background: rgb(255 255 255 / 3%);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition:
+            border-color 160ms ease,
+            background 160ms ease,
+            transform 160ms ease;
+}
+
+.calendar-friend-option:hover:not(:disabled) {
+    border-color: rgb(154 166 255 / 28%);
+    background: rgb(139 153 255 / 7%);
+    transform: translateY(-1px);
+}
+
+.calendar-friend-option.selected {
+    border-color: rgb(154 166 255 / 45%);
+    background: rgb(139 153 255 / 13%);
+}
+
+.calendar-friend-option:focus-visible {
+    outline: 2px solid #aeb7ff;
+    outline-offset: 2px;
+}
+
+.calendar-friend-option:disabled {
+    cursor: wait;
+    opacity: 0.55;
+}
+
+.calendar-friend-option > span:nth-child(2) {
+    display: grid;
+    min-width: 0;
+    gap: 3px;
+}
+
+.calendar-friend-option strong {
+    overflow: hidden;
+    font-size: 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.calendar-friend-option small {
+    color: #7f88a2;
+    font-size: 9px;
+}
+
+.calendar-friend-selection {
+    display: grid;
+    width: 21px;
+    height: 21px;
+    place-items: center;
+    border: 1px solid rgb(255 255 255 / 10%);
+    border-radius: 50%;
+    color: #14182a;
+    background: rgb(255 255 255 / 4%);
+}
+
+.calendar-friend-option.selected
+.calendar-friend-selection {
+    border-color: #aeb7ff;
+    background: #aeb7ff;
+}
+
+.calendar-friend-send {
+    display: inline-flex;
+    width: fit-content;
+    min-width: 130px;
+    min-height: 38px;
+    align-items: center;
+    justify-content: center;
+    justify-self: end;
+    gap: 7px;
+    padding: 0 13px;
+    border: 0;
+    border-radius: 11px;
+    color: #15182a;
+    background: #aeb7ff;
+    font: inherit;
+    font-size: 10px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.calendar-friend-send:hover:not(:disabled) {
+    background: #c2c9ff;
+}
+
+.calendar-friend-send:disabled {
+    cursor: not-allowed;
+    opacity: 0.48;
+}
+
+@media (max-width: 700px) {
+    .calendar-friend-options {
+        grid-template-columns: 1fr;
+    }
+
+    .calendar-friend-send {
+        width: 100%;
+    }
+
+    .calendar-friend-empty {
+        grid-template-columns:
+            auto minmax(0, 1fr);
+    }
+
+    .calendar-friend-empty a {
+        grid-column: 1 / -1;
+        width: fit-content;
+        margin-left: 31px;
+    }
+}
