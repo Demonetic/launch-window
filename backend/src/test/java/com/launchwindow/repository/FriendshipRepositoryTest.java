@@ -140,6 +140,34 @@ class FriendshipRepositoryTest {
         assertEquals(sent.getId(), result.getFirst().getId());
     }
 
+    @Test
+    void countForUserWithStatusCountsAcceptedFriendsOnBothSides() {
+        AppUser alex = saveUser("alex", "alex@example.com");
+        AppUser anna = saveUser("anna", "anna@example.com");
+        AppUser sam = saveUser("sam", "sam@example.com");
+        AppUser kim = saveUser("kim", "kim@example.com");
+
+        Friendship alexAndAnna = new Friendship(alex, anna);
+        alexAndAnna.accept(RESPONSE_TIME);
+
+        Friendship annaAndSam = new Friendship(anna, sam);
+        annaAndSam.accept(RESPONSE_TIME);
+
+        Friendship annaAndKim = new Friendship(anna, kim);
+
+        friendshipRepository.save(alexAndAnna);
+        friendshipRepository.save(annaAndSam);
+        friendshipRepository.save(annaAndKim);
+        friendshipRepository.flush();
+
+        long acceptedFriends = friendshipRepository.countForUserWithStatus(anna.getId(), FriendshipStatus.ACCEPTED);
+
+        long pendingFriends = friendshipRepository.countForUserWithStatus(anna.getId(), FriendshipStatus.PENDING);
+
+        assertEquals(2L, acceptedFriends);
+        assertEquals(1L, pendingFriends);
+    }
+
     private AppUser saveUser(String username, String email) {
         return userRepository.save(
                 new AppUser(

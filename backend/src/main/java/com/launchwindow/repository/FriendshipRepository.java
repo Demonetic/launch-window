@@ -95,4 +95,15 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Long> {
             """)
     boolean existsBetweenUsersWithStatus(@Param("firstUserId") Long firstUserId, @Param("secondUserId") Long secondUserId,
                                          @Param("status") FriendshipStatus status);
+
+    @Query("""
+        SELECT COUNT(friendship)
+        FROM Friendship friendship
+        WHERE friendship.status = :status
+          AND (
+                friendship.firstUser.id = :userId
+                OR friendship.secondUser.id = :userId
+              )
+        """)
+    long countForUserWithStatus(@Param("userId") Long userId, @Param("status") FriendshipStatus status);
 }

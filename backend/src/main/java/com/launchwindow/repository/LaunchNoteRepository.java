@@ -141,4 +141,6 @@ public interface LaunchNoteRepository extends JpaRepository<LaunchNote, Long> {
     List<LaunchNote> findOverviewPage(@Param("viewerId") Long viewerId, @Param("status") CalendarInvitationStatus status,
                                       @Param("includeOwn") boolean includeOwn, @Param("includeShared") boolean includeShared,
                                       @Param("beforeUpdatedAt") Instant beforeUpdatedAt, @Param("beforeId") Long beforeId, Pageable pageable);
+
+    long countByUser_Id(Long userId);
 }

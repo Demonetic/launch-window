@@ -2,11 +2,13 @@ package com.launchwindow.controller;
 
 import com.launchwindow.config.SecurityConfiguration;
 import com.launchwindow.dto.UserResponse;
+import com.launchwindow.dto.UserStatisticsResponse;
 import com.launchwindow.model.AvatarKey;
 import com.launchwindow.model.Role;
 import com.launchwindow.service.user.UserAvatarService;
 import com.launchwindow.service.user.UserDeletionService;
 import com.launchwindow.service.user.UserQueryService;
+import com.launchwindow.service.user.UserStatisticsService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -27,15 +29,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
-
     @MockitoBean
     private UserQueryService service;
-
     @MockitoBean
     private UserAvatarService avatarService;
-
     @MockitoBean
     private UserDeletionService deletionService;
+    @MockitoBean
+    private UserStatisticsService statisticsService;
 
     @MockitoBean
     private JwtDecoder jwtDecoder;
@@ -81,5 +82,23 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.message").value("Authenticated user was not found"))
                 .andExpect(jsonPath("$.path").value("/api/users/me"))
                 .andExpect(jsonPath("$.fieldErrors").isEmpty());
+    }
+
+    @Test
+    void authenticatedUserCanGetOwnStatistics() throws Exception {
+        UserStatisticsResponse response = new UserStatisticsResponse(8L, 14L, 3L);
+
+        when(statisticsService.getStatistics("launch_test")).thenReturn(response);
+
+        mockMvc.perform(get("/api/users/me/statistics").with(jwt().jwt(token -> token.subject("launch_test"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.savedLaunches").value(8))
+                .andExpect(jsonPath("$.notesWritten").value(14))
+                .andExpect(jsonPath("$.friends").value(3));
+    }
+
+    @Test
+    void anonymousUserCannotGetStatistics() throws Exception {
+        mockMvc.perform(get("/api/users/me/statistics")).andExpect(status().isUnauthorized());
     }
 }

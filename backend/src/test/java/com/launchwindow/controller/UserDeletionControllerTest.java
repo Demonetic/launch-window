@@ -6,6 +6,7 @@ import com.launchwindow.exception.InvalidCredentialsException;
 import com.launchwindow.service.user.UserAvatarService;
 import com.launchwindow.service.user.UserDeletionService;
 import com.launchwindow.service.user.UserQueryService;
+import com.launchwindow.service.user.UserStatisticsService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -27,15 +28,14 @@ class UserDeletionControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
     @MockitoBean
     private UserQueryService queryService;
-
     @MockitoBean
     private UserAvatarService avatarService;
-
     @MockitoBean
     private UserDeletionService deletionService;
+    @MockitoBean
+    private UserStatisticsService statisticsService;
 
     @MockitoBean
     private JwtDecoder jwtDecoder;

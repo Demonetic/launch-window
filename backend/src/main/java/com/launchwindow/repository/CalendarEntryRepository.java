@@ -69,4 +69,5 @@ public interface CalendarEntryRepository extends JpaRepository<CalendarEntry, Lo
     List<Long> findSavedLaunchIds(@Param("userId") Long userId, @Param("launchIds") List<Long> launchIds);
 
     Optional<CalendarEntry> findByUser_IdAndLaunch_Id(Long userId, Long launchId);
+    long countByUser_Id(Long userId);
 }
