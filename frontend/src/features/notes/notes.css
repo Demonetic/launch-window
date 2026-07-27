@@ -29,7 +29,7 @@
     gap: 20px;
     padding: 22px;
     border: 1px solid rgb(255 255 255 / 9%);
-    border-radius: 22px;
+    border-radius: 2px;
     background:
             radial-gradient(
                     circle at 100% 0%,
@@ -68,7 +68,7 @@
     height: 38px;
     flex: 0 0 auto;
     place-items: center;
-    border-radius: 12px;
+    border-radius: 2px;
     color: #aeb8ff;
     background: rgb(132 146 255 / 12%);
 }
@@ -116,7 +116,7 @@
     height: 34px;
     place-items: center;
     border: 1px solid rgb(255 255 255 / 8%);
-    border-radius: 10px;
+    border-radius: 2px;
     color: #8992aa;
     background: rgb(255 255 255 / 4%);
     cursor: pointer;
@@ -174,7 +174,7 @@
     resize: vertical;
     padding: 14px;
     border: 1px solid rgb(154 166 255 / 24%);
-    border-radius: 14px;
+    border-radius: 2px;
     outline: none;
     color: #eef0f8;
     background: rgb(7 10 19 / 65%);
@@ -216,7 +216,7 @@
     gap: 7px;
     padding: 0 13px;
     border: 1px solid rgb(255 255 255 / 10%);
-    border-radius: 11px;
+    border-radius: 2px;
     color: #aab1c6;
     background: rgb(255 255 255 / 4%);
     font: inherit;
@@ -242,7 +242,7 @@
     gap: 14px;
     padding: 15px;
     border: 1px solid rgb(255 117 132 / 18%);
-    border-radius: 14px;
+    border-radius: 2px;
     background: rgb(207 70 87 / 8%);
 }
 
@@ -266,7 +266,7 @@
     gap: 10px;
     padding: 36px;
     border: 1px solid rgb(255 255 255 / 8%);
-    border-radius: 24px;
+    border-radius: 2px;
     color: #929bb3;
     background:
             radial-gradient(
@@ -305,7 +305,7 @@
 .notes-action-error {
     padding: 13px 15px;
     border: 1px solid rgb(255 117 132 / 18%);
-    border-radius: 13px;
+    border-radius: 2px;
     font-size: 12px;
 }
 
@@ -330,7 +330,7 @@
     gap: 10px;
     padding: 10px 12px;
     border: 1px solid rgb(255 255 255 / 7%);
-    border-radius: 14px;
+    border-radius: 2px;
     background: rgb(255 255 255 / 3%);
 }
 
@@ -372,7 +372,7 @@
     .note-card {
         gap: 17px;
         padding: 18px;
-        border-radius: 18px;
+        border-radius: 2px;
     }
 
     .note-content {

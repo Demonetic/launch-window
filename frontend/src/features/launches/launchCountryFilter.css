@@ -6,11 +6,11 @@
 }
 
 .launch-country-filter legend {
-    margin-bottom: 9px;
-    color: #8d96b2;
-    font-size: 11px;
+    margin-bottom: 8px;
+    color: var(--color-text-muted);
+    font-size: 10px;
     font-weight: 750;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.07em;
     text-transform: uppercase;
 }
 
@@ -18,29 +18,31 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .launch-country-select {
     display: flex;
     width: min(100%, 270px);
-    min-height: 42px;
+    min-height: 40px;
     align-items: center;
     gap: 8px;
-    padding: 0 11px;
-    border: 1px solid rgb(255 255 255 / 9%);
-    border-radius: 12px;
-    color: #9da8ff;
-    background: #090d18;
+    padding: 0 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+    color: var(--color-yellow);
+    background: #080c16;
 }
 
 .launch-country-select select {
     min-width: 0;
+    min-height: 38px;
     flex: 1;
     border: 0;
     outline: 0;
-    color: #e9ebf7;
-    background: transparent;
+    color: var(--color-text-soft);
+    background: #080c16;
+    color-scheme: dark;
 }
 
 .launch-country-select select:disabled {
@@ -51,38 +53,38 @@
 .selected-launch-countries {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
 }
 
 .selected-launch-countries > span {
     display: inline-flex;
-    min-height: 34px;
+    min-height: 32px;
     align-items: center;
     gap: 7px;
-    padding: 0 6px 0 11px;
-    border: 1px solid rgb(139 153 255 / 28%);
-    border-radius: 999px;
-    color: #c7ceff;
-    background: rgb(139 153 255 / 11%);
-    font-size: 12px;
+    padding: 0 5px 0 10px;
+    border: 1px solid rgb(246 200 95 / 25%);
+    border-radius: 2px;
+    color: var(--color-yellow-soft);
+    background: rgb(246 200 95 / 8%);
+    font-size: 11px;
     font-weight: 700;
 }
 
 .selected-launch-countries button {
     display: grid;
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     place-items: center;
     padding: 0;
     border: 0;
-    border-radius: 50%;
-    color: #929dce;
+    border-radius: 1px;
+    color: #b58e6c;
     background: transparent;
     cursor: pointer;
 }
 
 .selected-launch-countries button:hover {
-    color: #f7f8fc;
+    color: var(--color-text);
     background: rgb(255 255 255 / 8%);
 }
 

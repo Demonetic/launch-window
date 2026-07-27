@@ -15,7 +15,7 @@
     gap: 11px;
     padding: 13px;
     border: 1px solid rgb(255 255 255 / 7%);
-    border-radius: 12px;
+    border-radius: 2px;
     color: #8992aa;
     background: rgb(255 255 255 / 3%);
 }
@@ -74,7 +74,7 @@
     gap: 10px;
     padding: 8px 10px;
     border: 1px solid rgb(255 255 255 / 8%);
-    border-radius: 12px;
+    border-radius: 2px;
     color: #dfe2ee;
     background: rgb(255 255 255 / 3%);
     font: inherit;
@@ -153,7 +153,7 @@
     gap: 7px;
     padding: 0 13px;
     border: 0;
-    border-radius: 11px;
+    border-radius: 2px;
     color: #15182a;
     background: #aeb7ff;
     font: inherit;

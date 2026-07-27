@@ -34,8 +34,8 @@
 }
 
 .avatar-picker {
-    border-bottom: 1px solid rgb(255 255 255 / 8%);
-    background: rgb(10 13 24 / 28%);
+    border-bottom: 1px solid var(--color-border);
+    background: rgb(7 10 19 / 34%);
 }
 
 .avatar-picker-disclosure {
@@ -48,11 +48,13 @@
     justify-content: space-between;
     gap: 24px;
     padding:
-            clamp(22px, 4vw, 32px)
-            clamp(24px, 4vw, 36px);
+            clamp(21px, 4vw, 29px)
+            clamp(22px, 4vw, 34px);
     cursor: pointer;
     list-style: none;
-    transition: background 160ms ease;
+    transition:
+            color 160ms ease,
+            background 160ms ease;
 }
 
 .avatar-picker-summary::-webkit-details-marker {
@@ -60,18 +62,18 @@
 }
 
 .avatar-picker-summary:hover {
-    background: rgb(255 255 255 / 3%);
+    background: rgb(246 200 95 / 4%);
 }
 
 .avatar-picker-summary h3 {
     margin: 5px 0 0;
-    font-size: 20px;
+    font-size: 18px;
 }
 
 .avatar-picker-description {
     margin: 7px 0 0;
-    color: #858ea7;
-    font-size: 13px;
+    color: var(--color-text-muted);
+    font-size: 12px;
 }
 
 .avatar-picker-summary-actions {
@@ -82,7 +84,7 @@
 }
 
 .avatar-picker-chevron {
-    color: #929bb3;
+    color: var(--color-yellow);
     transition: transform 180ms ease;
 }
 
@@ -91,13 +93,26 @@
     transform: rotate(180deg);
 }
 
+.avatar-picker-disclosure[open]
+.avatar-picker-summary {
+    border-bottom: 1px solid var(--color-border);
+    background: rgb(117 91 210 / 5%);
+}
+
 .avatar-picker-content {
     display: grid;
-    gap: 28px;
+    gap: 26px;
     padding:
-            4px
-            clamp(24px, 4vw, 36px)
-            clamp(26px, 4vw, 36px);
+            24px
+            clamp(22px, 4vw, 34px)
+            clamp(25px, 4vw, 34px);
+    background:
+            linear-gradient(
+                    115deg,
+                    rgb(117 91 210 / 5%),
+                    transparent 45%
+            ),
+            #0b0f1b;
 }
 
 .avatar-picker-preview {
@@ -115,18 +130,18 @@
 .avatar-option-group legend,
 .avatar-color-group legend {
     margin-bottom: 12px;
-    color: #929bb3;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.09em;
+    color: var(--color-yellow);
+    font-size: 10px;
+    font-weight: 850;
+    letter-spacing: 0.11em;
     text-transform: uppercase;
 }
 
 .avatar-option-grid {
     display: grid;
     grid-template-columns:
-            repeat(4, minmax(0, 1fr));
-    gap: 12px;
+        repeat(4, minmax(0, 1fr));
+    gap: 9px;
 }
 
 .avatar-option {
@@ -134,33 +149,36 @@
     min-width: 0;
     justify-items: center;
     gap: 9px;
-    padding: 14px 10px;
-    border: 1px solid rgb(255 255 255 / 8%);
-    border-radius: 17px;
-    color: #a5acc0;
-    background: rgb(17 21 37 / 72%);
+    padding: 13px 9px;
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+    color: var(--color-text-muted);
+    background: var(--color-surface);
     font: inherit;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 750;
     cursor: pointer;
     transition:
             border-color 160ms ease,
-            background 160ms ease,
-            transform 160ms ease;
+            color 160ms ease,
+            background 160ms ease;
 }
 
 .avatar-option:hover {
-    border-color: rgb(157 169 255 / 34%);
-    background: rgb(33 39 68 / 75%);
-    transform: translateY(-2px);
+    border-color: rgb(246 200 95 / 34%);
+    color: var(--color-text);
+    background: rgb(246 200 95 / 5%);
 }
 
 .avatar-option.selected {
-    border-color: #929eff;
-    color: #f4f5ff;
-    background: rgb(105 119 225 / 18%);
-    box-shadow:
-            0 0 0 2px rgb(146 158 255 / 10%);
+    border-color: var(--color-yellow);
+    color: var(--color-text);
+    background:
+            linear-gradient(
+                    135deg,
+                    rgb(246 200 95 / 11%),
+                    rgb(117 91 210 / 8%)
+            );
 }
 
 .avatar-color-options {
@@ -174,16 +192,23 @@
     width: 38px;
     height: 38px;
     padding: 0;
-    border: 2px solid rgb(255 255 255 / 12%);
+    border: 2px solid rgb(255 255 255 / 14%);
     border-radius: 50%;
     cursor: pointer;
+    transition:
+            border-color 160ms ease,
+            transform 160ms ease;
+}
+
+.avatar-color-option:hover {
+    transform: scale(1.06);
 }
 
 .avatar-color-option.selected {
     border-color: #ffffff;
     box-shadow:
-            0 0 0 3px #111525,
-            0 0 0 5px #929eff;
+            0 0 0 3px #0b0f1b,
+            0 0 0 5px var(--color-yellow);
 }
 
 .avatar-custom-color {
@@ -192,10 +217,10 @@
     align-items: center;
     gap: 9px;
     padding: 5px 7px 5px 12px;
-    border: 1px solid rgb(255 255 255 / 10%);
-    border-radius: 999px;
-    color: #a5acc0;
-    background: rgb(17 21 37 / 72%);
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+    color: var(--color-text-muted);
+    background: var(--color-surface);
     font-size: 12px;
     font-weight: 700;
 }
@@ -212,53 +237,62 @@
 
 .avatar-picker-footer {
     display: flex;
-    min-height: 44px;
+    min-height: 42px;
     align-items: center;
     justify-content: space-between;
     gap: 18px;
+    padding-top: 2px;
 }
 
 .avatar-picker-footer p {
     margin: 0;
-    font-size: 13px;
+    font-size: 12px;
 }
 
 .avatar-save-success {
-    color: #91e8bb;
+    color: var(--color-green);
 }
 
 .avatar-save-error {
-    color: #ffb3ba;
+    color: var(--color-red);
 }
 
 .avatar-save-button {
-    min-height: 44px;
-    padding: 0 19px;
-    border: 0;
-    border-radius: 13px;
-    color: #111526;
-    background:
-            linear-gradient(
-                    135deg,
-                    #d4d8ff,
-                    #929fff
-            );
+    min-height: 42px;
+    padding: 0 18px;
+    border: 1px solid rgb(246 200 95 / 55%);
+    border-radius: 2px;
+    color: #171107;
+    background: linear-gradient(
+            135deg,
+            var(--color-yellow),
+            var(--color-yellow-soft)
+    );
     font: inherit;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 850;
     cursor: pointer;
+    transition:
+            filter 160ms ease,
+            opacity 160ms ease;
+}
+
+.avatar-save-button:hover:not(:disabled) {
+    filter: brightness(1.08);
 }
 
 .avatar-save-button:disabled {
-    color: #747c94;
-    background: #252a3d;
+    border-color: var(--color-border);
+    color: var(--color-text-muted);
+    background: #202536;
     cursor: not-allowed;
+    opacity: 0.65;
 }
 
 @media (max-width: 760px) {
     .avatar-picker-summary {
         gap: 14px;
-        padding: 20px 18px;
+        padding: 19px 18px;
     }
 
     .avatar-picker-summary-actions {
@@ -276,8 +310,8 @@
     }
 
     .avatar-picker-content {
-        gap: 24px;
-        padding: 4px 18px 24px;
+        gap: 23px;
+        padding: 21px 18px 23px;
     }
 
     .avatar-picker-preview {
@@ -287,7 +321,7 @@
 
     .avatar-option-grid {
         grid-template-columns:
-                repeat(2, minmax(0, 1fr));
+            repeat(2, minmax(0, 1fr));
     }
 
     .avatar-picker-footer {

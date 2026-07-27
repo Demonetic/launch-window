@@ -1,6 +1,6 @@
 .launch-notes-panel {
     display: grid;
-    gap: 24px;
+    gap: 22px;
 }
 
 .launch-notes-heading {
@@ -16,29 +16,29 @@
 
 .open-note-composer {
     display: inline-flex;
-    min-height: 42px;
+    min-height: 40px;
     flex: 0 0 auto;
     align-items: center;
     justify-content: center;
-    padding: 0 16px;
-    border: 1px solid rgb(154 166 255 / 30%);
-    border-radius: 12px;
-    color: #cbd1ff;
-    background: rgb(132 146 255 / 10%);
+    padding: 0 15px;
+    border: 1px solid rgb(246 174 66 / 38%);
+    border-radius: 2px;
+    color: var(--color-yellow);
+    background: rgb(246 174 66 / 7%);
     font: inherit;
     font-size: 12px;
     font-weight: 800;
     cursor: pointer;
     transition:
             border-color 160ms ease,
-            background 160ms ease,
-            transform 160ms ease;
+            color 160ms ease,
+            background 160ms ease;
 }
 
 .open-note-composer:hover {
-    border-color: rgb(154 166 255 / 58%);
-    background: rgb(132 146 255 / 17%);
-    transform: translateY(-1px);
+    border-color: rgb(246 174 66 / 65%);
+    color: #ffe3a1;
+    background: rgb(246 174 66 / 12%);
 }
 
 .launch-note-composer {
@@ -51,20 +51,28 @@
     width: 100%;
     min-height: 130px;
     resize: vertical;
-    padding: 14px;
-    border: 1px solid rgb(154 166 255 / 25%);
-    border-radius: 14px;
+    padding: 13px;
+    border: 1px solid rgb(246 174 66 / 24%);
+    border-radius: 2px;
     outline: none;
-    color: #eef0f8;
-    background: rgb(7 10 19 / 65%);
+    color: var(--color-text);
+    background:
+            repeating-linear-gradient(
+                    to bottom,
+                    transparent 0,
+                    transparent 30px,
+                    rgb(242 154 74 / 4%) 30px,
+                    rgb(242 154 74 / 4%) 31px
+            ),
+            #121116;
     font: inherit;
     font-size: 13px;
     line-height: 1.65;
 }
 
 .launch-note-composer textarea:focus {
-    border-color: #8f9cf4;
-    box-shadow: 0 0 0 3px rgb(132 146 255 / 10%);
+    border-color: rgb(246 174 66 / 55%);
+    box-shadow: 0 0 0 2px rgb(246 174 66 / 9%);
 }
 
 .launch-note-composer textarea::placeholder {
@@ -75,13 +83,13 @@
     display: flex;
     justify-content: space-between;
     gap: 12px;
-    color: #717a93;
+    color: var(--color-text-muted);
     font-size: 10px;
 }
 
 .launch-note-composer-meta p {
     margin: 0;
-    color: #ffb3ba;
+    color: var(--color-red);
 }
 
 .launch-note-composer-actions {
@@ -98,20 +106,36 @@
     justify-content: center;
     gap: 7px;
     padding: 0 13px;
-    border: 1px solid rgb(255 255 255 / 10%);
-    border-radius: 11px;
-    color: #aab1c6;
-    background: rgb(255 255 255 / 4%);
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+    color: var(--color-text-muted);
+    background: rgb(255 255 255 / 3%);
     font: inherit;
     font-size: 11px;
     font-weight: 800;
     cursor: pointer;
 }
 
-.launch-note-composer-actions button[type='submit'] {
-    color: #131628;
-    border-color: transparent;
-    background: linear-gradient(135deg, #d4d8ff, #929fff);
+.launch-note-composer-actions
+button:hover:not(:disabled) {
+    border-color: rgb(246 174 66 / 28%);
+    color: var(--color-text);
+    background: rgb(246 174 66 / 5%);
+}
+
+.launch-note-composer-actions button[type="submit"] {
+    border-color: rgb(246 174 66 / 52%);
+    color: #171107;
+    background: linear-gradient(
+            135deg,
+            var(--color-yellow),
+            #dba846
+    );
+}
+
+.launch-note-composer-actions
+button[type="submit"]:hover:not(:disabled) {
+    filter: brightness(1.08);
 }
 
 .launch-note-composer-actions button:disabled {
@@ -121,20 +145,20 @@
 
 .launch-notes-sign-in {
     display: grid;
-    min-height: 190px;
+    min-height: 180px;
     place-items: center;
     align-content: center;
     gap: 12px;
-    padding: 26px;
-    border: 1px dashed rgb(154 166 255 / 20%);
-    border-radius: 18px;
-    color: #8992aa;
-    background: rgb(132 146 255 / 4%);
+    padding: 25px;
+    border: 1px dashed rgb(246 174 66 / 22%);
+    border-radius: 2px;
+    color: var(--color-text-muted);
+    background: rgb(246 174 66 / 3%);
     text-align: center;
 }
 
 .launch-notes-sign-in > svg {
-    color: #919df2;
+    color: var(--color-yellow);
 }
 
 .launch-notes-sign-in p {
@@ -144,9 +168,9 @@
 }
 
 .launch-notes-sign-in button {
-    color: #cbd1ff;
-    border-color: rgb(154 166 255 / 26%);
-    background: rgb(132 146 255 / 10%);
+    border-color: rgb(246 174 66 / 32%);
+    color: var(--color-yellow);
+    background: rgb(246 174 66 / 7%);
 }
 
 .launch-notes-state {
@@ -155,70 +179,103 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-    color: #8992aa;
+    color: var(--color-text-muted);
     font-size: 12px;
 }
 
 .launch-notes-error {
     margin: 0;
-    padding: 13px 15px;
-    border: 1px solid rgb(255 117 132 / 18%);
-    border-radius: 13px;
-    color: #ffb3ba;
-    background: rgb(98 28 40 / 18%);
+    padding: 12px 14px;
+    border: 1px solid rgb(255 117 132 / 22%);
+    border-radius: 2px;
+    color: var(--color-red);
+    background: rgb(98 28 40 / 17%);
     font-size: 12px;
 }
 
 .launch-notes-empty {
     margin: 0;
-    padding: 30px;
-    border: 1px dashed rgb(255 255 255 / 9%);
-    border-radius: 17px;
-    color: #7e879f;
+    padding: 28px;
+    border: 1px dashed var(--color-border);
+    border-radius: 2px;
+    color: var(--color-text-muted);
+    background: rgb(255 255 255 / 2%);
     text-align: center;
 }
 
 .launch-note-list {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+    gap: 10px;
 }
 
 .launch-note-list article {
+    position: relative;
     display: grid;
     min-width: 0;
+    overflow: hidden;
     align-content: space-between;
-    gap: 18px;
+    gap: 17px;
     padding: 18px;
-    border: 1px solid rgb(255 255 255 / 8%);
-    border-radius: 16px;
-    background: rgb(255 255 255 / 3%);
+    border: 1px solid rgb(242 154 74 / 19%);
+    border-radius: 2px;
+    background:
+            repeating-linear-gradient(
+                    to bottom,
+                    transparent 0,
+                    transparent 31px,
+                    rgb(242 154 74 / 4%) 31px,
+                    rgb(242 154 74 / 4%) 32px
+            ),
+            linear-gradient(
+                    110deg,
+                    rgb(242 154 74 / 8%),
+                    transparent 48%
+            ),
+            #1b1619;
+}
+
+.launch-note-list article::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 14px;
+    height: 14px;
+    content: "";
+    background:
+            linear-gradient(
+                    225deg,
+                    var(--color-background) 0 48%,
+                    rgb(242 154 74 / 36%) 50% 100%
+            );
+    pointer-events: none;
 }
 
 .launch-note-list p {
     margin: 0;
     overflow-wrap: anywhere;
-    color: #bdc3d5;
+    color: var(--color-text-soft);
     font-size: 13px;
     line-height: 1.7;
     white-space: pre-wrap;
 }
 
 .launch-note-list time {
-    color: #707991;
+    color: var(--color-text-muted);
     font-size: 10px;
 }
 
 .all-notes-link {
     width: fit-content;
-    color: #aeb7f8;
+    color: var(--color-yellow);
     font-size: 12px;
     font-weight: 800;
     text-decoration: none;
 }
 
 .all-notes-link:hover {
-    color: #ffffff;
+    color: #ffe3a1;
 }
 
 .launch-note-item-header {
@@ -227,6 +284,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 14px;
+    padding-right: 12px;
 }
 
 .launch-note-author {
@@ -244,14 +302,14 @@
 
 .launch-note-author strong {
     overflow: hidden;
-    color: #eef0f8;
+    color: var(--color-text);
     font-size: 12px;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 .launch-note-author span {
-    color: #78819a;
+    color: var(--color-text-muted);
     font-size: 9px;
     font-weight: 750;
     letter-spacing: 0.06em;
@@ -261,31 +319,31 @@
 .launch-note-actions {
     display: flex;
     flex: 0 0 auto;
-    gap: 7px;
+    gap: 6px;
 }
 
 .launch-note-actions button {
     display: grid;
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
     place-items: center;
-    border: 1px solid rgb(255 255 255 / 9%);
-    border-radius: 10px;
-    color: #8992aa;
-    background: rgb(255 255 255 / 4%);
+    border: 1px solid rgb(246 174 66 / 18%);
+    border-radius: 2px;
+    color: var(--color-text-muted);
+    background: rgb(7 10 19 / 30%);
     cursor: pointer;
 }
 
 .launch-note-actions button:hover {
-    border-color: rgb(154 166 255 / 30%);
-    color: #d3d8ff;
-    background: rgb(132 146 255 / 10%);
+    border-color: rgb(246 174 66 / 38%);
+    color: var(--color-yellow);
+    background: rgb(246 174 66 / 7%);
 }
 
 .launch-note-content {
     margin: 0;
     overflow-wrap: anywhere;
-    color: #bdc3d5;
+    color: var(--color-text-soft);
     font-size: 13px;
     line-height: 1.7;
     white-space: pre-wrap;
@@ -296,10 +354,12 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+    padding-top: 11px;
+    border-top: 1px solid rgb(242 154 74 / 12%);
 }
 
 .launch-note-item-footer span {
-    color: #777f98;
+    color: var(--color-text-muted);
     font-size: 9px;
     font-weight: 750;
     letter-spacing: 0.06em;
@@ -315,31 +375,32 @@
     width: 100%;
     min-height: 120px;
     resize: vertical;
-    padding: 13px;
-    border: 1px solid rgb(154 166 255 / 24%);
-    border-radius: 13px;
+    padding: 12px;
+    border: 1px solid rgb(246 174 66 / 25%);
+    border-radius: 2px;
     outline: none;
-    color: #eef0f8;
-    background: rgb(7 10 19 / 65%);
+    color: var(--color-text);
+    background: rgb(7 10 19 / 58%);
     font: inherit;
     font-size: 13px;
     line-height: 1.65;
 }
 
-.launch-note-list .note-edit-form textarea:focus {
-    border-color: #8f9cf4;
-    box-shadow: 0 0 0 3px rgb(132 146 255 / 10%);
+.launch-note-list
+.note-edit-form textarea:focus {
+    border-color: rgb(246 174 66 / 55%);
+    box-shadow: 0 0 0 2px rgb(246 174 66 / 9%);
 }
 
 .launch-note-list .note-character-count {
-    color: #717a93;
+    color: var(--color-text-muted);
     font-size: 10px;
     text-align: right;
 }
 
 .launch-note-list .note-edit-form > p {
     margin: 0;
-    color: #ffb3ba;
+    color: var(--color-red);
     font-size: 11px;
 }
 
@@ -349,16 +410,17 @@
     gap: 8px;
 }
 
-.launch-note-list .note-edit-actions button {
+.launch-note-list
+.note-edit-actions button {
     display: inline-flex;
     min-height: 36px;
     align-items: center;
     justify-content: center;
     gap: 7px;
     padding: 0 12px;
-    border: 1px solid rgb(255 255 255 / 10%);
-    border-radius: 10px;
-    color: #aab1c6;
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+    color: var(--color-text-muted);
     background: rgb(255 255 255 / 4%);
     font: inherit;
     font-size: 10px;
@@ -369,55 +431,52 @@
 .launch-note-list
 .note-edit-actions
 button[type="submit"] {
-    border-color: transparent;
-    color: #131628;
+    border-color: rgb(246 174 66 / 48%);
+    color: #171107;
     background: linear-gradient(
             135deg,
-            #d4d8ff,
-            #929fff
+            var(--color-yellow),
+            #dba846
     );
 }
 
 .launch-note-list
-.note-edit-actions
-button:disabled {
+.note-edit-actions button:disabled {
     cursor: wait;
     opacity: 0.6;
 }
 
-.launch-note-list .note-delete-confirmation {
+.launch-note-list
+.note-delete-confirmation {
     display: grid;
     gap: 10px;
     padding: 12px;
-    border: 1px solid rgb(255 117 132 / 18%);
-    border-radius: 12px;
+    border: 1px solid rgb(255 117 132 / 22%);
+    border-radius: 2px;
     background: rgb(98 28 40 / 15%);
 }
 
 .launch-note-list
-.note-delete-confirmation
-p {
+.note-delete-confirmation p {
     margin: 0;
-    color: #ffb3ba;
+    color: var(--color-red);
     font-size: 11px;
 }
 
 .launch-note-list
-.note-delete-confirmation
-> div {
+.note-delete-confirmation > div {
     display: flex;
     justify-content: flex-end;
     gap: 8px;
 }
 
 .launch-note-list
-.note-delete-confirmation
-button {
+.note-delete-confirmation button {
     min-height: 34px;
     padding: 0 11px;
-    border: 1px solid rgb(255 255 255 / 9%);
-    border-radius: 9px;
-    color: #aab1c6;
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+    color: var(--color-text-muted);
     background: rgb(255 255 255 / 4%);
     font: inherit;
     font-size: 10px;
@@ -426,16 +485,19 @@ button {
 }
 
 .launch-note-list
-.note-delete-confirmation
-button:last-child {
-    border-color: rgb(255 117 132 / 25%);
-    color: #ffb3ba;
-    background: rgb(98 28 40 / 24%);
+.note-delete-confirmation button:last-child {
+    border-color: rgb(255 117 132 / 28%);
+    color: var(--color-red);
+    background: rgb(98 28 40 / 22%);
 }
 
 @media (max-width: 760px) {
     .launch-notes-heading {
         display: grid;
+    }
+
+    .open-note-composer {
+        width: fit-content;
     }
 
     .launch-note-composer {
@@ -454,19 +516,18 @@ button:last-child {
         gap: 5px;
     }
 
-    .launch-note-list .note-edit-actions button {
+    .launch-note-list
+    .note-edit-actions button {
         flex: 1;
     }
 
     .launch-note-list
-    .note-delete-confirmation
-    > div {
+    .note-delete-confirmation > div {
         width: 100%;
     }
 
     .launch-note-list
-    .note-delete-confirmation
-    button {
+    .note-delete-confirmation button {
         flex: 1;
     }
 
@@ -480,6 +541,6 @@ button:last-child {
 
     .launch-notes-sign-in,
     .launch-notes-empty {
-        padding: 22px 16px;
+        padding: 21px 15px;
     }
 }

@@ -13,6 +13,7 @@ import { CalendarEntryCard } from './CalendarEntryCard'
 import { useCalendar } from './useCalendar'
 import { useCalendarScroll } from './useCalendarScroll'
 import './calendar.css'
+import './calendarTheme.css'
 
 const CALENDAR_SCROLL_POSITION_KEY =
     'calendar-scroll-position'
@@ -237,20 +238,6 @@ export function CalendarPage() {
 
     return (
         <main className="calendar-page">
-            <header className="calendar-header">
-                <div>
-                    <p className="page-eyebrow">
-                        Your schedule
-                    </p>
-
-                    <h1>Launch calendar</h1>
-
-                    <p>
-                        Your saved launches, arranged around
-                        the present day.
-                    </p>
-                </div>
-            </header>
 
             {isPending && (
                 <div
@@ -365,30 +352,35 @@ export function CalendarPage() {
 
                         return (
                             <Fragment key={entry.id}>
-                                {startsNewDate && (
-                                    <h2 className="calendar-date">
-                                        {isToday(
-                                            entry.launch
-                                                .launchTime,
-                                            now,
-                                        )
-                                            ? `Today · ${formatDate(
-                                                entry.launch
-                                                    .launchTime,
-                                            )}`
-                                            : formatDate(
-                                                entry.launch
-                                                    .launchTime,
-                                            )}
-                                    </h2>
-                                )}
+                                {startsNewDate &&
+                                    !startsUpcoming && (
+                                        <h2
+                                            className={
+                                                isToday(
+                                                    entry.launch.launchTime,
+                                                    now,
+                                                )
+                                                    ? 'calendar-date calendar-date-today'
+                                                    : 'calendar-date'
+                                            }
+                                        >
+                                            {isToday(
+                                                entry.launch.launchTime,
+                                                now,
+                                            )
+                                                ? `Today · ${formatDate(
+                                                    entry.launch.launchTime,
+                                                )}`
+                                                : formatDate(
+                                                    entry.launch.launchTime,
+                                                )}
+                                        </h2>
+                                    )}
 
                                 {startsUpcoming && (
                                     <div
                                         className="calendar-now-marker"
-                                        ref={
-                                            upcomingMarkerRef
-                                        }
+                                        ref={upcomingMarkerRef}
                                     >
                                         <span>
                                             {upcomingStartsToday
@@ -398,11 +390,33 @@ export function CalendarPage() {
                                     </div>
                                 )}
 
+                                {startsUpcoming && (
+                                    <h2
+                                        className={
+                                            isToday(
+                                                entry.launch.launchTime,
+                                                now,
+                                            )
+                                                ? 'calendar-date calendar-date-today'
+                                                : 'calendar-date'
+                                        }
+                                    >
+                                        {isToday(
+                                            entry.launch.launchTime,
+                                            now,
+                                        )
+                                            ? `Today · ${formatDate(
+                                                entry.launch.launchTime,
+                                            )}`
+                                            : formatDate(
+                                                entry.launch.launchTime,
+                                            )}
+                                    </h2>
+                                )}
+
                                 <CalendarEntryCard
                                     entry={entry}
-                                    isPast={
-                                        launchTime < now
-                                    }
+                                    isPast={launchTime < now}
                                 />
                             </Fragment>
                         )

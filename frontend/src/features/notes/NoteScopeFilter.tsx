@@ -14,25 +14,21 @@ interface NoteScopeFilterProps {
 const options: Array<{
     value: NoteScope
     label: string
-    description: string
     icon: typeof BookOpen
 }> = [
     {
         value: 'ALL',
-        label: 'All notes',
-        description: 'Your notes and shared notes',
+        label: 'All',
         icon: BookOpen,
     },
     {
         value: 'MINE',
-        label: 'My notes',
-        description: 'Notes written by you',
+        label: 'Mine',
         icon: StickyNote,
     },
     {
         value: 'FRIENDS',
-        label: "Friends' notes",
-        description: 'Notes shared through your calendar',
+        label: 'Friends',
         icon: Users,
     },
 ]
@@ -65,19 +61,11 @@ export function NoteScopeFilter({
                             onChange(option.value)
                         }
                     >
-                        <span className="note-scope-icon">
-                            <Icon
-                                size={17}
-                                aria-hidden="true"
-                            />
-                        </span>
-
-                        <span className="note-scope-copy">
-                            <strong>{option.label}</strong>
-                            <small>
-                                {option.description}
-                            </small>
-                        </span>
+                        <Icon
+                            size={14}
+                            aria-hidden="true"
+                        />
+                        <span>{option.label}</span>
                     </button>
                 )
             })}

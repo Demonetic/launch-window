@@ -11,6 +11,7 @@ import type { NoteScope } from './types'
 import { useNoteActions } from './useNoteActions'
 import { useNotesOverview } from './useNotesOverview'
 import './notes.css'
+import './notesTheme.css'
 
 const emptyStates: Record<
     NoteScope,

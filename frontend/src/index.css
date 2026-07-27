@@ -1,11 +1,53 @@
 :root {
   font-family:
-          Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-          sans-serif;
-  color: #f7f8fc;
-  background: #080b14;
+          Inter, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+
+  color: #f4f5fb;
+  background: #070a13;
+
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+
+  --color-background: #070a13;
+  --color-background-soft: #0a0e1a;
+
+  --color-surface: #111526;
+  --color-surface-soft: #14192c;
+  --color-surface-raised: #191f35;
+  --color-surface-blue: #17233f;
+  --color-surface-warm: #211b1c;
+
+  --color-purple: #9b8cff;
+  --color-purple-soft: #bbb2ff;
+  --color-blue: #7f9cff;
+  --color-blue-soft: #aebdff;
+
+  --color-yellow: #f6c85f;
+  --color-yellow-soft: #ffe19a;
+  --color-orange: #f29a4a;
+  --color-orange-soft: #ffbd78;
+
+  --color-green: #58d49b;
+  --color-red: #ef6b78;
+
+  --color-text: #f4f5fb;
+  --color-text-soft: #c7ccdc;
+  --color-text-muted: #929bb3;
+  --color-text-faint: #717a94;
+
+  --color-border: rgb(255 255 255 / 9%);
+  --color-border-strong: rgb(255 255 255 / 14%);
+
+  --shadow-card: 0 20px 55px rgb(0 0 0 / 20%);
+  --shadow-raised: 0 24px 70px rgb(0 0 0 / 34%);
+
+  --radius-small: 2px;
+  --radius-medium: 2px;
+  --radius-card: 2px;
+  --radius-panel: 2px;
+
+  --transition-fast: 160ms ease;
 }
 
 * {
@@ -15,16 +57,72 @@
 html {
   min-width: 320px;
   min-height: 100%;
+  background: var(--color-background);
 }
 
 body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
+  color: var(--color-text);
+  background: var(--color-background);
 }
 
 button,
 input,
+select,
 textarea {
   font: inherit;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-yellow);
+  outline-offset: 3px;
+}
+
+::selection {
+  color: #121522;
+  background: var(--color-yellow-soft);
+}
+
+::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+
+::-webkit-scrollbar-thumb {
+  border: 3px solid var(--color-background);
+  border-radius: 2px;
+  background: #303751;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #464f70;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

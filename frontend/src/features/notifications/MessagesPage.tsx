@@ -4,8 +4,66 @@ import {
 } from 'lucide-react'
 import { Link } from 'react-router'
 import { NotificationCard } from './NotificationCard'
+import type { Notification } from './types'
 import { useNotifications } from './useNotifications'
 import './messages.css'
+
+interface NotificationGroup {
+    label: string
+    notifications: Notification[]
+}
+
+function startOfDay(value: Date) {
+    return new Date(
+        value.getFullYear(),
+        value.getMonth(),
+        value.getDate(),
+    ).getTime()
+}
+
+function groupNotifications(
+    notifications: Notification[],
+): NotificationGroup[] {
+    const today = startOfDay(new Date())
+    const yesterday = today - 86_400_000
+
+    const groups: NotificationGroup[] = [
+        {
+            label: 'Today',
+            notifications: [],
+        },
+        {
+            label: 'Yesterday',
+            notifications: [],
+        },
+        {
+            label: 'Earlier',
+            notifications: [],
+        },
+    ]
+
+    notifications.forEach((notification) => {
+        const notificationDay = startOfDay(
+            new Date(notification.createdAt),
+        )
+
+        if (notificationDay === today) {
+            groups[0].notifications.push(notification)
+            return
+        }
+
+        if (notificationDay === yesterday) {
+            groups[1].notifications.push(notification)
+            return
+        }
+
+        groups[2].notifications.push(notification)
+    })
+
+    return groups.filter(
+        (group) => group.notifications.length > 0,
+    )
+}
 
 export function MessagesPage() {
     const {
@@ -16,6 +74,9 @@ export function MessagesPage() {
         respondingToId,
         respond,
     } = useNotifications()
+
+    const notificationGroups =
+        groupNotifications(notifications)
 
     return (
         <main className="messages-page">
@@ -92,27 +153,50 @@ export function MessagesPage() {
                     </div>
                 )}
 
-            {notifications.length > 0 && (
-                <section
-                    className="messages-list"
-                    aria-label="Messages"
-                >
-                    {notifications.map(
-                        (notification) => (
-                            <NotificationCard
-                                key={notification.id}
-                                notification={
-                                    notification
-                                }
-                                isResponding={
-                                    respondingToId ===
-                                    notification.id
-                                }
-                                onRespond={respond}
-                            />
-                        ),
-                    )}
-                </section>
+            {notificationGroups.length > 0 && (
+                <div className="message-groups">
+                    {notificationGroups.map((group) => (
+                        <section
+                            className="message-group"
+                            aria-labelledby={`message-group-${group.label}`}
+                            key={group.label}
+                        >
+                            <div className="message-group-heading">
+                                <h2
+                                    id={`message-group-${group.label}`}
+                                >
+                                    {group.label}
+                                </h2>
+
+                                <span>
+                                    {group.notifications.length}
+                                </span>
+                            </div>
+
+                            <div className="messages-list">
+                                {group.notifications.map(
+                                    (notification) => (
+                                        <NotificationCard
+                                            key={
+                                                notification.id
+                                            }
+                                            notification={
+                                                notification
+                                            }
+                                            isResponding={
+                                                respondingToId ===
+                                                notification.id
+                                            }
+                                            onRespond={
+                                                respond
+                                            }
+                                        />
+                                    ),
+                                )}
+                            </div>
+                        </section>
+                    ))}
+                </div>
             )}
         </main>
     )

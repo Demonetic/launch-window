@@ -1,0 +1,238 @@
+/* Notes visual redesign */
+
+.notes-page {
+    gap: 24px;
+}
+
+.notes-header h1 {
+    font-size: clamp(32px, 5vw, 50px);
+}
+
+.notes-header p:last-child {
+    margin-top: 12px;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+}
+
+.notes-grid {
+    gap: 17px;
+}
+
+/*
+ * Warm, journal-like note surface.
+ * The horizontal lines are intentionally very subtle.
+ */
+
+.note-card {
+    position: relative;
+    overflow: hidden;
+    gap: 17px;
+    padding: 20px 20px 18px 23px;
+    border: 1px solid rgb(242 154 74 / 19%);
+    border-radius: 2px;
+    background:
+            repeating-linear-gradient(
+                    to bottom,
+                    transparent 0,
+                    transparent 31px,
+                    rgb(242 154 74 / 4%) 31px,
+                    rgb(242 154 74 / 4%) 32px
+            ),
+            linear-gradient(
+                    110deg,
+                    rgb(242 154 74 / 8%),
+                    transparent 48%
+            ),
+            #1b1619;
+    box-shadow: 0 17px 42px rgb(0 0 0 / 16%);
+}
+
+.note-card::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 14px;
+    height: 14px;
+    content: "";
+    background:
+            linear-gradient(
+                    225deg,
+                    var(--color-background) 0 48%,
+                    rgb(242 154 74 / 36%) 50% 100%
+            );
+    pointer-events: none;
+}
+
+.note-card-shared {
+    border-color: rgb(242 154 74 / 19%);
+}
+
+.note-card-header {
+    gap: 15px;
+}
+
+.note-card-header > a {
+    gap: 10px;
+}
+
+.note-card-header > a:hover strong {
+    color: var(--color-yellow-soft);
+}
+
+.note-launch-icon {
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgb(246 200 95 / 14%);
+    border-radius: 2px;
+    color: var(--color-yellow);
+    background: rgb(246 200 95 / 7%);
+}
+
+.note-card-header small {
+    color: #938b80;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+}
+
+.note-card-header strong {
+    color: #f0ece4;
+    font-size: 13px;
+}
+
+.note-actions {
+    gap: 5px;
+    padding-right: 7px;
+}
+
+.note-actions button {
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgb(246 200 95 / 12%);
+    border-radius: 2px;
+    color: #9d9588;
+    background: rgb(246 200 95 / 4%);
+}
+
+.note-actions button:hover {
+    color: var(--color-yellow-soft);
+    border-color: rgb(246 200 95 / 30%);
+    background: rgb(246 200 95 / 9%);
+}
+
+/* Author is metadata, not another card */
+
+.note-author {
+    gap: 9px;
+    width: fit-content;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+
+.note-author-details strong {
+    color: #ddd7cc;
+    font-size: 11px;
+}
+
+.note-author-details small {
+    color: #8d857a;
+    font-size: 9px;
+}
+
+.note-card-shared .note-author {
+    border: 0;
+    background: transparent;
+}
+
+.note-content {
+    min-height: 90px;
+    color: #d4cec2;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.note-card-footer {
+    gap: 8px 15px;
+    padding-top: 14px;
+    border-top: 1px solid rgb(242 154 74 / 13%);
+    color: #888176;
+    font-size: 9px;
+}
+
+.note-card-footer svg {
+    color: var(--color-yellow);
+}
+
+/* Editing */
+
+.note-edit-form textarea {
+    border: 1px solid rgb(246 200 95 / 20%);
+    border-radius: 2px;
+    color: #ede9e0;
+    background: rgb(7 8 13 / 60%);
+}
+
+.note-edit-form textarea:focus {
+    border-color: rgb(246 200 95 / 50%);
+    box-shadow: 0 0 0 2px rgb(246 200 95 / 7%);
+}
+
+.note-edit-actions button,
+.note-delete-confirmation button {
+    border-radius: 2px;
+}
+
+.note-edit-actions button[type='submit'] {
+    color: #171522;
+    background:
+            linear-gradient(
+                    135deg,
+                    var(--color-yellow-soft),
+                    var(--color-orange)
+            );
+}
+
+.note-delete-confirmation {
+    border-radius: 2px;
+}
+
+/* States */
+
+.notes-state {
+    min-height: 260px;
+    padding: 32px;
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+    color: var(--color-text-muted);
+    background: var(--color-surface);
+}
+
+.notes-state svg {
+    color: var(--color-yellow);
+}
+
+.notes-action-error {
+    border-radius: 2px;
+}
+
+.notes-load-more {
+    color: var(--color-text-faint);
+    font-size: 11px;
+}
+
+@media (max-width: 640px) {
+    .notes-page {
+        gap: 20px;
+    }
+
+    .note-card {
+        gap: 15px;
+        padding: 17px 16px 16px 19px;
+        border-radius: 2px;
+    }
+
+    .note-content {
+        min-height: 0;
+    }
+}

@@ -1,16 +1,26 @@
 import {
-    AtSign,
+    CalendarDays,
     LogOut,
     Mail,
-    ShieldCheck,
+    NotebookPen,
     UserRound,
+    UsersRound,
 } from 'lucide-react'
 import { AvatarPicker } from '../avatar/AvatarPicker'
 import { UserAvatar } from '../avatar/UserAvatar'
 import { useAuth } from '../auth/useAuth'
 import { AccountDeletionPanel } from './AccountDeletionPanel'
 import { useCurrentUser } from './useCurrentUser'
+import { useUserStatistics } from './useUserStatistics'
 import './account.css'
+
+function formatStatistic(value: number | undefined) {
+    if (value === undefined) {
+        return '—'
+    }
+
+    return new Intl.NumberFormat('en').format(value)
+}
 
 export function AccountPage() {
     const { logout } = useAuth()
@@ -22,10 +32,19 @@ export function AccountPage() {
         isPending,
     } = useCurrentUser()
 
+    const {
+        data: statistics,
+        isError: isStatisticsError,
+        isPending: isStatisticsPending,
+    } = useUserStatistics()
+
     if (isPending) {
         return (
             <main className="account-page">
-                <div className="account-state" role="status">
+                <div
+                    className="account-state"
+                    role="status"
+                >
                     <span className="launch-loader" />
                     <p>Loading your account...</p>
                 </div>
@@ -41,6 +60,7 @@ export function AccountPage() {
                     role="alert"
                 >
                     <h1>Account unavailable</h1>
+
                     <p>
                         {error instanceof Error
                             ? error.message
@@ -54,14 +74,16 @@ export function AccountPage() {
     return (
         <main className="account-page">
             <header className="account-header">
-                <div>
-                    <p className="page-eyebrow">Profile</p>
-                    <h1>Your account</h1>
-                    <p>
-                        Your Launch Window identity and account
-                        information.
-                    </p>
-                </div>
+                <p className="page-eyebrow">
+                    Profile
+                </p>
+
+                <h1>Your account</h1>
+
+                <p>
+                    Your Launch Window identity,
+                    activity and profile settings.
+                </p>
             </header>
 
             <section className="account-profile-card">
@@ -78,6 +100,78 @@ export function AccountPage() {
                     </div>
                 </div>
 
+                <div
+                    className="account-statistics"
+                    aria-label="Account activity"
+                >
+                    <article>
+                        <CalendarDays
+                            aria-hidden="true"
+                            size={21}
+                        />
+
+                        <span>
+                            <strong>
+                                {formatStatistic(
+                                    statistics?.savedLaunches,
+                                )}
+                            </strong>
+                            <small>Saved launches</small>
+                        </span>
+                    </article>
+
+                    <article>
+                        <NotebookPen
+                            aria-hidden="true"
+                            size={21}
+                        />
+
+                        <span>
+                            <strong>
+                                {formatStatistic(
+                                    statistics?.notesWritten,
+                                )}
+                            </strong>
+                            <small>Notes written</small>
+                        </span>
+                    </article>
+
+                    <article>
+                        <UsersRound
+                            aria-hidden="true"
+                            size={21}
+                        />
+
+                        <span>
+                            <strong>
+                                {formatStatistic(
+                                    statistics?.friends,
+                                )}
+                            </strong>
+                            <small>Friends</small>
+                        </span>
+                    </article>
+                </div>
+
+                {isStatisticsPending && (
+                    <p
+                        className="account-statistics-message"
+                        role="status"
+                    >
+                        Loading account activity...
+                    </p>
+                )}
+
+                {isStatisticsError && (
+                    <p
+                        className="account-statistics-message account-statistics-error"
+                        role="alert"
+                    >
+                        Account activity could not be
+                        loaded.
+                    </p>
+                )}
+
                 <AvatarPicker
                     currentAvatarKey={user.avatarKey}
                     currentAvatarColor={user.avatarColor}
@@ -86,6 +180,7 @@ export function AccountPage() {
                 <div className="account-information">
                     <article>
                         <UserRound aria-hidden="true" />
+
                         <span>
                             <small>Username</small>
                             <strong>{user.username}</strong>
@@ -94,25 +189,10 @@ export function AccountPage() {
 
                     <article>
                         <Mail aria-hidden="true" />
+
                         <span>
-                            <small>Email</small>
+                            <small>Email address</small>
                             <strong>{user.email}</strong>
-                        </span>
-                    </article>
-
-                    <article>
-                        <ShieldCheck aria-hidden="true" />
-                        <span>
-                            <small>Account role</small>
-                            <strong>{user.role}</strong>
-                        </span>
-                    </article>
-
-                    <article>
-                        <AtSign aria-hidden="true" />
-                        <span>
-                            <small>Account ID</small>
-                            <strong>#{user.id}</strong>
                         </span>
                     </article>
                 </div>
@@ -120,6 +200,7 @@ export function AccountPage() {
                 <div className="account-profile-footer">
                     <div>
                         <h3>End this session</h3>
+
                         <p>
                             You will be signed out on this
                             device. Your saved calendar and

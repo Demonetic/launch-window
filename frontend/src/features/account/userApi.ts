@@ -4,12 +4,29 @@ import type {
     User,
 } from '../auth/types'
 
+export interface UserStatistics {
+    savedLaunches: number
+    notesWritten: number
+    friends: number
+}
+
 export function getCurrentUser(
     token: string,
 ): Promise<User> {
     return apiRequest<User>('/api/users/me', {
         token,
     })
+}
+
+export function getUserStatistics(
+    token: string,
+): Promise<UserStatistics> {
+    return apiRequest<UserStatistics>(
+        '/api/users/me/statistics',
+        {
+            token,
+        },
+    )
 }
 
 export function updateAvatar(

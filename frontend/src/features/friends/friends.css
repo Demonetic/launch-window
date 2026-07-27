@@ -1,123 +1,180 @@
 .friends-page {
     display: grid;
-    gap: 30px;
+    gap: 25px;
 }
 
 .friends-header h1 {
     margin: 0;
-    font-size: clamp(34px, 5vw, 52px);
+    font-size: clamp(34px, 5vw, 50px);
     letter-spacing: -0.045em;
 }
 
 .friends-header p:last-child {
     max-width: 620px;
-    margin: 14px 0 0;
-    color: #929bb3;
-    line-height: 1.65;
+    margin: 12px 0 0;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+}
+
+/* Errors and loading */
+
+.friends-error {
+    padding: 11px 13px;
+    border: 1px solid rgb(255 135 153 / 24%);
+    border-radius: 2px;
+    color: #ffadb8;
+    background: rgb(111 26 45 / 24%);
+    font-size: 11px;
+}
+
+.friends-state {
+    display: flex;
+    min-height: 220px;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--color-text-muted);
+}
+
+/* Top tools */
+
+.friends-tools {
+    display: grid;
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 15px;
+}
+
+.friend-request-panel,
+.friendship-section {
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
 }
 
 .friend-request-panel {
     display: grid;
-    grid-template-columns: auto minmax(180px, 0.75fr) minmax(300px, 1.25fr);
+}
+
+.friend-request-panel > header,
+.friendship-section > header {
+    display: flex;
+    min-height: 70px;
     align-items: center;
-    gap: 18px;
-    padding: 22px;
-    border: 1px solid rgb(154 166 255 / 17%);
-    border-radius: 22px;
+    gap: 11px;
+    padding: 14px;
+    border-bottom: 1px solid var(--color-border);
     background:
-            radial-gradient(
-                    circle at 100% 0%,
-                    rgb(139 153 255 / 13%),
-                    transparent 42%
-            ),
-            rgb(17 21 37 / 72%);
+            linear-gradient(
+                    110deg,
+                    rgb(139 153 255 / 6%),
+                    transparent 55%
+            );
 }
 
 .friend-request-icon,
 .friendship-section > header > span {
     display: grid;
+    width: 34px;
+    height: 34px;
     flex: 0 0 auto;
     place-items: center;
-    color: #171a2a;
-    background: #aeb7ff;
-}
-
-.friend-request-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 14px;
+    border: 1px solid rgb(246 200 95 / 20%);
+    border-radius: 2px;
+    color: #171522;
+    background:
+            linear-gradient(
+                    135deg,
+                    var(--color-yellow-soft),
+                    var(--color-yellow-soft)
+            );
 }
 
 .friend-request-copy h2,
-.friend-request-copy p {
+.friend-request-copy p,
+.friendship-section header h2,
+.friendship-section header p {
     margin: 0;
 }
 
-.friend-request-copy h2 {
-    font-size: 18px;
+.friend-request-copy h2,
+.friendship-section header h2 {
+    font-size: 14px;
 }
 
-.friend-request-copy p {
-    margin-top: 5px;
-    color: #8f98b1;
-    font-size: 11px;
-    line-height: 1.5;
+.friend-request-copy p,
+.friendship-section header p {
+    margin-top: 3px;
+    color: var(--color-text-muted);
+    font-size: 9px;
+    line-height: 1.4;
 }
 
 .friend-request-panel form {
     display: grid;
-    gap: 7px;
+    gap: 8px;
+    padding: 14px;
 }
 
 .friend-request-panel form label {
-    color: #aeb5c8;
-    font-size: 10px;
+    color: var(--color-text-muted);
+    font-size: 9px;
     font-weight: 750;
-}
-
-.friend-request-panel form > div {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 9px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
 }
 
 .friend-request-panel input {
+    width: 100%;
     min-width: 0;
-    min-height: 42px;
-    padding: 0 13px;
-    border: 1px solid rgb(255 255 255 / 10%);
-    border-radius: 12px;
+    min-height: 39px;
+    padding: 0 11px;
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
     outline: none;
-    color: #f1f3fb;
-    background: rgb(7 10 19 / 65%);
-    font: inherit;
-    font-size: 12px;
+    color: var(--color-text);
+    background: #080c16;
+    font-size: 11px;
 }
 
 .friend-request-panel input:focus {
-    border-color: rgb(151 163 255 / 55%);
-    box-shadow: 0 0 0 3px rgb(139 153 255 / 10%);
+    border-color: rgb(246 200 95 / 48%);
+    box-shadow: 0 0 0 2px rgb(246 200 95 / 7%);
 }
 
 .friend-request-panel button,
 .friendship-card-actions button {
     display: inline-flex;
-    min-height: 40px;
+    min-height: 37px;
     align-items: center;
     justify-content: center;
     gap: 7px;
-    padding: 0 14px;
-    border-radius: 11px;
-    font: inherit;
-    font-size: 11px;
+    padding: 0 12px;
+    border-radius: 2px;
+    font-size: 10px;
     font-weight: 800;
     cursor: pointer;
 }
 
 .friend-request-panel button {
-    border: 0;
-    color: #15182a;
-    background: #aeb7ff;
+    width: fit-content;
+    min-width: 120px;
+    justify-self: end;
+    border: 1px solid rgb(255 225 154 / 20%);
+    color: #171522;
+    background:
+            linear-gradient(
+                    135deg,
+                    var(--color-yellow-soft),
+                    var(--color-yellow)
+            );
+}
+
+.friend-request-panel button:hover:not(:disabled) {
+    filter: brightness(1.06);
 }
 
 .friend-request-panel button:disabled,
@@ -127,76 +184,13 @@
 }
 
 .friend-request-success {
-    grid-column: 3;
-    margin: -8px 0 0;
-    color: #a9efd0;
-    font-size: 11px;
-}
-
-.friends-error {
-    padding: 12px 14px;
-    border: 1px solid rgb(255 135 153 / 24%);
-    border-radius: 12px;
-    color: #ffadb8;
-    background: rgb(111 26 45 / 24%);
-    font-size: 12px;
-}
-
-.friends-state {
-    display: flex;
-    min-height: 220px;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    color: #8f98b1;
-}
-
-.friends-sections {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: start;
-    gap: 20px;
-}
-
-.friendship-section {
-    overflow: hidden;
-    border: 1px solid rgb(255 255 255 / 8%);
-    border-radius: 20px;
-    background: rgb(17 21 37 / 66%);
-}
-
-.friendship-section:nth-child(2) {
-    grid-row: span 2;
-}
-
-.friendship-section > header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 18px;
-    border-bottom: 1px solid rgb(255 255 255 / 7%);
-}
-
-.friendship-section > header > span {
-    width: 38px;
-    height: 38px;
-    border-radius: 12px;
-}
-
-.friendship-section header h2,
-.friendship-section header p {
     margin: 0;
-}
-
-.friendship-section header h2 {
-    font-size: 16px;
-}
-
-.friendship-section header p {
-    margin-top: 4px;
-    color: #858ea7;
+    padding: 0 14px 14px;
+    color: #a9efd0;
     font-size: 10px;
 }
+
+/* Sections and cards */
 
 .friendship-list {
     display: grid;
@@ -204,11 +198,17 @@
 
 .friendship-card {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-columns:
+        auto minmax(0, 1fr) auto;
     align-items: center;
-    gap: 12px;
-    padding: 15px 18px;
-    border-bottom: 1px solid rgb(255 255 255 / 6%);
+    gap: 11px;
+    padding: 13px 14px;
+    border-bottom: 1px solid var(--color-border);
+    transition: background var(--transition-fast);
+}
+
+.friendship-card:hover {
+    background: rgb(255 255 255 / 2.5%);
 }
 
 .friendship-card:last-child {
@@ -218,12 +218,12 @@
 .friendship-card-copy {
     display: grid;
     min-width: 0;
-    gap: 4px;
+    gap: 3px;
 }
 
 .friendship-card-copy strong {
     overflow: hidden;
-    font-size: 13px;
+    font-size: 12px;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
@@ -232,30 +232,40 @@
     display: flex;
     align-items: center;
     gap: 5px;
-    color: #858ea7;
-    font-size: 10px;
+    color: var(--color-text-muted);
+    font-size: 9px;
 }
 
 .friendship-card-actions {
     display: flex;
-    gap: 7px;
+    gap: 6px;
 }
 
 .friendship-card-actions button {
-    min-height: 34px;
-    padding: 0 10px;
+    min-height: 32px;
+    padding: 0 9px;
 }
 
 .friendship-primary-action {
-    border: 0;
-    color: #15182a;
-    background: #aeb7ff;
+    border: 1px solid rgb(255 225 154 / 18%);
+    color: #171522;
+    background:
+            linear-gradient(
+                    135deg,
+                    var(--color-yellow-soft),
+                    var(--color-yellow-soft)
+            );
 }
 
 .friendship-secondary-action {
-    border: 1px solid rgb(255 255 255 / 9%);
-    color: #abb2c6;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
     background: rgb(255 255 255 / 4%);
+}
+
+.friendship-secondary-action:hover {
+    color: var(--color-text);
+    border-color: var(--color-border-strong);
 }
 
 .friendship-remove-action {
@@ -266,38 +276,120 @@
 
 .friendship-empty {
     margin: 0;
-    padding: 26px 18px;
-    color: #737c95;
-    font-size: 11px;
+    padding: 24px 15px;
+    color: var(--color-text-faint);
+    font-size: 10px;
     text-align: center;
 }
 
-@media (max-width: 900px) {
-    .friend-request-panel {
-        grid-template-columns: auto minmax(0, 1fr);
+/* Full-width friend directory */
+
+.friends-directory {
+    display: grid;
+}
+
+.friends-directory
+.friendship-section {
+    width: 100%;
+}
+
+.friends-directory
+.friendship-section > header {
+    min-height: 72px;
+    background:
+            linear-gradient(
+                    100deg,
+                    rgb(246 200 95 / 6%),
+                    rgb(139 153 255 / 5%),
+                    transparent 60%
+            );
+}
+
+.friends-directory
+.friendship-list {
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+}
+
+.friends-directory
+.friendship-card {
+    min-height: 66px;
+}
+
+.friends-directory
+.friendship-card:nth-child(odd) {
+    border-right: 1px solid var(--color-border);
+}
+
+/* Responsive */
+
+@media (max-width: 1050px) {
+    .friends-tools {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
     }
 
-    .friend-request-panel form,
-    .friend-request-success {
+    .friend-request-panel {
         grid-column: 1 / -1;
+    }
+
+    .friend-request-panel form {
+        grid-template-columns:
+            minmax(0, 1fr) auto;
+        align-items: end;
+    }
+
+    .friend-request-panel form label {
+        grid-column: 1 / -1;
+    }
+
+    .friend-request-panel button {
+        align-self: stretch;
+    }
+
+    .friend-request-success {
+        padding-top: 2px;
     }
 }
 
 @media (max-width: 700px) {
     .friends-page {
-        gap: 24px;
+        gap: 21px;
     }
 
-    .friends-sections {
+    .friends-tools {
         grid-template-columns: 1fr;
     }
 
-    .friendship-section:nth-child(2) {
-        grid-row: auto;
+    .friend-request-panel {
+        grid-column: auto;
+    }
+
+    .friend-request-panel form {
+        grid-template-columns: 1fr;
+    }
+
+    .friend-request-panel form label {
+        grid-column: auto;
+    }
+
+    .friend-request-panel button {
+        width: 100%;
+    }
+
+    .friends-directory
+    .friendship-list {
+        grid-template-columns: 1fr;
+    }
+
+    .friends-directory
+    .friendship-card:nth-child(odd) {
+        border-right: 0;
     }
 
     .friendship-card {
-        grid-template-columns: auto minmax(0, 1fr);
+        grid-template-columns:
+            auto minmax(0, 1fr);
     }
 
     .friendship-card-actions {
@@ -306,19 +398,5 @@
 
     .friendship-card-actions button {
         flex: 1;
-    }
-}
-
-@media (max-width: 480px) {
-    .friend-request-panel {
-        padding: 17px;
-    }
-
-    .friend-request-panel form > div {
-        grid-template-columns: 1fr;
-    }
-
-    .friend-request-panel button {
-        width: 100%;
     }
 }

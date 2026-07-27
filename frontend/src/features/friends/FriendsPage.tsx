@@ -99,72 +99,6 @@ export function FriendsPage() {
                 </div>
             </header>
 
-            <section className="friend-request-panel">
-                <span className="friend-request-icon">
-                    <UserPlus
-                        aria-hidden="true"
-                        size={21}
-                    />
-                </span>
-
-                <div className="friend-request-copy">
-                    <h2>Add a friend</h2>
-                    <p>
-                        Enter their exact username or email
-                        address.
-                    </p>
-                </div>
-
-                <form onSubmit={handleSubmit}>
-                    <label htmlFor="friend-identifier">
-                        Username or email
-                    </label>
-
-                    <div>
-                        <input
-                            id="friend-identifier"
-                            value={identifier}
-                            maxLength={255}
-                            autoComplete="off"
-                            placeholder="Username or email"
-                            disabled={isSending}
-                            onChange={(event) => {
-                                setIdentifier(
-                                    event.target.value,
-                                )
-                                setRequestSent(false)
-                                resetSendError()
-                            }}
-                        />
-
-                        <button
-                            type="submit"
-                            disabled={
-                                !identifier.trim() ||
-                                isSending
-                            }
-                        >
-                            <Send
-                                aria-hidden="true"
-                                size={16}
-                            />
-                            {isSending
-                                ? 'Sending…'
-                                : 'Send request'}
-                        </button>
-                    </div>
-                </form>
-
-                {requestSent && (
-                    <p
-                        className="friend-request-success"
-                        role="status"
-                    >
-                        Friend request sent.
-                    </p>
-                )}
-            </section>
-
             {(queryError || actionError) && (
                 <div
                     className="friends-error"
@@ -193,92 +127,159 @@ export function FriendsPage() {
             )}
 
             {!isPending && (
-                <div className="friends-sections">
-                    <FriendshipSection
-                        title="Friend requests"
-                        description="People waiting for your response."
-                        icon={Inbox}
-                        emptyMessage="You have no incoming friend requests."
-                    >
-                        {receivedRequests.map(
-                            (friendship) => (
-                                <FriendshipCard
-                                    key={friendship.id}
-                                    friendship={
-                                        friendship
-                                    }
-                                    variant="received"
-                                    isPending={
-                                        respondingToId ===
-                                        friendship.id
-                                    }
-                                    onAccept={(id) =>
-                                        void handleResponse(
-                                            id,
-                                            'accept',
+                <>
+                    <div className="friends-tools">
+                        <section className="friend-request-panel">
+                            <header>
+                                <span className="friend-request-icon">
+                                    <UserPlus
+                                        aria-hidden="true"
+                                        size={19}
+                                    />
+                                </span>
+
+                                <div className="friend-request-copy">
+                                    <h2>Add a friend</h2>
+                                    <p>
+                                        Enter their exact username
+                                        or email address.
+                                    </p>
+                                </div>
+                            </header>
+
+                            <form onSubmit={handleSubmit}>
+                                <label htmlFor="friend-identifier">
+                                    Username or email
+                                </label>
+
+                                <input
+                                    id="friend-identifier"
+                                    value={identifier}
+                                    maxLength={255}
+                                    autoComplete="off"
+                                    placeholder="Username or email"
+                                    disabled={isSending}
+                                    onChange={(event) => {
+                                        setIdentifier(
+                                            event.target.value,
                                         )
-                                    }
-                                    onDecline={(id) =>
-                                        void handleResponse(
-                                            id,
-                                            'decline',
-                                        )
-                                    }
+                                        setRequestSent(false)
+                                        resetSendError()
+                                    }}
                                 />
-                            ),
-                        )}
-                    </FriendshipSection>
 
-                    <FriendshipSection
-                        title="Your friends"
-                        description="People you can invite to saved launches."
-                        icon={UsersRound}
-                        emptyMessage="You have not added any friends yet."
-                    >
-                        {friends.map((friendship) => (
-                            <FriendshipCard
-                                key={friendship.id}
-                                friendship={friendship}
-                                variant="friend"
-                                isPending={
-                                    removingId ===
-                                    friendship.id
-                                }
-                                onRemove={(id) =>
-                                    void handleRemove(id)
-                                }
-                            />
-                        ))}
-                    </FriendshipSection>
+                                {identifier.trim().length > 0 && (
+                                    <button
+                                        type="submit"
+                                        disabled={isSending}
+                                    >
+                                        <Send
+                                            aria-hidden="true"
+                                            size={15}
+                                        />
+                                        {isSending
+                                            ? 'Sending…'
+                                            : 'Send request'}
+                                    </button>
+                                )}
+                            </form>
 
-                    <FriendshipSection
-                        title="Sent requests"
-                        description="Requests waiting for the other person."
-                        icon={Send}
-                        emptyMessage="You have no outgoing friend requests."
-                    >
-                        {sentRequests.map(
-                            (friendship) => (
+                            {requestSent && (
+                                <p
+                                    className="friend-request-success"
+                                    role="status"
+                                >
+                                    Friend request sent.
+                                </p>
+                            )}
+                        </section>
+
+                        <FriendshipSection
+                            title="Friend requests"
+                            description="People waiting for your response."
+                            icon={Inbox}
+                            emptyMessage="No incoming requests."
+                        >
+                            {receivedRequests.map(
+                                (friendship) => (
+                                    <FriendshipCard
+                                        key={friendship.id}
+                                        friendship={
+                                            friendship
+                                        }
+                                        variant="received"
+                                        isPending={
+                                            respondingToId ===
+                                            friendship.id
+                                        }
+                                        onAccept={(id) =>
+                                            void handleResponse(
+                                                id,
+                                                'accept',
+                                            )
+                                        }
+                                        onDecline={(id) =>
+                                            void handleResponse(
+                                                id,
+                                                'decline',
+                                            )
+                                        }
+                                    />
+                                ),
+                            )}
+                        </FriendshipSection>
+
+                        <FriendshipSection
+                            title="Sent requests"
+                            description="Waiting for the other person."
+                            icon={Send}
+                            emptyMessage="No outgoing requests."
+                        >
+                            {sentRequests.map(
+                                (friendship) => (
+                                    <FriendshipCard
+                                        key={friendship.id}
+                                        friendship={
+                                            friendship
+                                        }
+                                        variant="sent"
+                                        isPending={
+                                            removingId ===
+                                            friendship.id
+                                        }
+                                        onRemove={(id) =>
+                                            void handleRemove(id)
+                                        }
+                                    />
+                                ),
+                            )}
+                        </FriendshipSection>
+                    </div>
+
+                    <div className="friends-directory">
+                        <FriendshipSection
+                            title="Your friends"
+                            description="People you can invite to saved launches."
+                            icon={UsersRound}
+                            emptyMessage="You have not added any friends yet."
+                        >
+                            {friends.map((friendship) => (
                                 <FriendshipCard
                                     key={friendship.id}
-                                    friendship={
-                                        friendship
-                                    }
-                                    variant="sent"
+                                    friendship={friendship}
+                                    variant="friend"
                                     isPending={
                                         removingId ===
                                         friendship.id
                                     }
                                     onRemove={(id) =>
-                                        void handleRemove(
-                                            id,
-                                        )
+                                        void handleRemove(id)
                                     }
                                 />
-                            ),
-                        )}
-                    </FriendshipSection>
-                </div>
+                            ))}
+                        </FriendshipSection>
+                    </div>
+                </>
             )}
         </main>
     )
@@ -309,7 +310,7 @@ function FriendshipSection({
                 <span>
                     <Icon
                         aria-hidden="true"
-                        size={19}
+                        size={18}
                     />
                 </span>
 

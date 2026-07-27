@@ -1,4 +1,5 @@
 import {
+    ChevronDown,
     Filter,
     RotateCcw,
     Search,
@@ -33,8 +34,10 @@ export function LaunchFiltersPanel({
     const [draft, setDraft] = useState<LaunchFilters>(
         () => copyFilters(filters),
     )
+    const [expanded, setExpanded] = useState(false)
 
     const active = hasActiveLaunchFilters(filters)
+    const activeCount = countActiveFilterGroups(filters)
 
     function updateDraft(
         update: Partial<LaunchFilters>,
@@ -72,6 +75,8 @@ export function LaunchFiltersPanel({
             statuses: [...draft.statuses],
             countryCodes: [...draft.countryCodes],
         })
+
+        setExpanded(false)
     }
 
     function clearFilters() {
@@ -81,42 +86,61 @@ export function LaunchFiltersPanel({
 
         setDraft(cleared)
         onChange(cleared)
+        setExpanded(false)
     }
 
     return (
         <form
-            className="launch-filter-panel"
+            className={
+                expanded
+                    ? 'launch-filter-panel expanded'
+                    : 'launch-filter-panel'
+            }
             onSubmit={applyFilters}
         >
-            <div className="launch-filter-heading">
-                <div className="launch-filter-title">
-                    <span className="launch-filter-icon">
-                        <SlidersHorizontal
-                            aria-hidden="true"
-                            size={18}
-                        />
-                    </span>
+            <button
+                className="launch-filter-toggle"
+                type="button"
+                aria-expanded={expanded}
+                aria-controls="advanced-launch-filters"
+                onClick={() =>
+                    setExpanded((current) => !current)
+                }
+            >
+                <span className="launch-filter-toggle-icon">
+                    <SlidersHorizontal
+                        aria-hidden="true"
+                        size={18}
+                    />
+                </span>
 
-                    <div>
-                        <h2>Find a launch</h2>
-
-                        <p>
-                            Refine the full schedule by date,
-                            status and viewing conditions.
-                        </p>
-                    </div>
-                </div>
+                <span className="launch-filter-toggle-copy">
+                    <strong>Filter launches</strong>
+                    <small>
+                        Sort, date, country, status and
+                        viewing conditions
+                    </small>
+                </span>
 
                 {active && (
                     <span className="active-filter-indicator">
                         <Filter
                             aria-hidden="true"
-                            size={13}
+                            size={12}
                         />
-                        Filters active
+                        {activeCount}{' '}
+                        {activeCount === 1
+                            ? 'filter'
+                            : 'filters'}
                     </span>
                 )}
-            </div>
+
+                <ChevronDown
+                    className="launch-filter-chevron"
+                    aria-hidden="true"
+                    size={19}
+                />
+            </button>
 
             <div className="launch-filter-search">
                 <Search
@@ -138,53 +162,63 @@ export function LaunchFiltersPanel({
                 />
             </div>
 
-            <LaunchFilterControls
-                filters={draft}
-                onUpdate={updateDraft}
-            />
-
-            <LaunchCountryFilter
-                selectedCodes={draft.countryCodes}
-                onChange={(countryCodes) =>
-                    updateDraft({
-                        countryCodes,
-                    })
-                }
-            />
-
-            <LaunchStatusFilter
-                statuses={draft.statuses}
-                onToggle={toggleStatus}
-            />
-
-            <div className="launch-filter-actions">
-                <button
-                    className="clear-launch-filters"
-                    type="button"
-                    onClick={clearFilters}
-                    disabled={
-                        !active &&
-                        !hasActiveLaunchFilters(draft)
-                    }
+            {expanded && (
+                <div
+                    className="launch-filter-advanced"
+                    id="advanced-launch-filters"
                 >
-                    <RotateCcw
-                        aria-hidden="true"
-                        size={15}
+                    <LaunchFilterControls
+                        filters={draft}
+                        onUpdate={updateDraft}
                     />
-                    Clear filters
-                </button>
 
-                <button
-                    className="apply-launch-filters"
-                    type="submit"
-                >
-                    <Filter
-                        aria-hidden="true"
-                        size={16}
+                    <LaunchCountryFilter
+                        selectedCodes={
+                            draft.countryCodes
+                        }
+                        onChange={(countryCodes) =>
+                            updateDraft({
+                                countryCodes,
+                            })
+                        }
                     />
-                    Apply filters
-                </button>
-            </div>
+
+                    <LaunchStatusFilter
+                        statuses={draft.statuses}
+                        onToggle={toggleStatus}
+                    />
+
+                    <div className="launch-filter-actions">
+                        {(active ||
+                            hasActiveLaunchFilters(
+                                draft,
+                            )) && (
+                            <button
+                                className="clear-launch-filters"
+                                type="button"
+                                onClick={clearFilters}
+                            >
+                                <RotateCcw
+                                    aria-hidden="true"
+                                    size={15}
+                                />
+                                Clear
+                            </button>
+                        )}
+
+                        <button
+                            className="apply-launch-filters"
+                            type="submit"
+                        >
+                            <Filter
+                                aria-hidden="true"
+                                size={16}
+                            />
+                            Apply filters
+                        </button>
+                    </div>
+                </div>
+            )}
         </form>
     )
 }
@@ -197,4 +231,40 @@ function copyFilters(
         statuses: [...filters.statuses],
         countryCodes: [...filters.countryCodes],
     }
+}
+
+function countActiveFilterGroups(
+    filters: LaunchFilters,
+): number {
+    let count = 0
+
+    if (filters.query.trim()) {
+        count += 1
+    }
+
+    if (filters.sort !== 'SOONEST') {
+        count += 1
+    }
+
+    if (filters.days !== null) {
+        count += 1
+    }
+
+    if (filters.forecastAvailable !== null) {
+        count += 1
+    }
+
+    if (filters.minimumViewingScore !== null) {
+        count += 1
+    }
+
+    if (filters.statuses.length > 0) {
+        count += 1
+    }
+
+    if (filters.countryCodes.length > 0) {
+        count += 1
+    }
+
+    return count
 }

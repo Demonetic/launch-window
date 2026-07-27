@@ -1,121 +1,71 @@
 .note-scope-filter {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
-    width: min(100%, 780px);
-    padding: 7px;
-    border: 1px solid rgb(255 255 255 / 8%);
-    border-radius: 18px;
-    background: rgb(10 13 24 / 66%);
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+    gap: 3px;
+    width: fit-content;
+    min-width: 330px;
+    padding: 3px;
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+    background: var(--color-background-soft);
 }
 
 .note-scope-option {
-    display: flex;
+    display: inline-flex;
     min-width: 0;
-    min-height: 64px;
+    min-height: 36px;
     align-items: center;
-    gap: 11px;
-    padding: 10px 13px;
-    border: 1px solid transparent;
-    border-radius: 13px;
-    color: #8d96af;
+    justify-content: center;
+    gap: 7px;
+    padding: 0 13px;
+    border: 0;
+    border-radius: 1px;
+    color: var(--color-text-muted);
     background: transparent;
-    font: inherit;
-    text-align: left;
+    font-size: 11px;
+    font-weight: 750;
     cursor: pointer;
     transition:
-            color 160ms ease,
-            border-color 160ms ease,
-            background 160ms ease;
+            color var(--transition-fast),
+            background var(--transition-fast),
+            box-shadow var(--transition-fast);
 }
 
 .note-scope-option:hover {
-    color: #dfe3f2;
+    color: var(--color-text);
     background: rgb(255 255 255 / 4%);
 }
 
+.note-scope-option svg {
+    flex: 0 0 auto;
+    color: var(--color-text-faint);
+}
+
 .note-scope-option.active {
-    color: #f4f5fb;
-    border-color: rgb(154 166 255 / 18%);
+    color: #171522;
     background:
             linear-gradient(
                     135deg,
-                    rgb(139 153 255 / 20%),
-                    rgb(183 130 255 / 9%)
+                    var(--color-yellow-soft),
+                    var(--color-orange-soft)
             );
+    box-shadow: 0 5px 15px rgb(242 154 74 / 10%);
 }
 
-.note-scope-icon {
-    display: grid;
-    width: 34px;
-    height: 34px;
-    flex: 0 0 auto;
-    place-items: center;
-    border-radius: 10px;
-    color: #8f9cf4;
-    background: rgb(132 146 255 / 10%);
+.note-scope-option.active svg {
+    color: #29202a;
 }
 
-.note-scope-option.active .note-scope-icon {
-    color: #d4d8ff;
-    background: rgb(132 146 255 / 18%);
-}
-
-.note-scope-copy {
-    display: grid;
-    min-width: 0;
-    gap: 3px;
-}
-
-.note-scope-copy strong {
-    font-size: 12px;
-}
-
-.note-scope-copy small {
-    overflow: hidden;
-    color: #747e98;
-    font-size: 9px;
-    line-height: 1.35;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.note-scope-option.active small {
-    color: #9da6c2;
-}
-
-@media (max-width: 760px) {
+@media (max-width: 520px) {
     .note-scope-filter {
         width: 100%;
+        min-width: 0;
     }
 
     .note-scope-option {
-        min-height: 54px;
-        justify-content: center;
-        padding: 9px 7px;
-    }
-
-    .note-scope-icon {
-        width: 30px;
-        height: 30px;
-    }
-
-    .note-scope-copy small {
-        display: none;
-    }
-
-    .note-scope-copy strong {
+        min-height: 38px;
+        padding-inline: 7px;
         font-size: 10px;
-        white-space: nowrap;
-    }
-}
-
-@media (max-width: 390px) {
-    .note-scope-option {
-        gap: 6px;
-    }
-
-    .note-scope-icon {
-        display: none;
     }
 }
