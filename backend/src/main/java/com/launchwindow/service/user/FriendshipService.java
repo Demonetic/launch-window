@@ -4,11 +4,10 @@ import com.launchwindow.dto.CreateFriendRequest;
 import com.launchwindow.dto.FriendshipResponse;
 import com.launchwindow.exception.InvalidFriendshipException;
 import com.launchwindow.exception.ResourceNotFoundException;
-import com.launchwindow.model.AppUser;
-import com.launchwindow.model.Friendship;
-import com.launchwindow.model.FriendshipStatus;
+import com.launchwindow.model.*;
 import com.launchwindow.repository.AppUserRepository;
 import com.launchwindow.repository.FriendshipRepository;
+import com.launchwindow.repository.UserNotificationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,11 +19,14 @@ import java.util.Objects;
 public class FriendshipService {
     private final AppUserRepository userRepository;
     private final FriendshipRepository friendshipRepository;
+    private final UserNotificationRepository notificationRepository;
     private final Clock clock;
 
-    public FriendshipService(AppUserRepository userRepository, FriendshipRepository friendshipRepository, Clock clock) {
+    public FriendshipService(AppUserRepository userRepository, FriendshipRepository friendshipRepository,
+                             UserNotificationRepository notificationRepository, Clock clock) {
         this.userRepository = userRepository;
         this.friendshipRepository = friendshipRepository;
+        this.notificationRepository = notificationRepository;
         this.clock = clock;
     }
 
@@ -47,6 +49,8 @@ public class FriendshipService {
                         handleExistingFriendship(existing));
 
         Friendship friendship = friendshipRepository.save(new Friendship(requester, recipient));
+
+        notificationRepository.save(UserNotification.forFriendship(recipient, requester, NotificationType.FRIEND_REQUEST_RECEIVED, friendship));
 
         return map(friendship, requester.getId());
     }
@@ -89,7 +93,13 @@ public class FriendshipService {
 
         validateReceivedPendingRequest(friendship, user.getId());
 
-        friendship.accept(clock.instant());
+        var respondedAt = clock.instant();
+
+        friendship.accept(respondedAt);
+
+        markRequestNotificationRead(user, friendship, respondedAt);
+
+        notificationRepository.save(UserNotification.forFriendship(friendship.getRequester(), user, NotificationType.FRIEND_REQUEST_ACCEPTED, friendship));
 
         return map(friendship, user.getId());
     }
@@ -102,7 +112,13 @@ public class FriendshipService {
 
         validateReceivedPendingRequest(friendship, user.getId());
 
-        friendship.decline(clock.instant());
+        var respondedAt = clock.instant();
+
+        friendship.decline(respondedAt);
+
+        markRequestNotificationRead(user, friendship, respondedAt);
+
+        notificationRepository.save(UserNotification.forFriendship(friendship.getRequester(), user, NotificationType.FRIEND_REQUEST_DECLINED, friendship));
 
         return map(friendship, user.getId());
     }
@@ -171,5 +187,10 @@ public class FriendshipService {
                 friendship.getCreatedAt(),
                 friendship.getRespondedAt()
         );
+    }
+
+    private void markRequestNotificationRead(AppUser recipient, Friendship friendship, java.time.Instant readAt) {
+        notificationRepository.findByRecipient_IdAndFriendship_IdAndType(recipient.getId(), friendship.getId(), NotificationType.FRIEND_REQUEST_RECEIVED)
+                .ifPresent(notification -> notification.markRead(readAt));
     }
 }

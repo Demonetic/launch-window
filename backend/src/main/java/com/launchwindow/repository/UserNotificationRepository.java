@@ -1,5 +1,6 @@
 package com.launchwindow.repository;
 
+import com.launchwindow.model.NotificationType;
 import com.launchwindow.model.UserNotification;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -35,6 +36,8 @@ public interface UserNotificationRepository extends JpaRepository<UserNotificati
               AND notification.recipient.username = :username
             """)
     Optional<UserNotification> findForRecipient(@Param("notificationId") Long notificationId, @Param("username") String username);
+
+    Optional<UserNotification> findByRecipient_IdAndFriendship_IdAndType(Long recipientId, Long friendshipId, NotificationType type);
 
     long countByRecipient_IdAndReadAtIsNull(Long recipientId);
 }
