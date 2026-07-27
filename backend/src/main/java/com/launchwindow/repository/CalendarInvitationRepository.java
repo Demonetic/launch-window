@@ -10,7 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CalendarInvitationRepository extends JpaRepository<CalendarInvitation, Long> {
-    boolean existsByCalendarEntry_IdAndInvitee_Id(Long calendarEntryId, Long inviteeId);
+    Optional<CalendarInvitation>
+    findByCalendarEntry_IdAndInvitee_Id(Long calendarEntryId, Long inviteeId);
 
     @Query("""
             SELECT invitation

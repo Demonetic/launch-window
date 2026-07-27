@@ -44,7 +44,6 @@ class CalendarInvitationServiceTest {
         when(userRepository.findByUsernameIgnoreCaseOrEmailIgnoreCase("alex", "alex")).thenReturn(Optional.of(invitee));
         when(invitee.getId()).thenReturn(2L);
         when(calendarEntry.getId()).thenReturn(20L);
-        when(invitationRepository.existsByCalendarEntry_IdAndInvitee_Id(20L, 2L)).thenReturn(false);
         when(invitationRepository.save(any(CalendarInvitation.class))).thenReturn(savedInvitation);
 
         stubInvitationResponse(savedInvitation, CalendarInvitationStatus.PENDING);
@@ -58,7 +57,7 @@ class CalendarInvitationServiceTest {
         ArgumentCaptor<CalendarInvitation> captor = ArgumentCaptor.forClass(CalendarInvitation.class);
 
         verify(invitationRepository).save(captor.capture());
-        verify(invitationRepository).existsByCalendarEntry_IdAndInvitee_Id(20L, 2L);
+        verify(invitationRepository).findByCalendarEntry_IdAndInvitee_Id(20L, 2L);
 
         CalendarInvitation created = captor.getValue();
 
@@ -103,6 +102,8 @@ class CalendarInvitationServiceTest {
         AppUser inviter = mock(AppUser.class);
         AppUser invitee = mock(AppUser.class);
         CalendarEntry calendarEntry = mock(CalendarEntry.class);
+        CalendarInvitation existingInvitation = mock(CalendarInvitation.class);
+
 
         when(inviter.getId()).thenReturn(1L);
         when(invitee.getId()).thenReturn(2L);
@@ -110,7 +111,8 @@ class CalendarInvitationServiceTest {
         when(userRepository.findByUsername("anna")).thenReturn(Optional.of(inviter));
         when(calendarRepository.findByUser_IdAndLaunch_Id(1L, 10L)).thenReturn(Optional.of(calendarEntry));
         when(userRepository.findByUsernameIgnoreCaseOrEmailIgnoreCase("alex", "alex")).thenReturn(Optional.of(invitee));
-        when(invitationRepository.existsByCalendarEntry_IdAndInvitee_Id(20L, 2L)).thenReturn(true);
+        when(existingInvitation.getStatus()).thenReturn(CalendarInvitationStatus.PENDING);
+        when(invitationRepository.findByCalendarEntry_IdAndInvitee_Id(20L, 2L)).thenReturn(Optional.of(existingInvitation));
 
         InvalidCalendarInvitationException exception = assertThrows(
                         InvalidCalendarInvitationException.class,
@@ -120,6 +122,43 @@ class CalendarInvitationServiceTest {
         assertEquals("This user has already been invited", exception.getMessage());
 
         verify(invitationRepository, never()).save(any());
+    }
+
+    @Test
+    void inviteAllowsNewInvitationAfterDecline() {
+        AppUserRepository userRepository = mock(AppUserRepository.class);
+        CalendarEntryRepository calendarRepository = mock(CalendarEntryRepository.class);
+        CalendarInvitationRepository invitationRepository = mock(CalendarInvitationRepository.class);
+
+        CalendarInvitationService service = createService(userRepository, calendarRepository, invitationRepository);
+
+        AppUser inviter = mock(AppUser.class);
+        AppUser invitee = mock(AppUser.class);
+        CalendarEntry calendarEntry = mock(CalendarEntry.class);
+
+        CalendarInvitation declinedInvitation = mock(CalendarInvitation.class);
+        CalendarInvitation savedInvitation = mock(CalendarInvitation.class);
+
+        when(inviter.getId()).thenReturn(1L);
+        when(invitee.getId()).thenReturn(2L);
+        when(calendarEntry.getId()).thenReturn(20L);
+        when(userRepository.findByUsername("anna")).thenReturn(Optional.of(inviter));
+        when(calendarRepository.findByUser_IdAndLaunch_Id(1L, 10L)).thenReturn(Optional.of(calendarEntry));
+        when(userRepository.findByUsernameIgnoreCaseOrEmailIgnoreCase("alex", "alex")).thenReturn(Optional.of(invitee));
+        when(declinedInvitation.getStatus()).thenReturn(CalendarInvitationStatus.DECLINED);
+        when(invitationRepository.findByCalendarEntry_IdAndInvitee_Id(20L, 2L)).thenReturn(Optional.of(declinedInvitation));
+
+        when(invitationRepository.save(any(CalendarInvitation.class))).thenReturn(savedInvitation);
+
+        stubInvitationResponse(savedInvitation, CalendarInvitationStatus.PENDING);
+
+        CalendarInvitationResponse result = service.invite("anna", 10L, new CreateCalendarInvitationRequest("alex"));
+
+        assertEquals(CalendarInvitationStatus.PENDING, result.status());
+
+        verify(invitationRepository).delete(declinedInvitation);
+        verify(invitationRepository).flush();
+        verify(invitationRepository).save(any(CalendarInvitation.class));
     }
 
     @Test
@@ -275,7 +314,7 @@ class CalendarInvitationServiceTest {
         assertEquals("You can only invite friends to your calendar", exception.getMessage());
 
         verify(invitationRepository, never()).save(any());
-        verify(invitationRepository, never()).existsByCalendarEntry_IdAndInvitee_Id(anyLong(), anyLong());
+        verify(invitationRepository, never()).findByCalendarEntry_IdAndInvitee_Id(anyLong(), anyLong());
     }
 
     private CalendarInvitationService createService(AppUserRepository userRepository, CalendarEntryRepository calendarRepository,

@@ -125,15 +125,24 @@ public class CalendarInvitationService {
             throw new InvalidCalendarInvitationException("You can only invite friends to your calendar");
         }
 
-        if (invitationRepository.existsByCalendarEntry_IdAndInvitee_Id(calendarEntry.getId(), invitee.getId())) {
-            throw new InvalidCalendarInvitationException("This user has already been invited");
-        }
+        invitationRepository.findByCalendarEntry_IdAndInvitee_Id(calendarEntry.getId(), invitee.getId())
+                .ifPresent(existingInvitation -> {
+                    if (existingInvitation.getStatus() == CalendarInvitationStatus.DECLINED) {
+                        invitationRepository.delete(existingInvitation);
+                        invitationRepository.flush();
+                        return;
+                    }
+
+                    if (existingInvitation.getStatus() == CalendarInvitationStatus.PENDING) {
+                        throw new InvalidCalendarInvitationException("This user has already been invited");
+                    }
+
+                    throw new InvalidCalendarInvitationException("This user already shares this launch");
+                });
     }
 
     private CalendarInvitationResponse map(CalendarInvitation invitation) {
-        Launch launch = invitation
-                .getCalendarEntry()
-                .getLaunch();
+        Launch launch = invitation.getCalendarEntry().getLaunch();
 
         AppUser inviter = invitation.getInviter();
 
