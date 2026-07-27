@@ -18,6 +18,7 @@ import org.mockito.ArgumentCaptor;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -55,7 +56,7 @@ class FriendshipCommandServiceTest {
         FriendshipResponse result = service.accept("anna", 10L);
 
         verify(friendship).accept(CURRENT_TIME);
-        verify(receivedNotification).markRead(CURRENT_TIME);
+        verify(receivedNotification).resolveFriendship(FriendshipStatus.ACCEPTED, CURRENT_TIME);
 
         assertEquals(FriendshipStatus.ACCEPTED, result.status());
         assertEquals(CURRENT_TIME, result.respondedAt());
@@ -100,7 +101,7 @@ class FriendshipCommandServiceTest {
         FriendshipResponse result = service.decline("anna", 10L);
 
         verify(friendship).decline(CURRENT_TIME);
-        verify(receivedNotification).markRead(CURRENT_TIME);
+        verify(receivedNotification).resolveFriendship(FriendshipStatus.DECLINED, CURRENT_TIME);
 
         assertEquals(FriendshipStatus.DECLINED, result.status());
 
@@ -141,20 +142,31 @@ class FriendshipCommandServiceTest {
     }
 
     @Test
-    void removeDeletesFriendshipForMember() {
+    void removeDetachesNotificationsBeforeDeletingFriendship() {
         AppUserRepository userRepository = mock(AppUserRepository.class);
         FriendshipRepository friendshipRepository = mock(FriendshipRepository.class);
+        UserNotificationRepository notificationRepository = mock(UserNotificationRepository.class);
 
-        FriendshipService service = createService(userRepository, friendshipRepository, mock(UserNotificationRepository.class));
+        FriendshipService service = createService(userRepository, friendshipRepository, notificationRepository);
 
         AppUser anna = user(1L, "anna", AvatarKey.ASTRONAUT);
+
         Friendship friendship = mock(Friendship.class);
+
+        UserNotification firstNotification = mock(UserNotification.class);
+        UserNotification secondNotification = mock(UserNotification.class);
 
         when(userRepository.findByUsername("anna")).thenReturn(Optional.of(anna));
         when(friendshipRepository.findForUser(10L, 1L)).thenReturn(Optional.of(friendship));
+        when(friendship.getId()).thenReturn(10L);
+        when(notificationRepository.findAllByFriendship_Id(10L)).thenReturn(List.of(firstNotification, secondNotification));
 
         service.remove("anna", 10L);
 
+        verify(firstNotification).detachFriendship();
+        verify(secondNotification).detachFriendship();
+
+        verify(notificationRepository).flush();
         verify(friendshipRepository).delete(friendship);
     }
 

@@ -129,6 +129,8 @@ public class FriendshipService {
 
         Friendship friendship = findFriendship(friendshipId, user.getId());
 
+        detachFriendshipNotifications(friendship.getId());
+
         friendshipRepository.delete(friendship);
     }
 
@@ -158,6 +160,8 @@ public class FriendshipService {
         if (friendship.getStatus() == FriendshipStatus.PENDING) {
             throw new InvalidFriendshipException("A friend request already exists");
         }
+
+        detachFriendshipNotifications(friendship.getId());
 
         friendshipRepository.delete(friendship);
         friendshipRepository.flush();
@@ -191,6 +195,14 @@ public class FriendshipService {
 
     private void markRequestNotificationRead(AppUser recipient, Friendship friendship, java.time.Instant readAt) {
         notificationRepository.findByRecipient_IdAndFriendship_IdAndType(recipient.getId(), friendship.getId(), NotificationType.FRIEND_REQUEST_RECEIVED)
-                .ifPresent(notification -> notification.markRead(readAt));
+                .ifPresent(notification -> notification.resolveFriendship(friendship.getStatus(), readAt));
+    }
+
+    private void detachFriendshipNotifications(Long friendshipId) {
+        List<UserNotification> notifications = notificationRepository.findAllByFriendship_Id(friendshipId);
+
+        notifications.forEach(UserNotification::detachFriendship);
+
+        notificationRepository.flush();
     }
 }

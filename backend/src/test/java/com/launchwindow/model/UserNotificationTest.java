@@ -80,6 +80,57 @@ class UserNotificationTest {
         );
     }
 
+    @Test
+    void friendshipNotificationSnapshotsCurrentStatus() {
+        Friendship friendship = mock(Friendship.class);
+
+        when(friendship.getStatus()).thenReturn(FriendshipStatus.PENDING);
+
+        UserNotification notification = UserNotification.forFriendship(user(1L), user(2L), NotificationType.FRIEND_REQUEST_RECEIVED, friendship);
+
+        assertEquals(FriendshipStatus.PENDING, notification.getFriendshipStatus());
+    }
+
+    @Test
+    void resolveFriendshipStoresOutcomeAndMarksNotificationRead() {
+        Friendship friendship = mock(Friendship.class);
+
+        when(friendship.getStatus()).thenReturn(FriendshipStatus.PENDING);
+
+        UserNotification notification = UserNotification.forFriendship(user(1L), user(2L), NotificationType.FRIEND_REQUEST_RECEIVED, friendship);
+
+        notification.resolveFriendship(FriendshipStatus.DECLINED, READ_TIME);
+
+        assertEquals(FriendshipStatus.DECLINED, notification.getFriendshipStatus());
+        assertEquals(READ_TIME, notification.getReadAt());
+        assertTrue(notification.isRead());
+    }
+
+    @Test
+    void detachFriendshipPreservesStatusSnapshot() {
+        Friendship friendship = mock(Friendship.class);
+
+        when(friendship.getStatus()).thenReturn(FriendshipStatus.DECLINED);
+
+        UserNotification notification = UserNotification.forFriendship(user(1L), user(2L), NotificationType.FRIEND_REQUEST_DECLINED, friendship);
+
+        notification.detachFriendship();
+
+        assertNull(notification.getFriendship());
+        assertEquals(FriendshipStatus.DECLINED, notification.getFriendshipStatus());
+    }
+
+    @Test
+    void friendshipCannotResolveAsPending() {
+        Friendship friendship = mock(Friendship.class);
+
+        when(friendship.getStatus()).thenReturn(FriendshipStatus.PENDING);
+
+        UserNotification notification = UserNotification.forFriendship(user(1L), user(2L), NotificationType.FRIEND_REQUEST_RECEIVED, friendship);
+
+        assertThrows(IllegalArgumentException.class, () -> notification.resolveFriendship(FriendshipStatus.PENDING, READ_TIME));
+    }
+
     private AppUser user(Long id) {
         AppUser user = mock(AppUser.class);
         when(user.getId()).thenReturn(id);

@@ -90,7 +90,7 @@ public class NotificationService {
                 actor.getAvatarKey(),
                 actor.getAvatarColor(),
                 friendship == null ? null : friendship.getId(),
-                friendship == null ? null : friendship.getStatus(),
+                notification.getFriendshipStatus(),
                 invitation == null ? null : invitation.getId(),
                 invitation == null ? null : invitation.getStatus(),
                 launch == null ? null : launch.getId(),

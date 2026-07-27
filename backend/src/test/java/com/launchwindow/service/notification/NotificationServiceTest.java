@@ -38,9 +38,9 @@ class NotificationServiceTest {
         when(notification.getCreatedAt()).thenReturn(Instant.parse("2026-07-27T12:00:00Z"));
         when(notification.getActor()).thenReturn(actor);
         when(notification.getFriendship()).thenReturn(friendship);
+        when(notification.getFriendshipStatus()).thenReturn(FriendshipStatus.PENDING);
         when(notification.getCalendarInvitation()).thenReturn(null);
         when(friendship.getId()).thenReturn(20L);
-        when(friendship.getStatus()).thenReturn(FriendshipStatus.PENDING);
         when(notificationRepository.findLatestForRecipient("anna", PageRequest.of(0, 50))).thenReturn(List.of(notification));
 
         List<NotificationResponse> result = service.getLatest("anna");

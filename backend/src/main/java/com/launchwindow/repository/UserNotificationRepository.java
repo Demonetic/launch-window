@@ -43,4 +43,5 @@ public interface UserNotificationRepository extends JpaRepository<UserNotificati
 
     long countByRecipient_IdAndReadAtIsNull(Long recipientId);
     List<UserNotification> findAllByRecipient_IdAndReadAtIsNull(Long recipientId);
+    List<UserNotification> findAllByFriendship_Id(Long friendshipId);
 }

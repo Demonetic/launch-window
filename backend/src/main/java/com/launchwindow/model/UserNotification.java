@@ -16,11 +16,11 @@ import java.util.Set;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserNotification {
-    private static final Set<NotificationType> FRIENDSHIP_TYPES = EnumSet.of(NotificationType.FRIEND_REQUEST_RECEIVED,
-            NotificationType.FRIEND_REQUEST_ACCEPTED, NotificationType.FRIEND_REQUEST_DECLINED);
+    private static final Set<NotificationType> FRIENDSHIP_TYPES =
+            EnumSet.of(NotificationType.FRIEND_REQUEST_RECEIVED, NotificationType.FRIEND_REQUEST_ACCEPTED, NotificationType.FRIEND_REQUEST_DECLINED);
 
-    private static final Set<NotificationType> CALENDAR_TYPES = EnumSet.of(NotificationType.CALENDAR_INVITATION_RECEIVED,
-            NotificationType.CALENDAR_INVITATION_ACCEPTED, NotificationType.CALENDAR_INVITATION_DECLINED);
+    private static final Set<NotificationType> CALENDAR_TYPES =
+            EnumSet.of(NotificationType.CALENDAR_INVITATION_RECEIVED, NotificationType.CALENDAR_INVITATION_ACCEPTED, NotificationType.CALENDAR_INVITATION_DECLINED);
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,6 +42,10 @@ public class UserNotification {
     @JoinColumn(name = "friendship_id")
     private Friendship friendship;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "friendship_status", length = 20)
+    private FriendshipStatus friendshipStatus;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "calendar_invitation_id")
     private CalendarInvitation calendarInvitation;
@@ -58,12 +62,14 @@ public class UserNotification {
             throw new IllegalArgumentException("Notification type is not a friendship event");
         }
 
+        Friendship requiredFriendship = Objects.requireNonNull(friendship, "Friendship is required");
+
         UserNotification notification = new UserNotification();
 
         notification.initializeUsers(recipient, actor);
-
         notification.type = type;
-        notification.friendship = Objects.requireNonNull(friendship, "Friendship is required");
+        notification.friendship = requiredFriendship;
+        notification.friendshipStatus = requiredFriendship.getStatus();
 
         return notification;
     }
@@ -76,11 +82,27 @@ public class UserNotification {
         UserNotification notification = new UserNotification();
 
         notification.initializeUsers(recipient, actor);
-
         notification.type = type;
         notification.calendarInvitation = Objects.requireNonNull(calendarInvitation, "Calendar invitation is required");
 
         return notification;
+    }
+
+    public void resolveFriendship(FriendshipStatus status, Instant readAt) {
+        if (!FRIENDSHIP_TYPES.contains(type)) {
+            throw new IllegalStateException("Notification is not a friendship event");
+        }
+
+        if (status != FriendshipStatus.ACCEPTED && status != FriendshipStatus.DECLINED) {
+            throw new IllegalArgumentException("Friendship resolution must be accepted or declined");
+        }
+
+        friendshipStatus = status;
+        markRead(readAt);
+    }
+
+    public void detachFriendship() {
+        friendship = null;
     }
 
     public void markRead(Instant readAt) {

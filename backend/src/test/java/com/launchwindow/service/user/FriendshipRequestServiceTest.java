@@ -18,6 +18,7 @@ import org.mockito.ArgumentCaptor;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -142,7 +143,7 @@ class FriendshipRequestServiceTest {
     }
 
     @Test
-    void sendRequestReplacesDeclinedRequest() {
+    void sendRequestReplacesDeclinedRequestWithoutDeletingHistory() {
         AppUserRepository userRepository = mock(AppUserRepository.class);
         FriendshipRepository friendshipRepository = mock(FriendshipRepository.class);
         UserNotificationRepository notificationRepository = mock(UserNotificationRepository.class);
@@ -151,19 +152,30 @@ class FriendshipRequestServiceTest {
 
         AppUser anna = user(1L, "anna", AvatarKey.ASTRONAUT);
         AppUser alex = user(2L, "alex", AvatarKey.ALIEN);
+
         Friendship declined = mock(Friendship.class);
 
+        UserNotification oldReceivedNotification = mock(UserNotification.class);
+        UserNotification oldDeclinedNotification = mock(UserNotification.class);
+
+        when(declined.getId()).thenReturn(10L);
         when(declined.getStatus()).thenReturn(FriendshipStatus.DECLINED);
 
         stubUsers(userRepository, anna, alex);
 
         when(friendshipRepository.findBetweenUsers(1L, 2L)).thenReturn(Optional.of(declined));
+
+        when(notificationRepository.findAllByFriendship_Id(10L)).thenReturn(List.of(oldReceivedNotification, oldDeclinedNotification));
+
         when(friendshipRepository.save(any(Friendship.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         FriendshipResponse result = service.sendRequest("anna", new CreateFriendRequest("alex"));
 
         assertEquals(FriendshipStatus.PENDING, result.status());
 
+        verify(oldReceivedNotification).detachFriendship();
+        verify(oldDeclinedNotification).detachFriendship();
+        verify(notificationRepository).flush();
         verify(friendshipRepository).delete(declined);
         verify(friendshipRepository).flush();
         verify(friendshipRepository).save(any(Friendship.class));

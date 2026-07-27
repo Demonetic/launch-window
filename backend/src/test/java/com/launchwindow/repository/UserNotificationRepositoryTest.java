@@ -85,6 +85,52 @@ class UserNotificationRepositoryTest {
         assertTrue(notificationRepository.findForRecipient(notification.getId(), "alex").isEmpty());
     }
 
+    @Test
+    void friendshipNotificationsRemainAfterFriendshipIsDeleted() {
+        AppUser anna = saveUser("anna", "anna@example.com");
+        AppUser alex = saveUser("alex", "alex@example.com");
+
+        Friendship friendship = friendshipRepository.saveAndFlush(new Friendship(alex, anna));
+
+        UserNotification receivedNotification = UserNotification.forFriendship(anna, alex, NotificationType.FRIEND_REQUEST_RECEIVED, friendship);
+
+        Instant declinedAt = Instant.parse("2026-07-27T18:00:00Z");
+
+        friendship.decline(declinedAt);
+
+        receivedNotification.resolveFriendship(FriendshipStatus.DECLINED, declinedAt);
+
+        UserNotification declinedNotification = UserNotification.forFriendship(alex, anna, NotificationType.FRIEND_REQUEST_DECLINED, friendship);
+
+        notificationRepository.saveAllAndFlush(List.of(receivedNotification, declinedNotification));
+
+        notificationRepository.findAllByFriendship_Id(friendship.getId()).forEach(UserNotification::detachFriendship);
+
+        notificationRepository.flush();
+        friendshipRepository.delete(friendship);
+        friendshipRepository.flush();
+
+        List<UserNotification> annaNotifications = notificationRepository.findLatestForRecipient("anna", PageRequest.of(0, 20));
+
+        List<UserNotification> alexNotifications = notificationRepository.findLatestForRecipient("alex", PageRequest.of(0, 20));
+
+        assertEquals(1, annaNotifications.size());
+        assertEquals(1, alexNotifications.size());
+
+        UserNotification receivedHistory = annaNotifications.getFirst();
+
+        assertEquals(receivedNotification.getId(), receivedHistory.getId());
+        assertNull(receivedHistory.getFriendship());
+        assertEquals(FriendshipStatus.DECLINED, receivedHistory.getFriendshipStatus());
+        assertTrue(receivedHistory.isRead());
+
+        UserNotification declinedHistory = alexNotifications.getFirst();
+
+        assertEquals(declinedNotification.getId(), declinedHistory.getId());
+        assertNull(declinedHistory.getFriendship());
+        assertEquals(FriendshipStatus.DECLINED, declinedHistory.getFriendshipStatus());
+    }
+
     private AppUser saveUser(String username, String email) {
         return userRepository.save(new AppUser(username, email, "password-hash", Role.USER));
     }
