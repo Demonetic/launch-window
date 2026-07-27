@@ -191,7 +191,7 @@
         inset: auto 12px 12px;
         z-index: 30;
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(6, minmax(0, 1fr));
         padding: 8px;
         padding-bottom: calc(
                 8px + env(safe-area-inset-bottom)
@@ -206,13 +206,14 @@
     .mobile-navigation-link {
         display: grid;
         min-width: 0;
-        min-height: 54px;
+        min-height: 52px;
+        padding-inline: 2px;
         place-items: center;
         align-content: center;
         gap: 4px;
         border-radius: 14px;
         color: #858da6;
-        font-size: 10px;
+        font-size: 9px;
         font-weight: 700;
         text-decoration: none;
     }

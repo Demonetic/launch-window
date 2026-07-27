@@ -1,6 +1,7 @@
 import {
     CalendarDays,
     House,
+    MessageCircle,
     NotebookPen,
     type LucideIcon,
     UsersRound,
@@ -34,5 +35,10 @@ export const navigationItems: NavigationItem[] = [
         to: '/friends',
         label: 'Friends',
         icon: UsersRound,
+    },
+    {
+        to: '/messages',
+        label: 'Messages',
+        icon: MessageCircle,
     },
 ]

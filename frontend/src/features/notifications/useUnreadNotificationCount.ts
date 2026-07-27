@@ -1,26 +1,25 @@
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '../auth/useAuth'
-import { getPendingCalendarInvitations } from './calendarApi'
+import { getUnreadNotificationCount } from './notificationApi'
 
-export function usePendingCalendarInvitations() {
+export function useUnreadNotificationCount() {
     const {
         isAuthenticated,
         token,
         user,
     } = useAuth()
 
-    const invitationsQuery = useQuery({
+    const countQuery = useQuery({
         queryKey: [
-            'calendar',
-            'invitations',
-            'pending',
+            'notifications',
             user?.id,
+            'unread-count',
         ],
         enabled:
             isAuthenticated &&
             Boolean(token),
         queryFn: () =>
-            getPendingCalendarInvitations(token!),
+            getUnreadNotificationCount(token!),
         refetchInterval: 10_000,
         refetchIntervalInBackground: true,
         refetchOnMount: 'always',
@@ -29,9 +28,7 @@ export function usePendingCalendarInvitations() {
     })
 
     return {
-        count: invitationsQuery.data?.length ?? 0,
-        invitations:
-            invitationsQuery.data ?? [],
-        isLoading: invitationsQuery.isPending,
+        count: countQuery.data?.unreadCount ?? 0,
+        isLoading: countQuery.isPending,
     }
 }

@@ -4,7 +4,7 @@ import {
 } from 'lucide-react'
 import { NavLink } from 'react-router'
 import { useAuth } from '../../features/auth/useAuth'
-import { usePendingCalendarInvitations } from '../../features/calendar/usePendingCalendarInvitations'
+import { useUnreadNotificationCount } from '../../features/notifications/useUnreadNotificationCount'
 import { navigationItems } from './navigationItems'
 
 function formatNotificationCount(count: number) {
@@ -14,8 +14,8 @@ function formatNotificationCount(count: number) {
 export function MobileNavigation() {
     const { isAuthenticated } = useAuth()
 
-    const { count: invitationCount } =
-        usePendingCalendarInvitations()
+    const { count: notificationCount } =
+        useUnreadNotificationCount()
 
     return (
         <nav
@@ -25,16 +25,16 @@ export function MobileNavigation() {
             {navigationItems.map((item) => {
                 const Icon = item.icon
 
-                const showsInvitations =
-                    item.to === '/calendar' &&
-                    invitationCount > 0
+                const showsNotifications =
+                    item.to === '/messages' &&
+                    notificationCount > 0
 
                 const notificationLabel =
-                    showsInvitations
-                        ? `, ${invitationCount} pending ${
-                            invitationCount === 1
-                                ? 'invitation'
-                                : 'invitations'
+                    showsNotifications
+                        ? `, ${notificationCount} unread ${
+                            notificationCount === 1
+                                ? 'message'
+                                : 'messages'
                         }`
                         : ''
 
@@ -58,13 +58,13 @@ export function MobileNavigation() {
                                 size={21}
                             />
 
-                            {showsInvitations && (
+                            {showsNotifications && (
                                 <span
                                     className="navigation-notification-badge"
                                     aria-hidden="true"
                                 >
                                     {formatNotificationCount(
-                                        invitationCount,
+                                        notificationCount,
                                     )}
                                 </span>
                             )}

@@ -10,7 +10,6 @@ import {
     CalendarDays,
 } from 'lucide-react'
 import { CalendarEntryCard } from './CalendarEntryCard'
-import { CalendarInvitationsPanel } from './CalendarInvitationsPanel'
 import { useCalendar } from './useCalendar'
 import { useCalendarScroll } from './useCalendarScroll'
 import './calendar.css'
@@ -252,8 +251,6 @@ export function CalendarPage() {
                     </p>
                 </div>
             </header>
-
-            <CalendarInvitationsPanel />
 
             {isPending && (
                 <div

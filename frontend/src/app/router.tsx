@@ -1,17 +1,18 @@
 import { createBrowserRouter } from 'react-router'
 import App from '../App'
 import { AccountPage } from '../features/account/AccountPage'
-import { CalendarPage } from '../features/calendar/CalendarPage'
 import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage'
 import { LoginPage } from '../features/auth/LoginPage'
 import { ProtectedRoute } from '../features/auth/ProtectedRoute'
 import { RegisterPage } from '../features/auth/RegisterPage'
 import { ResetPasswordPage } from '../features/auth/ResetPasswordPage'
+import { CalendarPage } from '../features/calendar/CalendarPage'
+import { FriendsPage } from '../features/friends/FriendsPage'
 import { LaunchDetailPage } from '../features/launches/LaunchDetailPage'
 import { UpcomingLaunchesPage } from '../features/launches/UpcomingLaunchesPage'
 import { NotesPage } from '../features/notes/NotesPage'
+import { MessagesPage } from '../features/notifications/MessagesPage'
 import { PlaceholderPage } from '../pages/PlaceholderPage'
-import { FriendsPage } from '../features/friends/FriendsPage'
 
 export const router = createBrowserRouter([
     {
@@ -35,6 +36,10 @@ export const router = createBrowserRouter([
                     {
                         path: 'notes',
                         element: <NotesPage />,
+                    },
+                    {
+                        path: 'messages',
+                        element: <MessagesPage />,
                     },
                     {
                         path: 'friends',
