@@ -1,13 +1,45 @@
 import { NotebookPen } from 'lucide-react'
-import { useEffect, useRef } from 'react'
+import {
+    useEffect,
+    useRef,
+    useState,
+} from 'react'
 import { useAuth } from '../auth/useAuth'
 import { NoteCard } from './NoteCard'
+import { NoteScopeFilter } from './NoteScopeFilter'
+import type { NoteScope } from './types'
 import { useNoteActions } from './useNoteActions'
 import { useNotesOverview } from './useNotesOverview'
 import './notes.css'
 
+const emptyStates: Record<
+    NoteScope,
+    {
+        title: string
+        message: string
+    }
+> = {
+    ALL: {
+        title: 'No notes yet',
+        message:
+            'Open a launch to create your first mission note.',
+    },
+    MINE: {
+        title: 'You have not written any notes yet',
+        message:
+            'Open a launch and add a note to start your mission journal.',
+    },
+    FRIENDS: {
+        title: "No friends' notes yet",
+        message:
+            'Notes written by people sharing launches with you will appear here.',
+    },
+}
+
 export function NotesPage() {
     const loadMoreRef = useRef<HTMLDivElement>(null)
+    const [scope, setScope] =
+        useState<NoteScope>('ALL')
     const { user } = useAuth()
 
     const {
@@ -18,7 +50,7 @@ export function NotesPage() {
         isError,
         isFetchingNextPage,
         isPending,
-    } = useNotesOverview()
+    } = useNotesOverview(scope)
 
     const {
         deleteError,
@@ -61,6 +93,7 @@ export function NotesPage() {
     ])
 
     const actionError = updateError ?? deleteError
+    const emptyState = emptyStates[scope]
 
     return (
         <main className="notes-page">
@@ -76,6 +109,11 @@ export function NotesPage() {
                     </p>
                 </div>
             </header>
+
+            <NoteScopeFilter
+                value={scope}
+                onChange={setScope}
+            />
 
             {actionError && (
                 <div
@@ -117,11 +155,8 @@ export function NotesPage() {
                             aria-hidden="true"
                             size={36}
                         />
-                        <h2>No notes yet</h2>
-                        <p>
-                            Open a launch to create your first
-                            mission note.
-                        </p>
+                        <h2>{emptyState.title}</h2>
+                        <p>{emptyState.message}</p>
                     </div>
                 )}
 

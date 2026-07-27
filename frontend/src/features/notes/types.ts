@@ -1,5 +1,7 @@
 import type { AvatarKey } from '../auth/types'
 
+export type NoteScope = 'ALL' | 'MINE' | 'FRIENDS'
+
 export interface LaunchNote {
     id: number
     launchId: number

@@ -1,17 +1,22 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { useAuth } from '../auth/useAuth'
 import { getNotesPage } from './notesApi'
-import type { NoteCursor } from './types'
+import type { NoteCursor, NoteScope } from './types'
 
-export function useNotesOverview() {
+export function useNotesOverview(scope: NoteScope) {
     const { token, user } = useAuth()
 
     return useInfiniteQuery({
-        queryKey: ['notes', 'overview', user?.id],
+        queryKey: [
+            'notes',
+            'overview',
+            user?.id,
+            scope,
+        ],
         initialPageParam: null as NoteCursor | null,
         enabled: Boolean(token),
         queryFn: ({ pageParam }) =>
-            getNotesPage(token!, pageParam),
+            getNotesPage(token!, pageParam, scope),
         getNextPageParam: (lastPage) =>
             lastPage.hasNext
                 ? lastPage.nextCursor ?? undefined

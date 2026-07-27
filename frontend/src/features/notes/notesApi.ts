@@ -4,6 +4,7 @@ import type {
     NoteCursor,
     NotePage,
     NoteRequest,
+    NoteScope,
 } from './types'
 
 const DEFAULT_PAGE_SIZE = 20
@@ -11,10 +12,12 @@ const DEFAULT_PAGE_SIZE = 20
 export function getNotesPage(
     token: string,
     cursor: NoteCursor | null,
+    scope: NoteScope,
     limit = DEFAULT_PAGE_SIZE,
 ): Promise<NotePage> {
     const parameters = new URLSearchParams({
         limit: String(limit),
+        scope,
     })
 
     if (cursor) {
