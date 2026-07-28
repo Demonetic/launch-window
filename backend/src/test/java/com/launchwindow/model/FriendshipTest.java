@@ -4,19 +4,19 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 
+import static com.launchwindow.testsupport.AppUserTestData.persistedUser;
+import static com.launchwindow.testsupport.FriendshipTestData.pendingFriendship;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class FriendshipTest {
     private static final Instant RESPONSE_TIME = Instant.parse("2026-07-25T10:00:00Z");
 
     @Test
     void newFriendshipOrdersUsersById() {
-        AppUser requester = user(8L);
-        AppUser recipient = user(3L);
+        AppUser requester = persistedUser(8L);
+        AppUser recipient = persistedUser(3L);
 
-        Friendship friendship = new Friendship(requester, recipient);
+        Friendship friendship = pendingFriendship(requester, recipient);
 
         assertEquals(recipient, friendship.getFirstUser());
         assertEquals(requester, friendship.getSecondUser());
@@ -27,7 +27,7 @@ class FriendshipTest {
 
     @Test
     void acceptSetsAcceptedStatusAndResponseTime() {
-        Friendship friendship = new Friendship(user(1L), user(2L));
+        Friendship friendship = pendingFriendship(persistedUser(1L), persistedUser(2L));
 
         friendship.accept(RESPONSE_TIME);
 
@@ -37,7 +37,7 @@ class FriendshipTest {
 
     @Test
     void declineSetsDeclinedStatusAndResponseTime() {
-        Friendship friendship = new Friendship(user(1L), user(2L));
+        Friendship friendship = pendingFriendship(persistedUser(1L), persistedUser(2L));
 
         friendship.decline(RESPONSE_TIME);
 
@@ -47,10 +47,10 @@ class FriendshipTest {
 
     @Test
     void getOtherUserReturnsFriend() {
-        AppUser firstUser = user(1L);
-        AppUser secondUser = user(2L);
+        AppUser firstUser = persistedUser(1L);
+        AppUser secondUser = persistedUser(2L);
 
-        Friendship friendship = new Friendship(firstUser, secondUser);
+        Friendship friendship = pendingFriendship(firstUser, secondUser);
 
         assertEquals(secondUser, friendship.getOtherUser(1L));
         assertEquals(firstUser, friendship.getOtherUser(2L));
@@ -58,21 +58,21 @@ class FriendshipTest {
 
     @Test
     void getOtherUserRejectsUnrelatedUser() {
-        Friendship friendship = new Friendship(user(1L), user(2L));
+        Friendship friendship = pendingFriendship(persistedUser(1L), persistedUser(2L));
 
         assertThrows(IllegalArgumentException.class, () -> friendship.getOtherUser(3L));
     }
 
     @Test
     void creatingFriendshipWithSameUserIsRejected() {
-        AppUser user = user(1L);
+        AppUser user = persistedUser(1L);
 
         assertThrows(IllegalArgumentException.class, () -> new Friendship(user, user));
     }
 
     @Test
     void creatingFriendshipWithUnpersistedUserIsRejected() {
-        AppUser persistedUser = user(1L);
+        AppUser persistedUser = persistedUser(1L);
 
         AppUser unpersistedUser = new AppUser("alex", "alex@example.com", "password-hash", Role.USER);
 
@@ -80,9 +80,4 @@ class FriendshipTest {
         assertThrows(IllegalArgumentException.class, () -> new Friendship(persistedUser, unpersistedUser));
     }
 
-    private AppUser user(Long id) {
-        AppUser user = mock(AppUser.class);
-        when(user.getId()).thenReturn(id);
-        return user;
-    }
 }

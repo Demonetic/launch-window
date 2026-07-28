@@ -8,6 +8,9 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import java.time.Instant;
 import java.util.List;
 
+import static com.launchwindow.testsupport.AppUserTestData.user;
+import static com.launchwindow.testsupport.CalendarTestData.calendarEntry;
+import static com.launchwindow.testsupport.LaunchTestData.launch;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest(properties = {"spring.flyway.enabled=false", "spring.jpa.hibernate.ddl-auto=create-drop"})
@@ -25,31 +28,16 @@ class CalendarSavedLaunchRepositoryTest {
 
     @Test
     void findSavedLaunchIdsReturnsOnlyEntriesOwnedByUser() {
-        AppUser firstUser = userRepository.save(
-                new AppUser(
-                        "first-user",
-                        "first@example.com",
-                        "password-hash",
-                        Role.USER
-                )
-        );
+        AppUser firstUser = userRepository.save(user("first-user", "first@example.com"));
+        AppUser secondUser = userRepository.save(user("second-user", "second@example.com"));
 
-        AppUser secondUser = userRepository.save(
-                new AppUser(
-                        "second-user",
-                        "second@example.com",
-                        "password-hash",
-                        Role.USER
-                )
-        );
+        Launch firstLaunch = launchRepository.save(launch("first-launch", CURRENT_TIME.plusSeconds(3600)));
+        Launch secondLaunch = launchRepository.save(launch("second-launch", CURRENT_TIME.plusSeconds(3600)));
+        Launch thirdLaunch = launchRepository.save(launch("third-launch", CURRENT_TIME.plusSeconds(3600)));
 
-        Launch firstLaunch = saveLaunch("first-launch");
-        Launch secondLaunch = saveLaunch("second-launch");
-        Launch thirdLaunch = saveLaunch("third-launch");
-
-        calendarRepository.save(new CalendarEntry(firstUser, firstLaunch));
-        calendarRepository.save(new CalendarEntry(firstUser, thirdLaunch));
-        calendarRepository.save(new CalendarEntry(secondUser, secondLaunch));
+        calendarRepository.save(calendarEntry(firstUser, firstLaunch));
+        calendarRepository.save(calendarEntry(firstUser, thirdLaunch));
+        calendarRepository.save(calendarEntry(secondUser, secondLaunch));
 
         List<Long> result = calendarRepository.findSavedLaunchIds(
                 firstUser.getId(),
@@ -63,25 +51,4 @@ class CalendarSavedLaunchRepositoryTest {
         assertThat(result).containsExactlyInAnyOrder(firstLaunch.getId(), thirdLaunch.getId());
     }
 
-    private Launch saveLaunch(String externalId) {
-        LaunchDetails details = new LaunchDetails(
-                externalId,
-                externalId,
-                null,
-                LaunchStatus.GO,
-                CURRENT_TIME.plusSeconds(3600),
-                null,
-                null,
-                "Test rocket",
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                CURRENT_TIME
-        );
-
-        return launchRepository.save(new Launch(details));
-    }
 }

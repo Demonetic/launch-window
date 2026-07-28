@@ -3,7 +3,6 @@ package com.launchwindow.repository;
 import com.launchwindow.model.AppUser;
 import com.launchwindow.model.Friendship;
 import com.launchwindow.model.FriendshipStatus;
-import com.launchwindow.model.Role;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
@@ -13,6 +12,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+import static com.launchwindow.testsupport.AppUserTestData.user;
+import static com.launchwindow.testsupport.FriendshipTestData.acceptedFriendship;
+import static com.launchwindow.testsupport.FriendshipTestData.pendingFriendship;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest(properties = {"spring.flyway.enabled=false", "spring.jpa.hibernate.ddl-auto=create-drop"})
@@ -27,10 +29,10 @@ class FriendshipRepositoryTest {
 
     @Test
     void findBetweenUsersReturnsFriendship() {
-        AppUser anna = saveUser("anna", "anna@example.com");
-        AppUser alex = saveUser("alex", "alex@example.com");
+        AppUser anna = userRepository.save(user("anna", "anna@example.com"));
+        AppUser alex = userRepository.save(user("alex", "alex@example.com"));
 
-        Friendship friendship = friendshipRepository.saveAndFlush(new Friendship(anna, alex));
+        Friendship friendship = friendshipRepository.saveAndFlush(pendingFriendship(anna, alex));
 
         Optional<Friendship> result =
                 friendshipRepository.findBetweenUsers(Math.min(anna.getId(), alex.getId()), Math.max(anna.getId(), alex.getId()));
@@ -41,14 +43,12 @@ class FriendshipRepositoryTest {
 
     @Test
     void findAllForUserReturnsAcceptedFriendsOnly() {
-        AppUser anna = saveUser("anna", "anna@example.com");
-        AppUser alex = saveUser("alex", "alex@example.com");
-        AppUser sam = saveUser("sam", "sam@example.com");
+        AppUser anna = userRepository.save(user("anna", "anna@example.com"));
+        AppUser alex = userRepository.save(user("alex", "alex@example.com"));
+        AppUser sam = userRepository.save(user("sam", "sam@example.com"));
 
-        Friendship accepted = new Friendship(anna, alex);
-        accepted.accept(RESPONSE_TIME);
-
-        Friendship pending = new Friendship(sam, anna);
+        Friendship accepted = acceptedFriendship(anna, alex, RESPONSE_TIME);
+        Friendship pending = pendingFriendship(sam, anna);
 
         friendshipRepository.save(accepted);
         friendshipRepository.save(pending);
@@ -63,13 +63,13 @@ class FriendshipRepositoryTest {
 
     @Test
     void findReceivedRequestsExcludesSentRequests() {
-        AppUser anna = saveUser("anna", "anna@example.com");
-        AppUser alex = saveUser("alex", "alex@example.com");
-        AppUser sam = saveUser("sam", "sam@example.com");
+        AppUser anna = userRepository.save(user("anna", "anna@example.com"));
+        AppUser alex = userRepository.save(user("alex", "alex@example.com"));
+        AppUser sam = userRepository.save(user("sam", "sam@example.com"));
 
-        Friendship received = friendshipRepository.save(new Friendship(alex, anna));
+        Friendship received = friendshipRepository.save(pendingFriendship(alex, anna));
 
-        friendshipRepository.save(new Friendship(anna, sam)
+        friendshipRepository.save(pendingFriendship(anna, sam)
         );
 
         friendshipRepository.flush();
@@ -83,12 +83,10 @@ class FriendshipRepositoryTest {
 
     @Test
     void existsBetweenUsersWithStatusChecksAcceptedFriendship() {
-        AppUser anna = saveUser("anna", "anna@example.com");
-        AppUser alex = saveUser("alex", "alex@example.com");
+        AppUser anna = userRepository.save(user("anna", "anna@example.com"));
+        AppUser alex = userRepository.save(user("alex", "alex@example.com"));
 
-        Friendship friendship = new Friendship(anna, alex);
-
-        friendship.accept(RESPONSE_TIME);
+        Friendship friendship = acceptedFriendship(anna, alex, RESPONSE_TIME);
         friendshipRepository.saveAndFlush(friendship);
 
         long firstUserId = Math.min(anna.getId(), alex.getId());
@@ -100,23 +98,24 @@ class FriendshipRepositoryTest {
 
     @Test
     void reverseFriendshipCannotBeInserted() {
-        AppUser anna = saveUser("anna", "anna@example.com");
-        AppUser alex = saveUser("alex", "alex@example.com");
+        AppUser anna = userRepository.save(user("anna", "anna@example.com"));
+        AppUser alex = userRepository.save(user("alex", "alex@example.com"));
 
-        friendshipRepository.saveAndFlush(new Friendship(anna, alex));
+        friendshipRepository.saveAndFlush(pendingFriendship(anna, alex));
 
         assertThrows(
-                DataIntegrityViolationException.class, () -> friendshipRepository.saveAndFlush(new Friendship(alex, anna))
+                DataIntegrityViolationException.class,
+                () -> friendshipRepository.saveAndFlush(pendingFriendship(alex, anna))
         );
     }
 
     @Test
     void findForUserReturnsFriendshipOnlyForMember() {
-        AppUser anna = saveUser("anna", "anna@example.com");
-        AppUser alex = saveUser("alex", "alex@example.com");
-        AppUser sam = saveUser("sam", "sam@example.com");
+        AppUser anna = userRepository.save(user("anna", "anna@example.com"));
+        AppUser alex = userRepository.save(user("alex", "alex@example.com"));
+        AppUser sam = userRepository.save(user("sam", "sam@example.com"));
 
-        Friendship friendship = friendshipRepository.saveAndFlush(new Friendship(anna, alex));
+        Friendship friendship = friendshipRepository.saveAndFlush(pendingFriendship(anna, alex));
 
         assertTrue(friendshipRepository.findForUser(friendship.getId(), anna.getId()).isPresent());
         assertTrue(friendshipRepository.findForUser(friendship.getId(), sam.getId()).isEmpty());
@@ -124,13 +123,13 @@ class FriendshipRepositoryTest {
 
     @Test
     void findSentRequestsReturnsOnlyRequestsCreatedByUser() {
-        AppUser anna = saveUser("anna", "anna@example.com");
-        AppUser alex = saveUser("alex", "alex@example.com");
-        AppUser sam = saveUser("sam", "sam@example.com");
+        AppUser anna = userRepository.save(user("anna", "anna@example.com"));
+        AppUser alex = userRepository.save(user("alex", "alex@example.com"));
+        AppUser sam = userRepository.save(user("sam", "sam@example.com"));
 
-        Friendship sent = friendshipRepository.save(new Friendship(anna, alex));
+        Friendship sent = friendshipRepository.save(pendingFriendship(anna, alex));
 
-        friendshipRepository.save(new Friendship(sam, anna));
+        friendshipRepository.save(pendingFriendship(sam, anna));
 
         friendshipRepository.flush();
 
@@ -142,18 +141,14 @@ class FriendshipRepositoryTest {
 
     @Test
     void countForUserWithStatusCountsAcceptedFriendsOnBothSides() {
-        AppUser alex = saveUser("alex", "alex@example.com");
-        AppUser anna = saveUser("anna", "anna@example.com");
-        AppUser sam = saveUser("sam", "sam@example.com");
-        AppUser kim = saveUser("kim", "kim@example.com");
+        AppUser alex = userRepository.save(user("alex", "alex@example.com"));
+        AppUser anna = userRepository.save(user("anna", "anna@example.com"));
+        AppUser sam = userRepository.save(user("sam", "sam@example.com"));
+        AppUser kim = userRepository.save(user("kim", "kim@example.com"));
 
-        Friendship alexAndAnna = new Friendship(alex, anna);
-        alexAndAnna.accept(RESPONSE_TIME);
-
-        Friendship annaAndSam = new Friendship(anna, sam);
-        annaAndSam.accept(RESPONSE_TIME);
-
-        Friendship annaAndKim = new Friendship(anna, kim);
+        Friendship alexAndAnna = acceptedFriendship(alex, anna, RESPONSE_TIME);
+        Friendship annaAndSam = acceptedFriendship(anna, sam, RESPONSE_TIME);
+        Friendship annaAndKim = pendingFriendship(anna, kim);
 
         friendshipRepository.save(alexAndAnna);
         friendshipRepository.save(annaAndSam);
@@ -168,14 +163,4 @@ class FriendshipRepositoryTest {
         assertEquals(1L, pendingFriends);
     }
 
-    private AppUser saveUser(String username, String email) {
-        return userRepository.save(
-                new AppUser(
-                        username,
-                        email,
-                        "password-hash",
-                        Role.USER
-                )
-        );
-    }
 }

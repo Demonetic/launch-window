@@ -9,6 +9,8 @@ import org.springframework.data.domain.PageRequest;
 import java.time.Instant;
 import java.util.List;
 
+import static com.launchwindow.testsupport.AppUserTestData.user;
+import static com.launchwindow.testsupport.FriendshipTestData.pendingFriendship;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest(properties = {"spring.flyway.enabled=false", "spring.jpa.hibernate.ddl-auto=create-drop"})
@@ -24,11 +26,11 @@ class UserNotificationRepositoryTest {
 
     @Test
     void findLatestForRecipientReturnsOnlyOwnNotifications() {
-        AppUser anna = saveUser("anna", "anna@example.com");
-        AppUser alex = saveUser("alex", "alex@example.com");
-        AppUser sam = saveUser("sam", "sam@example.com");
+        AppUser anna = userRepository.save(user("anna", "anna@example.com"));
+        AppUser alex = userRepository.save(user("alex", "alex@example.com"));
+        AppUser sam = userRepository.save(user("sam", "sam@example.com"));
 
-        Friendship friendship = friendshipRepository.saveAndFlush(new Friendship(alex, anna));
+        Friendship friendship = friendshipRepository.saveAndFlush(pendingFriendship(alex, anna));
 
         UserNotification first = notificationRepository.save(
                         UserNotification.forFriendship(anna, alex, NotificationType.FRIEND_REQUEST_RECEIVED, friendship));
@@ -52,10 +54,10 @@ class UserNotificationRepositoryTest {
 
     @Test
     void unreadCountChangesWhenNotificationIsRead() {
-        AppUser anna = saveUser("anna", "anna@example.com");
-        AppUser alex = saveUser("alex", "alex@example.com");
+        AppUser anna = userRepository.save(user("anna", "anna@example.com"));
+        AppUser alex = userRepository.save(user("alex", "alex@example.com"));
 
-        Friendship friendship = friendshipRepository.saveAndFlush(new Friendship(alex, anna));
+        Friendship friendship = friendshipRepository.saveAndFlush(pendingFriendship(alex, anna));
 
         UserNotification notification =
                 notificationRepository.save(
@@ -74,9 +76,9 @@ class UserNotificationRepositoryTest {
 
     @Test
     void findForRecipientDoesNotExposeAnotherUsersNotification() {
-        AppUser anna = saveUser("anna", "anna@example.com");
-        AppUser alex = saveUser("alex", "alex@example.com");
-        Friendship friendship = friendshipRepository.saveAndFlush(new Friendship(alex, anna));
+        AppUser anna = userRepository.save(user("anna", "anna@example.com"));
+        AppUser alex = userRepository.save(user("alex", "alex@example.com"));
+        Friendship friendship = friendshipRepository.saveAndFlush(pendingFriendship(alex, anna));
 
         UserNotification notification = notificationRepository.saveAndFlush(
                         UserNotification.forFriendship(anna, alex, NotificationType.FRIEND_REQUEST_RECEIVED, friendship));
@@ -87,10 +89,10 @@ class UserNotificationRepositoryTest {
 
     @Test
     void friendshipNotificationsRemainAfterFriendshipIsDeleted() {
-        AppUser anna = saveUser("anna", "anna@example.com");
-        AppUser alex = saveUser("alex", "alex@example.com");
+        AppUser anna = userRepository.save(user("anna", "anna@example.com"));
+        AppUser alex = userRepository.save(user("alex", "alex@example.com"));
 
-        Friendship friendship = friendshipRepository.saveAndFlush(new Friendship(alex, anna));
+        Friendship friendship = friendshipRepository.saveAndFlush(pendingFriendship(alex, anna));
 
         UserNotification receivedNotification = UserNotification.forFriendship(anna, alex, NotificationType.FRIEND_REQUEST_RECEIVED, friendship);
 
@@ -131,7 +133,4 @@ class UserNotificationRepositoryTest {
         assertEquals(FriendshipStatus.DECLINED, declinedHistory.getFriendshipStatus());
     }
 
-    private AppUser saveUser(String username, String email) {
-        return userRepository.save(new AppUser(username, email, "password-hash", Role.USER));
-    }
 }

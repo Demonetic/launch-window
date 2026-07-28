@@ -1,12 +1,12 @@
 package com.launchwindow.repository;
 
 import com.launchwindow.model.AppUser;
-import com.launchwindow.model.Role;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static com.launchwindow.testsupport.AppUserTestData.user;
 
 @DataJpaTest(properties = {"spring.flyway.enabled=false", "spring.jpa.hibernate.ddl-auto=create-drop"})
 class AppUserRepositoryTest {
@@ -44,7 +44,7 @@ class AppUserRepositoryTest {
 
     private AppUser saveUser() {
         return appUserRepository.save(
-                new AppUser("spacefan", "space@example.com", "password-hash", Role.USER)
+                user("spacefan", "space@example.com")
         );
     }
 }

@@ -12,6 +12,9 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 
+import static com.launchwindow.testsupport.AppUserTestData.user;
+import static com.launchwindow.testsupport.LaunchNoteTestData.launchNote;
+import static com.launchwindow.testsupport.LaunchTestData.launch;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest(properties = {
@@ -56,24 +59,23 @@ class LaunchNoteOverviewRepositoryTest {
     }
 
     private TestNotes saveTestNotes() {
-        AppUser user = userRepository.save(
-                new AppUser("notes-user", "notes@example.com", "password-hash", Role.USER)
-        );
+        AppUser user = userRepository.save(user("notes-user", "notes@example.com"));
+        AppUser otherUser = userRepository.save(user("other-user", "other@example.com"));
 
-        AppUser otherUser = userRepository.save(
-                new AppUser("other-user", "other@example.com", "password-hash", Role.USER)
-        );
+        Launch firstLaunch =
+                launchRepository.save(launch("first-launch", "First launch", LaunchStatus.GO, LAUNCH_TIME));
+        Launch secondLaunch =
+                launchRepository.save(launch("second-launch", "Second launch", LaunchStatus.GO, LAUNCH_TIME));
+        Launch olderLaunch =
+                launchRepository.save(launch("older-launch", "Older launch", LaunchStatus.GO, LAUNCH_TIME));
+        Launch otherLaunch =
+                launchRepository.save(launch("other-launch", "Other launch", LaunchStatus.GO, LAUNCH_TIME));
 
-        Launch firstLaunch = saveLaunch("first-launch", "First launch");
-        Launch secondLaunch = saveLaunch("second-launch", "Second launch");
-        Launch olderLaunch = saveLaunch("older-launch", "Older launch");
-        Launch otherLaunch = saveLaunch("other-launch", "Other launch");
+        LaunchNote first = noteRepository.save(launchNote(user, firstLaunch, "First note"));
+        LaunchNote second = noteRepository.save(launchNote(user, secondLaunch, "Second note"));
+        LaunchNote older = noteRepository.save(launchNote(user, olderLaunch, "Older note"));
 
-        LaunchNote first = noteRepository.save(new LaunchNote(user, firstLaunch, "First note"));
-        LaunchNote second = noteRepository.save(new LaunchNote(user, secondLaunch, "Second note"));
-        LaunchNote older = noteRepository.save(new LaunchNote(user, olderLaunch, "Older note"));
-
-        LaunchNote other = noteRepository.save(new LaunchNote(otherUser, otherLaunch, "Other user's note"));
+        LaunchNote other = noteRepository.save(launchNote(otherUser, otherLaunch, "Other user's note"));
 
         noteRepository.flush();
 
@@ -86,28 +88,6 @@ class LaunchNoteOverviewRepositoryTest {
         entityManager.clear();
 
         return new TestNotes(user, first, second, older);
-    }
-
-    private Launch saveLaunch(String externalId, String name) {
-        LaunchDetails details = new LaunchDetails(
-                externalId,
-                name,
-                null,
-                LaunchStatus.GO,
-                LAUNCH_TIME,
-                null,
-                null,
-                "Test rocket",
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                CURRENT_TIME
-        );
-
-        return launchRepository.save(new Launch(details));
     }
 
     private void setUpdatedAt(Long noteId, Instant updatedAt) {

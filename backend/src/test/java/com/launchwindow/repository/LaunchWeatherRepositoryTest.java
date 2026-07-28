@@ -1,7 +1,6 @@
 package com.launchwindow.repository;
 
 import com.launchwindow.model.Launch;
-import com.launchwindow.model.LaunchDetails;
 import com.launchwindow.model.LaunchStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +11,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+import static com.launchwindow.testsupport.LaunchTestData.launchWithLocation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest(properties = {"spring.flyway.enabled=false", "spring.jpa.hibernate.ddl-auto=create-drop"})
@@ -70,24 +70,15 @@ class LaunchWeatherRepositoryTest {
     }
 
     private Launch saveLaunch(String externalId, Instant launchTime, BigDecimal latitude, BigDecimal longitude) {
-        LaunchDetails details = new LaunchDetails(
+        return repository.save(launchWithLocation(
                 externalId,
                 externalId,
-                null,
                 LaunchStatus.GO,
                 launchTime,
                 null,
                 null,
-                "Test rocket",
-                null,
-                null,
-                null,
-                null,
                 latitude,
-                longitude,
-                CURRENT_TIME
-        );
-
-        return repository.save(new Launch(details));
+                longitude
+        ));
     }
 }

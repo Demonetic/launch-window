@@ -1,7 +1,6 @@
 package com.launchwindow.repository;
 
 import com.launchwindow.model.Launch;
-import com.launchwindow.model.LaunchDetails;
 import com.launchwindow.model.LaunchStatus;
 import com.launchwindow.model.WeatherDetails;
 import com.launchwindow.model.WeatherSnapshot;
@@ -16,6 +15,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
 
+import static com.launchwindow.testsupport.LaunchTestData.launchWithLocation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest(properties = {"spring.flyway.enabled=false", "spring.jpa.hibernate.ddl-auto=create-drop"})
@@ -183,27 +183,16 @@ class LaunchBrowseRepositoryTest {
     }
 
     private Launch saveLaunch(String externalId, String name, LaunchStatus status, Instant launchTime, String countryCode, String countryName) {
-        LaunchDetails details = new LaunchDetails(
+        return launchRepository.save(launchWithLocation(
                 externalId,
                 name,
-                "Test description",
                 status,
                 launchTime,
-                null,
-                null,
-                "Test rocket",
-                "Test mission",
-                "Test organization",
-                "Test pad",
-                "Test location",
                 countryCode,
                 countryName,
                 new BigDecimal("28.500000"),
-                new BigDecimal("-80.600000"),
-                CURRENT_TIME
-        );
-
-        return launchRepository.save(new Launch(details));
+                new BigDecimal("-80.600000")
+        ));
     }
 
     private void saveWeather(Launch launch, short viewingScore) {

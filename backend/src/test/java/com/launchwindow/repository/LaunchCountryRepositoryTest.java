@@ -2,7 +2,6 @@ package com.launchwindow.repository;
 
 import com.launchwindow.dto.launch.CountryResponse;
 import com.launchwindow.model.Launch;
-import com.launchwindow.model.LaunchDetails;
 import com.launchwindow.model.LaunchStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +12,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+import static com.launchwindow.testsupport.LaunchTestData.launchWithLocation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest(properties = {"spring.flyway.enabled=false", "spring.jpa.hibernate.ddl-auto=create-drop"})
@@ -41,26 +41,15 @@ class LaunchCountryRepositoryTest {
     }
 
     private void saveLaunch(String externalId, Instant launchTime, String countryCode, String countryName) {
-        LaunchDetails details = new LaunchDetails(
+        repository.save(launchWithLocation(
                 externalId,
                 externalId,
-                null,
                 LaunchStatus.GO,
                 launchTime,
-                null,
-                null,
-                "Test rocket",
-                null,
-                "Test organization",
-                "Test pad",
-                "Test location",
                 countryCode,
                 countryName,
                 new BigDecimal("28.500000"),
-                new BigDecimal("-80.600000"),
-                CURRENT_TIME
-        );
-
-        repository.save(new Launch(details));
+                new BigDecimal("-80.600000")
+        ));
     }
 }

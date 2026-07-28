@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 
+import static com.launchwindow.testsupport.AppUserTestData.persistedUser;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -13,8 +14,8 @@ class UserNotificationTest {
 
     @Test
     void friendshipNotificationStoresRelationship() {
-        AppUser recipient = user(1L);
-        AppUser actor = user(2L);
+        AppUser recipient = persistedUser(1L);
+        AppUser actor = persistedUser(2L);
         Friendship friendship = mock(Friendship.class);
 
         UserNotification notification =
@@ -30,8 +31,8 @@ class UserNotificationTest {
 
     @Test
     void calendarNotificationStoresInvitation() {
-        AppUser recipient = user(1L);
-        AppUser actor = user(2L);
+        AppUser recipient = persistedUser(1L);
+        AppUser actor = persistedUser(2L);
 
         CalendarInvitation invitation = mock(CalendarInvitation.class);
 
@@ -45,7 +46,11 @@ class UserNotificationTest {
     @Test
     void markReadSetsTimeOnlyOnce() {
         UserNotification notification =
-                UserNotification.forFriendship(user(1L), user(2L), NotificationType.FRIEND_REQUEST_RECEIVED, mock(Friendship.class));
+                UserNotification.forFriendship(
+                        persistedUser(1L),
+                        persistedUser(2L),
+                        NotificationType.FRIEND_REQUEST_RECEIVED,
+                        mock(Friendship.class));
 
         notification.markRead(READ_TIME);
         notification.markRead(READ_TIME.plusSeconds(60));
@@ -58,7 +63,11 @@ class UserNotificationTest {
     void friendshipFactoryRejectsCalendarType() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> UserNotification.forFriendship(user(1L), user(2L), NotificationType.CALENDAR_INVITATION_RECEIVED, mock(Friendship.class))
+                () -> UserNotification.forFriendship(
+                        persistedUser(1L),
+                        persistedUser(2L),
+                        NotificationType.CALENDAR_INVITATION_RECEIVED,
+                        mock(Friendship.class))
         );
     }
 
@@ -66,13 +75,17 @@ class UserNotificationTest {
     void calendarFactoryRejectsFriendshipType() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> UserNotification.forCalendarInvitation(user(1L), user(2L), NotificationType.FRIEND_REQUEST_ACCEPTED, mock(CalendarInvitation.class))
+                () -> UserNotification.forCalendarInvitation(
+                        persistedUser(1L),
+                        persistedUser(2L),
+                        NotificationType.FRIEND_REQUEST_ACCEPTED,
+                        mock(CalendarInvitation.class))
         );
     }
 
     @Test
     void notificationRejectsSameUser() {
-        AppUser user = user(1L);
+        AppUser user = persistedUser(1L);
 
         assertThrows(
                 IllegalArgumentException.class,
@@ -86,7 +99,11 @@ class UserNotificationTest {
 
         when(friendship.getStatus()).thenReturn(FriendshipStatus.PENDING);
 
-        UserNotification notification = UserNotification.forFriendship(user(1L), user(2L), NotificationType.FRIEND_REQUEST_RECEIVED, friendship);
+        UserNotification notification = UserNotification.forFriendship(
+                persistedUser(1L),
+                persistedUser(2L),
+                NotificationType.FRIEND_REQUEST_RECEIVED,
+                friendship);
 
         assertEquals(FriendshipStatus.PENDING, notification.getFriendshipStatus());
     }
@@ -97,7 +114,11 @@ class UserNotificationTest {
 
         when(friendship.getStatus()).thenReturn(FriendshipStatus.PENDING);
 
-        UserNotification notification = UserNotification.forFriendship(user(1L), user(2L), NotificationType.FRIEND_REQUEST_RECEIVED, friendship);
+        UserNotification notification = UserNotification.forFriendship(
+                persistedUser(1L),
+                persistedUser(2L),
+                NotificationType.FRIEND_REQUEST_RECEIVED,
+                friendship);
 
         notification.resolveFriendship(FriendshipStatus.DECLINED, READ_TIME);
 
@@ -112,7 +133,11 @@ class UserNotificationTest {
 
         when(friendship.getStatus()).thenReturn(FriendshipStatus.DECLINED);
 
-        UserNotification notification = UserNotification.forFriendship(user(1L), user(2L), NotificationType.FRIEND_REQUEST_DECLINED, friendship);
+        UserNotification notification = UserNotification.forFriendship(
+                persistedUser(1L),
+                persistedUser(2L),
+                NotificationType.FRIEND_REQUEST_DECLINED,
+                friendship);
 
         notification.detachFriendship();
 
@@ -126,14 +151,13 @@ class UserNotificationTest {
 
         when(friendship.getStatus()).thenReturn(FriendshipStatus.PENDING);
 
-        UserNotification notification = UserNotification.forFriendship(user(1L), user(2L), NotificationType.FRIEND_REQUEST_RECEIVED, friendship);
+        UserNotification notification = UserNotification.forFriendship(
+                persistedUser(1L),
+                persistedUser(2L),
+                NotificationType.FRIEND_REQUEST_RECEIVED,
+                friendship);
 
         assertThrows(IllegalArgumentException.class, () -> notification.resolveFriendship(FriendshipStatus.PENDING, READ_TIME));
     }
 
-    private AppUser user(Long id) {
-        AppUser user = mock(AppUser.class);
-        when(user.getId()).thenReturn(id);
-        return user;
-    }
 }

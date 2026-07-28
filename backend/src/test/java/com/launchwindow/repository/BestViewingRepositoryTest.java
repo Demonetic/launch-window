@@ -1,7 +1,6 @@
 package com.launchwindow.repository;
 
 import com.launchwindow.model.Launch;
-import com.launchwindow.model.LaunchDetails;
 import com.launchwindow.model.LaunchStatus;
 import com.launchwindow.model.WeatherDetails;
 import com.launchwindow.model.WeatherSnapshot;
@@ -16,6 +15,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+import static com.launchwindow.testsupport.LaunchTestData.launchWithLocation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -94,25 +94,16 @@ class BestViewingRepositoryTest {
     }
 
     private Launch saveLaunch(String externalId, String name, Instant launchTime) {
-        LaunchDetails details = new LaunchDetails(
+        return launchRepository.save(launchWithLocation(
                 externalId,
                 name,
-                null,
                 LaunchStatus.GO,
                 launchTime,
                 null,
                 null,
-                "Test Rocket",
-                null,
-                "Test Organization",
-                "Test Pad",
-                "Test Location",
                 new BigDecimal("28.500000"),
-                new BigDecimal("-80.600000"),
-                CURRENT_TIME.minus(1, ChronoUnit.DAYS)
-        );
-
-        return launchRepository.save(new Launch(details));
+                new BigDecimal("-80.600000")
+        ));
     }
 
     private void saveWeather(Launch launch, short viewingScore) {
