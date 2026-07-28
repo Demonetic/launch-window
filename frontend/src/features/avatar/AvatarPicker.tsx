@@ -4,7 +4,7 @@ import {
 } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { useUpdateAvatar } from '../account/useUpdateAvatar'
-import type { AvatarKey } from '../auth/types'
+import type { AvatarKey } from '../auth/model/types'
 import {
     avatarColors,
     avatarOptions,

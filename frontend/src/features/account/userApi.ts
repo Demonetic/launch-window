@@ -2,7 +2,7 @@ import { apiRequest } from '../../lib/api'
 import type {
     UpdateAvatarRequest,
     User,
-} from '../auth/types'
+} from '../auth/model/types'
 
 export interface UserStatistics {
     savedLaunches: number

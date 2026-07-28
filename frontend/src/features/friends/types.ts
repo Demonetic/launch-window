@@ -1,4 +1,4 @@
-import type { AvatarKey } from '../auth/types'
+import type { AvatarKey } from '../auth/model/types'
 
 export type FriendshipStatus =
     | 'PENDING'

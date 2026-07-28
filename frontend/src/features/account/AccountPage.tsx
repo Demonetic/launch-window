@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 import { AvatarPicker } from '../avatar/AvatarPicker'
 import { UserAvatar } from '../avatar/UserAvatar'
-import { useAuth } from '../auth/useAuth'
+import { useAuth } from '../auth/session/useAuth'
 import { AccountDeletionPanel } from './AccountDeletionPanel'
 import { useCurrentUser } from './useCurrentUser'
 import { useUserStatistics } from './useUserStatistics'

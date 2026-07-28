@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import type { AvatarKey } from '../auth/types'
+import type { AvatarKey } from '../auth/model/types'
 import { getAvatarOption } from './avatarOptions'
 import './avatar.css'
 

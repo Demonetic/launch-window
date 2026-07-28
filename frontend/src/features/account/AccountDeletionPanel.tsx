@@ -9,7 +9,7 @@ import {
     useState,
 } from 'react'
 import { useDeleteAccount } from './useDeleteAccount'
-import { PasswordInput } from '../auth/PasswordInput'
+import { PasswordInput } from '../auth/components/PasswordInput'
 import './accountDeletion.css'
 
 export function AccountDeletionPanel() {

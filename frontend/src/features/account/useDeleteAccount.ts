@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
-import { useAuth } from '../auth/useAuth'
+import { useAuth } from '../auth/session/useAuth'
 import { deleteAccount } from './userApi'
 
 export function useDeleteAccount() {

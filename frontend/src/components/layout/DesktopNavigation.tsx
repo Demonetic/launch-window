@@ -8,7 +8,7 @@ import {
     NavLink,
 } from 'react-router'
 import { UserAvatar } from '../../features/avatar/UserAvatar'
-import { useAuth } from '../../features/auth/useAuth'
+import { useAuth } from '../../features/auth/session/useAuth'
 import { useUnreadNotificationCount } from '../../features/notifications/useUnreadNotificationCount'
 import { navigationItems } from './navigationItems'
 

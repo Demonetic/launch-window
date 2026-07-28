@@ -9,8 +9,8 @@ import {
 import {
     acceptCalendarInvitation,
     declineCalendarInvitation,
-} from '../calendar/calendarApi'
-import { useAuth } from '../auth/useAuth'
+} from '../calendar/api/calendarApi'
+import { useAuth } from '../auth/session/useAuth'
 import {
     acceptFriendRequest,
     declineFriendRequest,

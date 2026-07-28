@@ -6,7 +6,7 @@ import planet from '../../assets/avatars/planet.png'
 import rocket from '../../assets/avatars/rocket.png'
 import satellite from '../../assets/avatars/satellite.png'
 import telescope from '../../assets/avatars/telescope.png'
-import type { AvatarKey } from '../auth/types'
+import type { AvatarKey } from '../auth/model/types'
 
 export interface AvatarOption {
     key: AvatarKey

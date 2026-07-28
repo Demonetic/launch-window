@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useAuth } from '../auth/useAuth'
-import type { UpdateAvatarRequest } from '../auth/types'
+import { useAuth } from '../auth/session/useAuth'
+import type { UpdateAvatarRequest } from '../auth/model/types'
 import { updateAvatar } from './userApi'
 
 export function useUpdateAvatar() {

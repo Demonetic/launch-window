@@ -1,0 +1,46 @@
+import type { AvatarKey } from '../../auth/model/types'
+
+export type NoteScope = 'ALL' | 'MINE' | 'FRIENDS'
+
+export interface LaunchNote {
+    id: number
+    launchId: number
+    authorId: number
+    authorUsername: string
+    authorAvatarKey: AvatarKey
+    authorAvatarColor: string
+    content: string
+    createdAt: string
+    updatedAt: string
+}
+
+export interface NoteOverview {
+    id: number
+    launchId: number
+    launchName: string
+    launchTime: string
+    organizationName: string | null
+    imageUrl: string | null
+    authorId: number
+    authorUsername: string
+    authorAvatarKey: AvatarKey
+    authorAvatarColor: string
+    content: string
+    createdAt: string
+    updatedAt: string
+}
+
+export interface NoteCursor {
+    beforeUpdatedAt: string
+    beforeId: number
+}
+
+export interface NotePage {
+    items: NoteOverview[]
+    nextCursor: NoteCursor | null
+    hasNext: boolean
+}
+
+export interface NoteRequest {
+    content: string
+}

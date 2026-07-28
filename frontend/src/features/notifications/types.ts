@@ -1,5 +1,5 @@
-import type { AvatarKey } from '../auth/types'
-import type { CalendarInvitationStatus } from '../calendar/types'
+import type { AvatarKey } from '../auth/model/types'
+import type { CalendarInvitationStatus } from '../calendar/model/types'
 import type { FriendshipStatus } from '../friends/types'
 
 export type NotificationType =

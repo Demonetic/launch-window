@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useAuth } from '../auth/useAuth'
+import { useAuth } from '../auth/session/useAuth'
 import { getUserStatistics } from './userApi'
 
 export function useUserStatistics() {
