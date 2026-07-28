@@ -1,6 +1,6 @@
 package com.launchwindow.service.calendar;
 
-import com.launchwindow.dto.CalendarParticipantResponse;
+import com.launchwindow.dto.calendar.CalendarParticipantResponse;
 import com.launchwindow.model.*;
 import com.launchwindow.repository.CalendarInvitationRepository;
 import org.junit.jupiter.api.Test;

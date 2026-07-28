@@ -1,6 +1,7 @@
 package com.launchwindow.controller;
 
-import com.launchwindow.dto.*;
+import com.launchwindow.dto.launch.*;
+import com.launchwindow.dto.weather.WeatherResponse;
 import com.launchwindow.exception.ResourceNotFoundException;
 import com.launchwindow.model.LaunchStatus;
 import com.launchwindow.service.launch.BestViewingQueryService;

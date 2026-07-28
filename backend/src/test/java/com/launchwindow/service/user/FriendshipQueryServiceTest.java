@@ -1,6 +1,6 @@
 package com.launchwindow.service.user;
 
-import com.launchwindow.dto.FriendshipResponse;
+import com.launchwindow.dto.friendship.FriendshipResponse;
 import com.launchwindow.model.AppUser;
 import com.launchwindow.model.AvatarKey;
 import com.launchwindow.model.Friendship;

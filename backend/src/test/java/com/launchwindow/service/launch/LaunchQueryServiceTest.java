@@ -1,6 +1,6 @@
 package com.launchwindow.service.launch;
 
-import com.launchwindow.dto.LaunchDetailResponse;
+import com.launchwindow.dto.launch.LaunchDetailResponse;
 import com.launchwindow.model.Launch;
 import com.launchwindow.repository.LaunchRepository;
 import com.launchwindow.service.weather.WeatherSummaryQueryService;

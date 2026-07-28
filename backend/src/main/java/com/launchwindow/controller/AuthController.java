@@ -1,6 +1,7 @@
 package com.launchwindow.controller;
 
-import com.launchwindow.dto.*;
+import com.launchwindow.dto.auth.*;
+import com.launchwindow.dto.user.UserResponse;
 import com.launchwindow.service.auth.LoginService;
 import com.launchwindow.service.auth.PasswordResetService;
 import com.launchwindow.service.auth.RegistrationService;

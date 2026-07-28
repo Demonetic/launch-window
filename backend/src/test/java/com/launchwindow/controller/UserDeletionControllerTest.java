@@ -1,7 +1,7 @@
 package com.launchwindow.controller;
 
 import com.launchwindow.config.SecurityConfiguration;
-import com.launchwindow.dto.DeleteAccountRequest;
+import com.launchwindow.dto.user.DeleteAccountRequest;
 import com.launchwindow.exception.InvalidCredentialsException;
 import com.launchwindow.service.user.UserAvatarService;
 import com.launchwindow.service.user.UserDeletionService;

@@ -1,7 +1,7 @@
 package com.launchwindow.service.user;
 
-import com.launchwindow.dto.UpdateAvatarRequest;
-import com.launchwindow.dto.UserResponse;
+import com.launchwindow.dto.user.UpdateAvatarRequest;
+import com.launchwindow.dto.user.UserResponse;
 import com.launchwindow.exception.ResourceNotFoundException;
 import com.launchwindow.model.AppUser;
 import com.launchwindow.repository.AppUserRepository;

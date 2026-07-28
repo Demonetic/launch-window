@@ -1,6 +1,6 @@
 package com.launchwindow.service.auth;
 
-import com.launchwindow.config.JwtProperties;
+import com.launchwindow.config.properties.JwtProperties;
 import com.launchwindow.model.AppUser;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.*;

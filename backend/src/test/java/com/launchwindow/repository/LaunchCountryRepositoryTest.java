@@ -1,6 +1,6 @@
 package com.launchwindow.repository;
 
-import com.launchwindow.dto.CountryResponse;
+import com.launchwindow.dto.launch.CountryResponse;
 import com.launchwindow.model.Launch;
 import com.launchwindow.model.LaunchDetails;
 import com.launchwindow.model.LaunchStatus;

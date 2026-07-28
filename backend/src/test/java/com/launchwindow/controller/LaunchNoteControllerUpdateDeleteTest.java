@@ -1,7 +1,7 @@
 package com.launchwindow.controller;
 
 import com.launchwindow.config.SecurityConfiguration;
-import com.launchwindow.dto.LaunchNoteResponse;
+import com.launchwindow.dto.note.LaunchNoteResponse;
 import com.launchwindow.model.AvatarKey;
 import com.launchwindow.service.note.LaunchNoteCommandService;
 import com.launchwindow.service.note.LaunchNoteQueryService;

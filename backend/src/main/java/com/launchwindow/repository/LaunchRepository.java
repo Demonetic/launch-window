@@ -1,6 +1,6 @@
 package com.launchwindow.repository;
 
-import com.launchwindow.dto.CountryResponse;
+import com.launchwindow.dto.launch.CountryResponse;
 import com.launchwindow.model.Launch;
 import com.launchwindow.model.LaunchStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,7 +31,7 @@ public interface LaunchRepository extends JpaRepository<Launch, Long> {
     List<Launch> findBestViewingLaunches(@Param("now") Instant now, @Param("endTime") Instant endTime, Pageable pageable);
 
     @Query("""
-    SELECT DISTINCT new com.launchwindow.dto.CountryResponse(
+    SELECT DISTINCT new com.launchwindow.dto.launch.CountryResponse(
         launch.countryCode,
         launch.countryName
     )

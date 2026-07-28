@@ -1,9 +1,9 @@
 package com.launchwindow.controller;
 
 import com.launchwindow.config.SecurityConfiguration;
-import com.launchwindow.dto.LoginRequest;
-import com.launchwindow.dto.LoginResponse;
-import com.launchwindow.dto.UserResponse;
+import com.launchwindow.dto.auth.LoginRequest;
+import com.launchwindow.dto.auth.LoginResponse;
+import com.launchwindow.dto.user.UserResponse;
 import com.launchwindow.exception.GlobalExceptionHandler;
 import com.launchwindow.exception.InvalidCredentialsException;
 import com.launchwindow.model.AvatarKey;

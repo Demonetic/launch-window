@@ -1,6 +1,6 @@
 package com.launchwindow.service.weather;
 
-import com.launchwindow.dto.WeatherSummaryResponse;
+import com.launchwindow.dto.weather.WeatherSummaryResponse;
 import com.launchwindow.model.Launch;
 import com.launchwindow.model.ViewingCondition;
 import com.launchwindow.model.WeatherSnapshot;

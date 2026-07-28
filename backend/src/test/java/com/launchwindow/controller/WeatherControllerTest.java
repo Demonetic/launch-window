@@ -1,7 +1,7 @@
 package com.launchwindow.controller;
 
 import com.launchwindow.config.SecurityConfiguration;
-import com.launchwindow.dto.WeatherResponse;
+import com.launchwindow.dto.weather.WeatherResponse;
 import com.launchwindow.model.ViewingCondition;
 import com.launchwindow.service.launch.LaunchQueryService;
 import com.launchwindow.service.launch.BestViewingQueryService;

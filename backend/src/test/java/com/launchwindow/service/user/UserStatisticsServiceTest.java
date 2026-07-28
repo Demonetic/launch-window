@@ -1,6 +1,6 @@
 package com.launchwindow.service.user;
 
-import com.launchwindow.dto.UserStatisticsResponse;
+import com.launchwindow.dto.user.UserStatisticsResponse;
 import com.launchwindow.exception.ResourceNotFoundException;
 import com.launchwindow.model.AppUser;
 import com.launchwindow.model.FriendshipStatus;

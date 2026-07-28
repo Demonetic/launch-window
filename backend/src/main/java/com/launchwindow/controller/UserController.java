@@ -1,10 +1,10 @@
 package com.launchwindow.controller;
 
 import com.launchwindow.config.OpenApiConfiguration;
-import com.launchwindow.dto.DeleteAccountRequest;
-import com.launchwindow.dto.UpdateAvatarRequest;
-import com.launchwindow.dto.UserResponse;
-import com.launchwindow.dto.UserStatisticsResponse;
+import com.launchwindow.dto.user.DeleteAccountRequest;
+import com.launchwindow.dto.user.UpdateAvatarRequest;
+import com.launchwindow.dto.user.UserResponse;
+import com.launchwindow.dto.user.UserStatisticsResponse;
 import com.launchwindow.exception.ResourceNotFoundException;
 import com.launchwindow.service.user.UserAvatarService;
 import com.launchwindow.service.user.UserDeletionService;

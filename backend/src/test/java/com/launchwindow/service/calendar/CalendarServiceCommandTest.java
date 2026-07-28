@@ -1,7 +1,7 @@
 package com.launchwindow.service.calendar;
 
-import com.launchwindow.dto.CalendarEntryResponse;
-import com.launchwindow.dto.WeatherSummaryResponse;
+import com.launchwindow.dto.calendar.CalendarEntryResponse;
+import com.launchwindow.dto.weather.WeatherSummaryResponse;
 import com.launchwindow.model.AppUser;
 import com.launchwindow.model.CalendarEntry;
 import com.launchwindow.model.Launch;

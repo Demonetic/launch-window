@@ -1,5 +1,6 @@
 package com.launchwindow.config;
 
+import com.launchwindow.config.properties.CorsProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;

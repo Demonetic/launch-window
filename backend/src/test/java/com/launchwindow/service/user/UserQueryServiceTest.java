@@ -1,6 +1,6 @@
 package com.launchwindow.service.user;
 
-import com.launchwindow.dto.UserResponse;
+import com.launchwindow.dto.user.UserResponse;
 import com.launchwindow.model.AppUser;
 import com.launchwindow.model.AvatarKey;
 import com.launchwindow.model.Role;

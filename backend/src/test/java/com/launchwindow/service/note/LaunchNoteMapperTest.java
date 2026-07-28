@@ -1,7 +1,7 @@
 package com.launchwindow.service.note;
 
-import com.launchwindow.dto.LaunchNoteOverviewResponse;
-import com.launchwindow.dto.LaunchNoteResponse;
+import com.launchwindow.dto.note.LaunchNoteOverviewResponse;
+import com.launchwindow.dto.note.LaunchNoteResponse;
 import com.launchwindow.model.Launch;
 import com.launchwindow.model.LaunchNote;
 import org.junit.jupiter.api.Test;

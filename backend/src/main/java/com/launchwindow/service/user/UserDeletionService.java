@@ -1,6 +1,6 @@
 package com.launchwindow.service.user;
 
-import com.launchwindow.dto.DeleteAccountRequest;
+import com.launchwindow.dto.user.DeleteAccountRequest;
 import com.launchwindow.exception.InvalidCredentialsException;
 import com.launchwindow.exception.ResourceNotFoundException;
 import com.launchwindow.model.AppUser;

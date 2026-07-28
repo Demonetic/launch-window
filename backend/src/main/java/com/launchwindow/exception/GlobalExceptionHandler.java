@@ -1,7 +1,7 @@
 package com.launchwindow.exception;
 
-import com.launchwindow.dto.ApiErrorCode;
-import com.launchwindow.dto.ApiErrorResponse;
+import com.launchwindow.dto.error.ApiErrorCode;
+import com.launchwindow.dto.error.ApiErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

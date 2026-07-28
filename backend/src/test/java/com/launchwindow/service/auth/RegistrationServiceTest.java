@@ -1,7 +1,7 @@
 package com.launchwindow.service.auth;
 
-import com.launchwindow.dto.RegisterRequest;
-import com.launchwindow.dto.UserResponse;
+import com.launchwindow.dto.auth.RegisterRequest;
+import com.launchwindow.dto.user.UserResponse;
 import com.launchwindow.exception.UserAlreadyExistsException;
 import com.launchwindow.model.AppUser;
 import com.launchwindow.model.Role;

@@ -1,8 +1,8 @@
 package com.launchwindow.controller;
 
 import com.launchwindow.config.SecurityConfiguration;
-import com.launchwindow.dto.CreateFriendRequest;
-import com.launchwindow.dto.FriendshipResponse;
+import com.launchwindow.dto.friendship.CreateFriendRequest;
+import com.launchwindow.dto.friendship.FriendshipResponse;
 import com.launchwindow.model.AvatarKey;
 import com.launchwindow.model.FriendshipStatus;
 import com.launchwindow.service.user.FriendshipService;

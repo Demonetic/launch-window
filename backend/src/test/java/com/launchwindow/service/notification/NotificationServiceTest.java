@@ -1,7 +1,7 @@
 package com.launchwindow.service.notification;
 
-import com.launchwindow.dto.NotificationResponse;
-import com.launchwindow.dto.UnreadNotificationCountResponse;
+import com.launchwindow.dto.notification.NotificationResponse;
+import com.launchwindow.dto.notification.UnreadNotificationCountResponse;
 import com.launchwindow.exception.ResourceNotFoundException;
 import com.launchwindow.model.*;
 import com.launchwindow.repository.AppUserRepository;

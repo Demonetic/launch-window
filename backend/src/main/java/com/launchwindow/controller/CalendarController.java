@@ -1,9 +1,9 @@
 package com.launchwindow.controller;
 
 import com.launchwindow.config.OpenApiConfiguration;
-import com.launchwindow.dto.CalendarEntryResponse;
-import com.launchwindow.dto.CalendarPageResponse;
-import com.launchwindow.dto.SavedLaunchIdsResponse;
+import com.launchwindow.dto.calendar.CalendarEntryResponse;
+import com.launchwindow.dto.calendar.CalendarPageResponse;
+import com.launchwindow.dto.calendar.SavedLaunchIdsResponse;
 import com.launchwindow.exception.InvalidPaginationException;
 import com.launchwindow.exception.ResourceNotFoundException;
 import com.launchwindow.service.calendar.CalendarService;

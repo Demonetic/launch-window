@@ -1,6 +1,6 @@
 package com.launchwindow.service.calendar;
 
-import com.launchwindow.dto.CalendarParticipantResponse;
+import com.launchwindow.dto.calendar.CalendarParticipantResponse;
 import com.launchwindow.model.AppUser;
 import com.launchwindow.model.CalendarInvitation;
 import com.launchwindow.model.CalendarInvitationStatus;

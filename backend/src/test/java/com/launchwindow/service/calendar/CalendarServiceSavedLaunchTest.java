@@ -1,6 +1,6 @@
 package com.launchwindow.service.calendar;
 
-import com.launchwindow.dto.SavedLaunchIdsResponse;
+import com.launchwindow.dto.calendar.SavedLaunchIdsResponse;
 import com.launchwindow.exception.InvalidPaginationException;
 import com.launchwindow.model.AppUser;
 import com.launchwindow.repository.AppUserRepository;

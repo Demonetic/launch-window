@@ -1,6 +1,6 @@
 package com.launchwindow.service.auth;
 
-import com.launchwindow.config.PasswordResetProperties;
+import com.launchwindow.config.properties.PasswordResetProperties;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.mail.SimpleMailMessage;

@@ -1,8 +1,8 @@
 package com.launchwindow.controller;
 
 import com.launchwindow.config.SecurityConfiguration;
-import com.launchwindow.dto.NotificationResponse;
-import com.launchwindow.dto.UnreadNotificationCountResponse;
+import com.launchwindow.dto.notification.NotificationResponse;
+import com.launchwindow.dto.notification.UnreadNotificationCountResponse;
 import com.launchwindow.model.*;
 import com.launchwindow.service.notification.NotificationService;
 import org.junit.jupiter.api.Test;

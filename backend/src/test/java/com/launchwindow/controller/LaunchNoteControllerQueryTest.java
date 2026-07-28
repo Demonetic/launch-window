@@ -1,9 +1,9 @@
 package com.launchwindow.controller;
 
 import com.launchwindow.config.SecurityConfiguration;
-import com.launchwindow.dto.LaunchNoteCursor;
-import com.launchwindow.dto.LaunchNotePageResponse;
-import com.launchwindow.dto.NoteScope;
+import com.launchwindow.dto.note.LaunchNoteCursor;
+import com.launchwindow.dto.note.LaunchNotePageResponse;
+import com.launchwindow.dto.note.NoteScope;
 import com.launchwindow.service.note.LaunchNoteCommandService;
 import com.launchwindow.service.note.LaunchNoteQueryService;
 import org.junit.jupiter.api.Test;

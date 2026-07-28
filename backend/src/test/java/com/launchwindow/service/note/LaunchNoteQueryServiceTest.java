@@ -1,9 +1,9 @@
 package com.launchwindow.service.note;
 
-import com.launchwindow.dto.LaunchNoteOverviewResponse;
-import com.launchwindow.dto.LaunchNotePageResponse;
-import com.launchwindow.dto.LaunchNoteResponse;
-import com.launchwindow.dto.NoteScope;
+import com.launchwindow.dto.note.LaunchNoteOverviewResponse;
+import com.launchwindow.dto.note.LaunchNotePageResponse;
+import com.launchwindow.dto.note.LaunchNoteResponse;
+import com.launchwindow.dto.note.NoteScope;
 import com.launchwindow.exception.InvalidPaginationException;
 import com.launchwindow.model.AppUser;
 import com.launchwindow.model.CalendarInvitationStatus;

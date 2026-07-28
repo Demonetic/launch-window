@@ -1,5 +1,6 @@
 package com.launchwindow.config;
 
+import com.launchwindow.config.properties.JwtProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;

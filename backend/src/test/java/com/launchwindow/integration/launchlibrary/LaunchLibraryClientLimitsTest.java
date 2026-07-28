@@ -1,6 +1,6 @@
 package com.launchwindow.integration.launchlibrary;
 
-import com.launchwindow.config.LaunchLibraryProperties;
+import com.launchwindow.config.properties.LaunchLibraryProperties;
 import com.launchwindow.integration.launchlibrary.dto.LaunchLibraryLaunchDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

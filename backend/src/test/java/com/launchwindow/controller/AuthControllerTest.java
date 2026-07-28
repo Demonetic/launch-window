@@ -1,8 +1,8 @@
 package com.launchwindow.controller;
 
 import com.launchwindow.config.SecurityConfiguration;
-import com.launchwindow.dto.RegisterRequest;
-import com.launchwindow.dto.UserResponse;
+import com.launchwindow.dto.auth.RegisterRequest;
+import com.launchwindow.dto.user.UserResponse;
 import com.launchwindow.exception.GlobalExceptionHandler;
 import com.launchwindow.exception.UserAlreadyExistsException;
 import com.launchwindow.model.AvatarKey;

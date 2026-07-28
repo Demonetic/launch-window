@@ -1,6 +1,7 @@
 package com.launchwindow.service.calendar;
 
-import com.launchwindow.dto.*;
+import com.launchwindow.dto.calendar.*;
+import com.launchwindow.dto.weather.WeatherSummaryResponse;
 import com.launchwindow.exception.InvalidPaginationException;
 import com.launchwindow.model.AppUser;
 import com.launchwindow.model.CalendarEntry;

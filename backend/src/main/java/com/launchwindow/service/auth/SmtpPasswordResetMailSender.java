@@ -1,6 +1,6 @@
 package com.launchwindow.service.auth;
 
-import com.launchwindow.config.PasswordResetProperties;
+import com.launchwindow.config.properties.PasswordResetProperties;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;

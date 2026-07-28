@@ -1,7 +1,7 @@
 package com.launchwindow.service.auth;
 
 import com.launchwindow.config.JwtConfiguration;
-import com.launchwindow.config.JwtProperties;
+import com.launchwindow.config.properties.JwtProperties;
 import com.launchwindow.model.AppUser;
 import com.launchwindow.model.Role;
 import org.junit.jupiter.api.Test;

@@ -1,7 +1,7 @@
 package com.launchwindow.service.calendar;
 
-import com.launchwindow.dto.CalendarInvitationResponse;
-import com.launchwindow.dto.CreateCalendarInvitationRequest;
+import com.launchwindow.dto.calendar.CalendarInvitationResponse;
+import com.launchwindow.dto.calendar.CreateCalendarInvitationRequest;
 import com.launchwindow.exception.InvalidCalendarInvitationException;
 import com.launchwindow.exception.ResourceNotFoundException;
 import com.launchwindow.model.*;

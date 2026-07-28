@@ -1,8 +1,8 @@
 package com.launchwindow.controller;
 
 import com.launchwindow.config.OpenApiConfiguration;
-import com.launchwindow.dto.NotificationResponse;
-import com.launchwindow.dto.UnreadNotificationCountResponse;
+import com.launchwindow.dto.notification.NotificationResponse;
+import com.launchwindow.dto.notification.UnreadNotificationCountResponse;
 import com.launchwindow.service.notification.NotificationService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.HttpStatus;

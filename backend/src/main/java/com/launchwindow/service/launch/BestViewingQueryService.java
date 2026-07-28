@@ -1,7 +1,7 @@
 package com.launchwindow.service.launch;
 
-import com.launchwindow.dto.LaunchSummaryResponse;
-import com.launchwindow.dto.WeatherSummaryResponse;
+import com.launchwindow.dto.launch.LaunchSummaryResponse;
+import com.launchwindow.dto.weather.WeatherSummaryResponse;
 import com.launchwindow.exception.InvalidPaginationException;
 import com.launchwindow.model.Launch;
 import com.launchwindow.repository.LaunchRepository;

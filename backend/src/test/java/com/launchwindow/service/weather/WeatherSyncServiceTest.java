@@ -1,6 +1,6 @@
 package com.launchwindow.service.weather;
 
-import com.launchwindow.config.OpenMeteoProperties;
+import com.launchwindow.config.properties.OpenMeteoProperties;
 import com.launchwindow.exception.WeatherProviderException;
 import com.launchwindow.integration.openmeteo.OpenMeteoClient;
 import com.launchwindow.integration.openmeteo.WeatherForecastMapper;

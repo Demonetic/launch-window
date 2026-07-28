@@ -1,6 +1,6 @@
 package com.launchwindow.service.user;
 
-import com.launchwindow.dto.FriendshipResponse;
+import com.launchwindow.dto.friendship.FriendshipResponse;
 import com.launchwindow.exception.InvalidFriendshipException;
 import com.launchwindow.exception.ResourceNotFoundException;
 import com.launchwindow.model.AppUser;

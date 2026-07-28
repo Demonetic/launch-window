@@ -1,7 +1,7 @@
 package com.launchwindow.service.calendar;
 
-import com.launchwindow.dto.CalendarEntryResponse;
-import com.launchwindow.dto.CalendarPageResponse;
+import com.launchwindow.dto.calendar.CalendarEntryResponse;
+import com.launchwindow.dto.calendar.CalendarPageResponse;
 import com.launchwindow.exception.InvalidPaginationException;
 import com.launchwindow.model.AppUser;
 import com.launchwindow.model.CalendarEntry;

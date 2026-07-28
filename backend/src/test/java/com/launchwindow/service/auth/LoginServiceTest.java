@@ -1,8 +1,8 @@
 package com.launchwindow.service.auth;
 
-import com.launchwindow.config.JwtProperties;
-import com.launchwindow.dto.LoginRequest;
-import com.launchwindow.dto.LoginResponse;
+import com.launchwindow.config.properties.JwtProperties;
+import com.launchwindow.dto.auth.LoginRequest;
+import com.launchwindow.dto.auth.LoginResponse;
 import com.launchwindow.exception.InvalidCredentialsException;
 import com.launchwindow.model.AppUser;
 import com.launchwindow.model.Role;

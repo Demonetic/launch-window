@@ -1,8 +1,8 @@
 package com.launchwindow.controller;
 
 import com.launchwindow.config.SecurityConfiguration;
-import com.launchwindow.dto.UserResponse;
-import com.launchwindow.dto.UserStatisticsResponse;
+import com.launchwindow.dto.user.UserResponse;
+import com.launchwindow.dto.user.UserStatisticsResponse;
 import com.launchwindow.model.AvatarKey;
 import com.launchwindow.model.Role;
 import com.launchwindow.service.user.UserAvatarService;

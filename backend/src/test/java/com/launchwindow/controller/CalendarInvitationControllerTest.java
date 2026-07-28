@@ -1,8 +1,8 @@
 package com.launchwindow.controller;
 
 import com.launchwindow.config.SecurityConfiguration;
-import com.launchwindow.dto.CalendarInvitationResponse;
-import com.launchwindow.dto.CreateCalendarInvitationRequest;
+import com.launchwindow.dto.calendar.CalendarInvitationResponse;
+import com.launchwindow.dto.calendar.CreateCalendarInvitationRequest;
 import com.launchwindow.model.AvatarKey;
 import com.launchwindow.model.CalendarInvitationStatus;
 import com.launchwindow.service.calendar.CalendarInvitationService;

@@ -1,7 +1,7 @@
 package com.launchwindow.controller;
 
 import com.launchwindow.config.SecurityConfiguration;
-import com.launchwindow.dto.LaunchDetailResponse;
+import com.launchwindow.dto.launch.LaunchDetailResponse;
 import com.launchwindow.model.LaunchStatus;
 import com.launchwindow.service.launch.LaunchQueryService;
 import com.launchwindow.service.launch.BestViewingQueryService;

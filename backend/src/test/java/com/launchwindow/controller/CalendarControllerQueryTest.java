@@ -1,8 +1,8 @@
 package com.launchwindow.controller;
 
 import com.launchwindow.config.SecurityConfiguration;
-import com.launchwindow.dto.CalendarPageResponse;
-import com.launchwindow.dto.SavedLaunchIdsResponse;
+import com.launchwindow.dto.calendar.CalendarPageResponse;
+import com.launchwindow.dto.calendar.SavedLaunchIdsResponse;
 import com.launchwindow.service.calendar.CalendarService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

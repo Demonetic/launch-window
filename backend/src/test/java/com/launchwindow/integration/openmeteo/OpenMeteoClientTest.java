@@ -1,6 +1,6 @@
 package com.launchwindow.integration.openmeteo;
 
-import com.launchwindow.config.OpenMeteoProperties;
+import com.launchwindow.config.properties.OpenMeteoProperties;
 import com.launchwindow.exception.WeatherProviderException;
 import com.launchwindow.integration.openmeteo.dto.OpenMeteoResponse;
 import org.junit.jupiter.api.Test;

@@ -1,9 +1,9 @@
 package com.launchwindow.service.calendar;
 
-import com.launchwindow.dto.CalendarEntryResponse;
-import com.launchwindow.dto.CalendarParticipantResponse;
-import com.launchwindow.dto.LaunchSummaryResponse;
-import com.launchwindow.dto.WeatherSummaryResponse;
+import com.launchwindow.dto.calendar.CalendarEntryResponse;
+import com.launchwindow.dto.calendar.CalendarParticipantResponse;
+import com.launchwindow.dto.launch.LaunchSummaryResponse;
+import com.launchwindow.dto.weather.WeatherSummaryResponse;
 import com.launchwindow.model.CalendarEntry;
 import com.launchwindow.model.Launch;
 import org.springframework.stereotype.Component;

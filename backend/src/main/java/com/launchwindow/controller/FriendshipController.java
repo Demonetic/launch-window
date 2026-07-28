@@ -1,8 +1,8 @@
 package com.launchwindow.controller;
 
 import com.launchwindow.config.OpenApiConfiguration;
-import com.launchwindow.dto.CreateFriendRequest;
-import com.launchwindow.dto.FriendshipResponse;
+import com.launchwindow.dto.friendship.CreateFriendRequest;
+import com.launchwindow.dto.friendship.FriendshipResponse;
 import com.launchwindow.service.user.FriendshipService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;

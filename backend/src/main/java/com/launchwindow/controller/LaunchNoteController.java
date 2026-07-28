@@ -1,9 +1,9 @@
 package com.launchwindow.controller;
 
 import com.launchwindow.config.OpenApiConfiguration;
-import com.launchwindow.dto.LaunchNoteRequest;
-import com.launchwindow.dto.LaunchNoteResponse;
-import com.launchwindow.dto.NoteScope;
+import com.launchwindow.dto.note.LaunchNoteRequest;
+import com.launchwindow.dto.note.LaunchNoteResponse;
+import com.launchwindow.dto.note.NoteScope;
 import com.launchwindow.exception.ResourceNotFoundException;
 import com.launchwindow.service.note.LaunchNoteCommandService;
 import com.launchwindow.service.note.LaunchNoteQueryService;
@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
-import com.launchwindow.dto.LaunchNotePageResponse;
+import com.launchwindow.dto.note.LaunchNotePageResponse;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.Instant;

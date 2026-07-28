@@ -1,8 +1,8 @@
 package com.launchwindow.controller;
 
 import com.launchwindow.config.SecurityConfiguration;
-import com.launchwindow.dto.ForgotPasswordRequest;
-import com.launchwindow.dto.ResetPasswordRequest;
+import com.launchwindow.dto.auth.ForgotPasswordRequest;
+import com.launchwindow.dto.auth.ResetPasswordRequest;
 import com.launchwindow.exception.InvalidPasswordResetTokenException;
 import com.launchwindow.service.auth.LoginService;
 import com.launchwindow.service.auth.PasswordResetService;

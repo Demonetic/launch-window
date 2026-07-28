@@ -1,8 +1,8 @@
 package com.launchwindow.config;
 
 import tools.jackson.databind.ObjectMapper;
-import com.launchwindow.dto.ApiErrorCode;
-import com.launchwindow.dto.ApiErrorResponse;
+import com.launchwindow.dto.error.ApiErrorCode;
+import com.launchwindow.dto.error.ApiErrorResponse;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

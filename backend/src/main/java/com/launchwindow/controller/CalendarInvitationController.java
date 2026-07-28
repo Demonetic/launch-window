@@ -1,8 +1,8 @@
 package com.launchwindow.controller;
 
 import com.launchwindow.config.OpenApiConfiguration;
-import com.launchwindow.dto.CalendarInvitationResponse;
-import com.launchwindow.dto.CreateCalendarInvitationRequest;
+import com.launchwindow.dto.calendar.CalendarInvitationResponse;
+import com.launchwindow.dto.calendar.CreateCalendarInvitationRequest;
 import com.launchwindow.service.calendar.CalendarInvitationService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
