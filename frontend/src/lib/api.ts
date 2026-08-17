@@ -28,7 +28,7 @@ interface ApiRequestOptions extends RequestInit {
 }
 
 const apiBaseUrl = (
-    import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080'
+    import.meta.env.VITE_API_BASE_URL ?? ''
 ).replace(/\/$/, '')
 
 export async function apiRequest<T>(

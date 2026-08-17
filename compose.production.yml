@@ -1,0 +1,116 @@
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+
+    volumes:
+      - launch-window-mysql-data:/var/lib/mysql
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD}"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  backend:
+    build:
+      context: ./backend
+
+    image: launch-window-backend:latest
+    restart: unless-stopped
+
+    environment:
+      SPRING_PROFILES_ACTIVE: production
+
+      DB_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USERNAME: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_ISSUER: launch-window
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-PT2H}
+
+      CORS_ALLOWED_ORIGINS: ${PUBLIC_URL}
+
+      HTTP_CLIENT_CONNECT_TIMEOUT: ${HTTP_CLIENT_CONNECT_TIMEOUT:-3s}
+      HTTP_CLIENT_READ_TIMEOUT: ${HTTP_CLIENT_READ_TIMEOUT:-10s}
+
+      LAUNCH_LIBRARY_BASE_URL: ${LAUNCH_LIBRARY_BASE_URL:-https://ll.thespacedevs.com/2.3.0}
+      LAUNCH_LIBRARY_PAGE_SIZE: 100
+      LAUNCH_LIBRARY_MAX_PAGES: 3
+      LAUNCH_LIBRARY_MAX_LAUNCHES: 200
+      LAUNCH_SYNC_ENABLED: ${LAUNCH_SYNC_ENABLED:-true}
+      LAUNCH_SYNC_INTERVAL: PT1H
+      LAUNCH_SYNC_INITIAL_DELAY: PT10S
+
+      OPEN_METEO_BASE_URL: https://api.open-meteo.com/v1
+      OPEN_METEO_FORECAST_DAYS: 16
+      WEATHER_SYNC_ENABLED: ${WEATHER_SYNC_ENABLED:-true}
+      WEATHER_SYNC_INTERVAL: PT3H
+      WEATHER_SYNC_INITIAL_DELAY: PT30S
+
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      MAIL_SMTP_AUTH: ${MAIL_SMTP_AUTH:-true}
+      MAIL_SMTP_STARTTLS: ${MAIL_SMTP_STARTTLS:-true}
+      MAIL_FROM: ${MAIL_FROM}
+
+      PASSWORD_RESET_FRONTEND_URL: ${PUBLIC_URL}
+      PASSWORD_RESET_EXPIRATION: ${PASSWORD_RESET_EXPIRATION:-PT30M}
+      PASSWORD_RESET_REQUEST_COOLDOWN: ${PASSWORD_RESET_REQUEST_COOLDOWN:-PT1M}
+
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --quiet --spider http://127.0.0.1:8080/actuator/health || exit 1"
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 45s
+
+  frontend:
+    build:
+      context: ./frontend
+
+    image: launch-window-frontend:latest
+    restart: unless-stopped
+
+    ports:
+      - "127.0.0.1:${APP_PORT:-8080}:8080"
+
+    depends_on:
+      backend:
+        condition: service_healthy
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --quiet --spider http://127.0.0.1:8080/health || exit 1"
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  launch-window-mysql-data:
